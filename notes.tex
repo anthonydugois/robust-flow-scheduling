@@ -1,0 +1,121 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{etoolbox}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{booktabs}
+
+\usepackage{hyperref}
+\hypersetup{
+    citecolor=blue,
+    urlcolor=blue,
+    linkcolor=blue,
+    colorlinks=true
+}
+
+%%% Environment for comments.
+%%% Set the boolean to false to produce a comment-free version.
+\newtoggle{showcomments}
+\settoggle{showcomments}{true}
+\iftoggle{showcomments}{
+    \newcommand{\definecomment}[3]{%
+        \fbox{\bfseries\sffamily\scriptsize #1}%
+        ~{\small\textsf{\emph{\color{#3}{#2}}}}}
+}{
+    \newcommand{\definecomment}[3]{}
+}
+
+%%% One command per author.
+\newcommand{\ad}[1]{\definecomment{AD}{#1}{red}}
+\newcommand{\gl}[1]{\definecomment{GL}{#1}{blue}}
+
+\title{Notes on Robustness in Flow Time Scheduling for Two Classes of Jobs}
+
+\begin{document}
+
+\maketitle
+
+\section{Model}
+
+\subsection{Problem}
+
+\begin{itemize}
+    \item \(n\) jobs
+    \item \(m\) identical machines
+    \item release times \(r_j\)
+    \item processing times \(p_j\in\{1,L\}\) (small/large)
+    \item no preemption
+    \item non-clairvoyant
+    \item objective \(\sum F_j\)
+\end{itemize}
+
+\subsection{Oracle}
+
+We note \(n_S\) (resp.\ \(n_L\)) the number of small (resp.\ large) jobs. The oracle encodes the set
+of large jobs, i.e., we can query the oracle to know if a job is large or not. There is no cost for
+asking the oracle. However, the oracle is not always correct. We consider asymmetrical errors, that
+is, there is a probability \(p\) that the oracle is wrong when a job is small, and a probability
+\(q\) that the oracle is wrong when a job is large. The oracle is deterministic, i.e., it always
+gives the same answer for a given job. Put differently, there are \(\tilde{n}_S\) small jobs that
+the oracle believes to be large, and \(\tilde{n}_L\) large jobs that the oracle believes to be
+small.
+
+\section{Related Work}
+
+\section{Sum of Completion Times, No Release Times}
+
+\subsection{Single Machine \(1||\sum C_j\)}
+
+It is well-known that in the clairvoyant case, the optimal solution consists in scheduling small
+jobs first, i.e., the optimal objective value is
+\[
+    \sum C_j^*=\frac{1}{2}n_S(n_S+1)+n_Sn_L+\frac{1}{2}n_L(n_L+1)L.
+\]
+
+In the non-clairvoyant case (NC), we clearly cannot apply the same strategy. By taking a random
+permutation (uniformly), we can show that the expected value of the objective is
+\[
+    E(\sum C_j^{\mathrm{NC}})=\frac{1}{2}(n_S+n_L+1)(n_S+n_LL).
+\]
+
+Now let us consider the use of our semi-clairvoyant oracle (SC). If we try to apply the optimal
+clairvoyant strategy, we can easily derive the objective value of a worst-case schedule, which
+consists in scheduling the \(\tilde{n}_L\) large jobs that the oracle believes to be small first,
+then the \(n_S-\tilde{n}_S\) small jobs, then the \(n_L-\tilde{n}_L\) large jobs, and finally the
+\(\tilde{n}_S\) small jobs that the oracle believes to be large. Then, we have
+\begin{align*}
+    \sum C_j^{\mathrm{SC}}
+        &\le\frac{1}{2}\tilde{n}_L(\tilde{n}_L+1)L\\
+        &\qquad+(n_S-\tilde{n}_S)\tilde{n}_LL+\frac{1}{2}(n_S-\tilde{n}_S)(n_S-\tilde{n}_S+1)\\
+        &\qquad+(n_L-\tilde{n}_L)(n_S-\tilde{n}_S+\tilde{n}_LL)+\frac{1}{2}(n_L-\tilde{n}_L)(n_L-\tilde{n}_L+1)L\\
+        &\qquad+\tilde{n}_S(n_S-\tilde{n}_S+n_LL)+\frac{1}{2}\tilde{n}_S(\tilde{n}_S+1).
+\end{align*}
+
+We could try to avoid the worst-case by shuffling independently the \(n_S-\tilde{n}_S+\tilde{n}_L\)
+small jobs (as seen by the oracle) and the \(\tilde{n}_S+n_L-\tilde{n}_L\) large jobs (as seen by
+the oracle). This way, we get
+\begin{align*}
+    E(\sum C_j^{\mathrm{SC}})
+        &=\frac{1}{2}(n_S-\tilde{n}_S+\tilde{n}_L+1)(n_S-\tilde{n}_S+\tilde{n}_LL)\\
+        &\qquad+(\tilde{n}_S+n_L-\tilde{n}_L)(n_S-\tilde{n}_S+\tilde{n}_LL)\\
+        &\qquad+\frac{1}{2}(\tilde{n}_S+n_L-\tilde{n}_L+1)(\tilde{n}_S+n_LL-\tilde{n}_LL)
+\end{align*}
+
+\subsection{Identical Machines \(P||\sum C_j\)}
+
+\ad{TODO}
+
+\section{Sum of Completion Times, Release Times}
+
+\ad{TODO}
+
+\section{Sum of Flow Times, Release Times}
+
+\ad{TODO}
+
+\end{document}
