@@ -78,16 +78,16 @@ jobs first, i.e., the optimal objective value is
 \]
 
 In the non-clairvoyant case (NC), we clearly cannot apply the same strategy. By taking a random
-permutation (uniformly), we can show that the expected value of the objective is
+permutation (uniformly) on the jobs, we can show that the expected value of the objective is
 \[
     E(\sum C_j^{\mathrm{NC}})=\frac{1}{2}(n_S+n_L+1)(n_S+n_LL).
 \]
 
-Now let us consider the use of our semi-clairvoyant oracle (SC). If we try to apply the optimal
+Now let us consider our semi-clairvoyant oracle (SC). If we trust it and try to apply the optimal
 clairvoyant strategy, we can easily derive the objective value of a worst-case schedule, which
 consists in scheduling the \(\tilde{n}_L\) large jobs that the oracle believes to be small first,
 then the \(n_S-\tilde{n}_S\) small jobs, then the \(n_L-\tilde{n}_L\) large jobs, and finally the
-\(\tilde{n}_S\) small jobs that the oracle believes to be large. Then, we have
+\(\tilde{n}_S\) small jobs that the oracle believes to be large. Then, for any instance, we have
 \begin{align*}
     \sum C_j^{\mathrm{SC}}
         &\le\frac{1}{2}\tilde{n}_L(\tilde{n}_L+1)L\\
@@ -95,15 +95,76 @@ then the \(n_S-\tilde{n}_S\) small jobs, then the \(n_L-\tilde{n}_L\) large jobs
         &\qquad+(n_L-\tilde{n}_L)(n_S-\tilde{n}_S+\tilde{n}_LL)+\frac{1}{2}(n_L-\tilde{n}_L)(n_L-\tilde{n}_L+1)L\\
         &\qquad+\tilde{n}_S(n_S-\tilde{n}_S+n_LL)+\frac{1}{2}\tilde{n}_S(\tilde{n}_S+1).
 \end{align*}
-
-We could try to avoid the worst-case by shuffling independently the \(n_S-\tilde{n}_S+\tilde{n}_L\)
-small jobs (as seen by the oracle) and the \(\tilde{n}_S+n_L-\tilde{n}_L\) large jobs (as seen by
-the oracle). This way, we get
+This bound constitutes the general guarantee permitted by the oracle. By shuffling independently the
+\(n_S-\tilde{n}_S+\tilde{n}_L\) small jobs (as seen by the oracle) and the
+\(\tilde{n}_S+n_L-\tilde{n}_L\) large jobs (as seen by the oracle), we get
 \begin{align*}
     E(\sum C_j^{\mathrm{SC}})
         &=\frac{1}{2}(n_S-\tilde{n}_S+\tilde{n}_L+1)(n_S-\tilde{n}_S+\tilde{n}_LL)\\
         &\qquad+(\tilde{n}_S+n_L-\tilde{n}_L)(n_S-\tilde{n}_S+\tilde{n}_LL)\\
         &\qquad+\frac{1}{2}(\tilde{n}_S+n_L-\tilde{n}_L+1)(\tilde{n}_S+n_LL-\tilde{n}_LL)
+\end{align*}
+
+However, it is clearly not robust when the oracle is of poor quality. This can be easily seen by
+considering the most extreme situation where the oracle is wrong for all jobs, i.e.,
+\(\tilde{n}_S=n_S\) and \(\tilde{n}_L=n_L\). In this case, large jobs are scheduled first, and it is
+better to simply apply the non-clairvoyant shuffling strategy.
+
+% Instead, consider the following randomized algorithm. In the first step, we treat the
+% \(n_S-\tilde{n}_S+\tilde{n}_L\) small jobs (as seen by the oracle). Let \(\sigma_S=n_S-\tilde{n}_S\)
+% (resp.\ \(\sigma_L=\tilde{n}_L\)) be the number of jobs that are actually small (resp.\ large) among
+% them. Then, schedule each job \(j\) as follows:
+% \begin{itemize}
+%     \item execute \(j\) immediately with probability \(\frac{\sigma_S}{\sigma_S+\sigma_L}\), and set
+%     \(\sigma_S\) to \(\sigma_S-1\);
+%     \item postpone \(j\) with probability \(\frac{\sigma_L}{\sigma_S+\sigma_L}\), and set
+%     \(\sigma_L\) to \(\sigma_L-1\).
+% \end{itemize}
+% Repeat the process in the second step, starting with \(\sigma_S=\tilde{n}_S\) and
+% \(\sigma_L=n_L-\tilde{n}_L\). Finally, execute all postponed jobs at the end.
+
+To derive a better strategy, we can use the following observation. Among the
+\(n_S-\tilde{n}_S+\tilde{n}_L\) small jobs (as seen by the oracle), we know that there are
+\(n_S-\tilde{n}_S\) actual small jobs that must be immediately executed, and \(\tilde{n}_L\) actual
+large jobs that must be postponed. Similarly, among the \(\tilde{n}_S+n_L-\tilde{n}_L\) large jobs
+(as seen by the oracle), we know that there are \(\tilde{n}_S\) actual small jobs that must be
+executed immediately, and \(n_L-\tilde{n}_L\) actual large jobs that must be postponed.
+
+Thus, in the first step (the small jobs given by the oracle), pick \(n_S-\tilde{n}_S\) jobs among
+\(n_S-\tilde{n}_S+\tilde{n}_L\) at random (uniformly), and execute them immediately. Then, postpone
+the remaining jobs at the end. Perform the same process in the second step, by picking
+\(\tilde{n}_S\) jobs among \(\tilde{n}_S+n_L-\tilde{n}_L\) to execute them, and postponing the rest.
+
+For a given schedule, we can write
+\begin{align*}
+    \sum C_j
+        &=(n_S-\tilde{n}_S)p_1+(n_S-\tilde{n}_S-1)p_2+\ldots+p_{n_S-\tilde{n}_S}\\
+        &\qquad+\tilde{n}_S(\sum\limits_{j=1}^{n_S-\tilde{n}_S} p_j)\\
+        &\qquad+\tilde{n}_Sp_{n_S-\tilde{n}_S+1}+(\tilde{n}_S-1)p_{n_S-\tilde{n}_S+2}+\ldots+p_{n_S}\\
+        &\qquad+\tilde{n}_L(\sum\limits_{j=1}^{n_S} p_j)\\
+        &\qquad+\tilde{n}_Lp_{n_S+1}+(\tilde{n}_L-1)p_{n_S+2}+\ldots+p_{n_S+\tilde{n}_L}\\
+        &\qquad+(n_L-\tilde{n}_L)(\sum\limits_{j=1}^{n_S+\tilde{n}_L} p_j)\\
+        &\qquad+(n_L-\tilde{n}_L)p_{n_S+\tilde{n}_L+1}+(n_L-\tilde{n}_L-1)p_{n_S+\tilde{n}_L+2}+\ldots+p_{n_S+n_L}.
+\end{align*}
+The first line is the sum of completion times for the \(n_S-\tilde{n}_S\) jobs executed in the first
+step. The second and third lines are the sum of completion times for the \(\tilde{n}_S\) jobs
+executed in the second step. The fourth and fifth lines are the sum of completion times for the
+\(\tilde{n}_L\) jobs postponed in the first step. Finally, the sixth and seventh lines are the sum
+of completion times for the \(n_L-\tilde{n}_L\) jobs postponed in the second step.
+
+In the first step, we have
+\(E(p_j)=\frac{n_S-\tilde{n}_S+\tilde{n}_LL}{n_S-\tilde{n}_S+\tilde{n}_L}\). In the second step, we
+have \(E(p_j)=\frac{\tilde{n}_S+(n_L-\tilde{n}_L)L}{\tilde{n}_S+n_L-\tilde{n}_L}\). Therefore,
+
+\begin{align*}
+    E(\sum C_j)
+        &=\frac{(n_S-\tilde{n}_S)(n_S-\tilde{n}_S+1)(n_S-\tilde{n}_S+\tilde{n}_LL)}{2(n_S-\tilde{n}_S+\tilde{n}_L)}\\
+        &\qquad+\tilde{n}_S(n_S-\tilde{n}_S)\frac{n_S-\tilde{n}_S+\tilde{n}_LL}{n_S-\tilde{n}_S+\tilde{n}_L}\\
+        &\qquad+\frac{\tilde{n}_S(\tilde{n}_S+1)(\tilde{n}_S+(n_L-\tilde{n}_L)L)}{2(\tilde{n}_S+n_L-\tilde{n}_L)}\\
+        &\qquad+\tilde{n}_L((n_S-\tilde{n}_S)\frac{n_S-\tilde{n}_S+\tilde{n}_LL}{n_S-\tilde{n}_S+\tilde{n}_L}+\tilde{n}_S\frac{\tilde{n}_S+(n_L-\tilde{n}_L)L}{\tilde{n}_S+n_L-\tilde{n}_L})\\
+        &\qquad+\frac{\tilde{n}_L(\tilde{n}_L+1)(n_S-\tilde{n}_S+\tilde{n}_LL)}{2(n_S-\tilde{n}_S+\tilde{n}_L)}\\
+        &\qquad+(n_L-\tilde{n}_L)((n_S-\tilde{n}_S)\frac{n_S-\tilde{n}_S+\tilde{n}_LL}{n_S-\tilde{n}_S+\tilde{n}_L}+\tilde{n}_S\frac{\tilde{n}_S+(n_L-\tilde{n}_L)L}{\tilde{n}_S+n_L-\tilde{n}_L}+\tilde{n}_L\frac{n_S-\tilde{n}_S+\tilde{n}_LL}{n_S-\tilde{n}_S+\tilde{n}_L})\\
+        &\qquad+\frac{(n_L-\tilde{n}_L)(n_L-\tilde{n}_L+1)(\tilde{n}_S+(n_L-\tilde{n}_L)L)}{2(\tilde{n}_S+n_L-\tilde{n}_L)}.
 \end{align*}
 
 \subsection{Identical Machines \(P||\sum C_j\)}
