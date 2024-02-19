@@ -67,6 +67,73 @@ small.
 
 \section{Related Work}
 
+\begin{itemize}
+    \item \(R||\sum C_j\) is in P \cite{bruno1974scheduling}
+    \item \(1|r_j|\sum C_j\) is strongly NP-hard \cite{lenstra1977complexity}
+    \item \(1|r_j,\mathit{pmtn}|\sum F_j\) is in P (equivalent to \(1|r_j,\mathit{pmtn}|\sum C_j\),
+    solved by SRPT)
+    \item \(P|r_j,p_j=p|\sum C_j\) is in P \cite{simons1983multiprocessor}
+    \item \(P|r_j,\mathit{pmtn}|\sum C_j\) is strongly NP-hard \cite{bellenguez2015note}
+    \item FCFS is \(\Delta\)-competitive (\(\Delta=\max p_j/\min p_j\)) for \(1|r_j|\sum F_j\)
+    \cite{legrand2008minimizing}
+    \item There is a \(\frac{e}{e-1}\)-approximation algorithm for \(1|r_j|\sum C_j\) \cite{chekuri2001approximation}
+    \item No deterministic online algorithm has a competitive ratio lower than 2 for \(1|r_j|\sum
+    C_j\) \cite{chekuri2001approximation}
+    \item There is a \(\frac{e}{e-1}\)-competitive randomized algorithm for \(1|r_j|\sum C_j\)
+    \cite{chekuri2001approximation}
+    \item There is a 2-approximation algorithm for \(P|r_j|\sum w_jC_j\) and
+    \(P|r_j,\mathit{pmtn}|\sum w_jC_j\) \cite{schulz1997scheduling}
+    \item There is a \(O(\sqrt{n})\)-approximation algorithm for \(1|r_j|\sum F_j\)
+    \cite{kellerer1996approximability}
+    \item For any \(\varepsilon>0\), there is no \(O(n^{\frac{1}{2}-\varepsilon})\)-approximation
+    algorithm for \(1|r_j|\sum F_j\) unless P=NP \cite{kellerer1996approximability}
+    \item SRPT is an \(O(\log\min(n/m,\Delta))\)-approximation algorithm for
+    \(P|r_j,\mathit{pmtn}|\sum F_j\) \cite{leonardi1997approximating}
+    \item No randomized online algorithm has a competitive ratio lower than
+    \(\Omega(\log(n/m+\Delta))\) for \(P|r_j,\mathit{pmtn}|\sum F_j\)
+    \cite{leonardi1997approximating}
+    \item For any \(\varepsilon>0\), there is no \(O(n^{\frac{1}{3}-\varepsilon})\)-approximation
+    algorithm for \(P|r_j|\sum F_j\) unless P=NP \cite{leonardi1997approximating}
+\end{itemize}
+
+\subsection{Non-clairvoyant}
+
+\begin{itemize}
+    \item In a non-clairvoyant setting, RR is a \((2-\frac{2}{n+1})\)-competitive algorithm for
+    \(1|\mathit{pmtn}|\sum C_j\) and a \((2-\frac{2m}{(n+m)})\)-competitive algorithm for
+    \(P|\mathit{pmtn}|\sum C_j\) \cite{motwani1994nonclairvoyant}
+    \item No deterministic non-clairvoyant algorithm has a competitive ratio lower than
+    \(2-\frac{2}{n+1}\) for \(1|\mathit{pmtn}|\sum C_j\) and \(2-\frac{2m}{(n+m)}\) for
+    \(P|\mathit{pmtn}|\sum C_j\) \cite{motwani1994nonclairvoyant}
+    \item There is a \((2-\frac{4}{n+3})\)-competitive randomized algorithm for
+    \(1|\mathit{pmtn}|\sum C_j\) in a non-clairvoyant setting \cite{motwani1994nonclairvoyant}
+    \item No randomized non-clairvoyant algorithm has a competitive ratio lower than
+    \(2-\frac{4}{n+3}\) for \(1|\mathit{pmtn}|\sum C_j\) \cite{motwani1994nonclairvoyant}
+    \item No deterministic non-clairvoyant algorithm has a competitive ratio lower than
+    \(\Omega(n^{\frac{1}{3}})\) for \(1|r_j,\mathit{pmtn}|\sum F_j\)
+    \cite{motwani1994nonclairvoyant}
+    \item No randomized non-clairvoyant algorithm has a competitive ratio lower than \(\Omega(\log
+    n)\) for \(1|r_j,\mathit{pmtn}|\sum F_j\)
+    \cite{motwani1994nonclairvoyant}
+    \item RMLF is a \(O(\log n\log\log n)\)-competitive algorithm for \(1|r_j,\mathit{pmtn}|\sum
+    F_j\) in the non-clairvoyant setting \cite{kalyanasundaram2003minimizing}
+    \item RMLF is a \(O(\log n\log\min(n/m,\Delta))\)-competitive algorithm for
+    \(P|r_j,\mathit{pmtn}|\sum F_j\) in the non-clairvoyant setting
+    \cite{becchetti2004nonclairvoyant}
+\end{itemize}
+
+\subsection{Learning-augmented}
+
+\begin{itemize}
+    \item There is a \(O(1/\varepsilon)\)-robust and \((1+\varepsilon)\)-consistent algorithm (the
+    expected objective value is at most
+    \(\min\{O(1/\varepsilon)\mathrm{OPT},(1+\varepsilon)\mathrm{OPT}+O(1/\varepsilon^3\log(1/\varepsilon))v\}\),
+    where \(v\) is the prediction error of the oracle), for \(1|\mathit{pmtn}|\sum C_j\)
+    \cite{im2023non}
+    \item There is a \(3\Delta\)-robust and 1-consistent algorithm for \(1|r_j,\mathit{pmtn}|\sum
+    F_j\) \cite{zhao2022brief}
+\end{itemize}
+
 \section{Sum of Completion Times, No Release Times}
 
 \subsection{Single Machine \(1||\sum C_j\)}
@@ -167,6 +234,33 @@ have \(E(p_j)=\frac{\tilde{n}_S+(n_L-\tilde{n}_L)L}{\tilde{n}_S+n_L-\tilde{n}_L}
         &\qquad+\frac{(n_L-\tilde{n}_L)(n_L-\tilde{n}_L+1)(\tilde{n}_S+(n_L-\tilde{n}_L)L)}{2(\tilde{n}_S+n_L-\tilde{n}_L)}.
 \end{align*}
 
+Now we notice that, when we execute a set of job, we learn about the number of jobs that are
+actually small. We can use this information to improve the execution of the next set of jobs.
+
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \State \(P_1\gets\) the set of \(n_S-\tilde{n}_S+\tilde{n}_L\) small jobs (as seen by the oracle)
+        \State \(P_2\gets\) the set of \(\tilde{n}_S+n_L-\tilde{n}_L\) large jobs (as seen by the oracle)
+        \State \(\sigma_S\gets n_S-\tilde{n}_S\)
+        \State \(\tilde{\sigma}_S\gets \tilde{n}_S\)
+        \While{\(\sigma_S>0\) or \(\tilde{\sigma}_S>0\)}
+            \If{\(\sigma_S>0\)}
+                \State \(E_1\gets\) pick \(\sigma_S\) jobs among \(P_1\) at random (uniformly)
+                \State Execute \(E_1\)
+                \State Remove the number of small jobs seen in \(E_1\) from \(\sigma_S\)
+                \State \(P_1\gets P_1\setminus E_1\)
+            \EndIf
+            \If{\(\tilde{\sigma}_S>0\)}
+                \State \(E_2\gets\) pick \(\tilde{\sigma}_S\) jobs among \(P_2\) at random (uniformly)
+                \State Execute \(E_2\)
+                \State Remove the number of small jobs seen in \(E_2\) from \(\tilde{\sigma}_S\)
+                \State \(P_2\gets P_2\setminus E_2\)
+            \EndIf
+        \EndWhile
+        \State Execute \(P_1\) and \(P_2\)
+    \end{algorithmic}
+\end{algorithm}
+
 \subsection{Identical Machines \(P||\sum C_j\)}
 
 \ad{TODO}
@@ -178,5 +272,9 @@ have \(E(p_j)=\frac{\tilde{n}_S+(n_L-\tilde{n}_L)L}{\tilde{n}_S+n_L-\tilde{n}_L}
 \section{Sum of Flow Times, Release Times}
 
 \ad{TODO}
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
