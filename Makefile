@@ -1,11 +1,17 @@
 LATEX = latexmk
 BUILD = build
 
-notes: notes.pdf
+ALL_TEX = $(wildcard *.tex)
+ALL_PDF = $(patsubst %.tex, %.pdf, $(ALL_TEX))
 
-%.pdf: %.tex
-	mkdir -p $(BUILD)
-	$(LATEX) -pdf -outdir=$(BUILD) $<
+all: $(ALL_PDF)
 
+%.pdf: %.tex $(BUILD)
+	$(LATEX) -quiet -pdf -outdir=$(BUILD) $<
+
+$(BUILD):
+	mkdir -p $@
+
+.PHONY: clean
 clean:
 	rm -rf $(BUILD)

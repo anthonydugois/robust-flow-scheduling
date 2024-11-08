@@ -1,0 +1,155 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[]{todonotes}
+
+\newtheorem{example}{Example}
+
+\title{Scheduling \(K\) classes of jobs with a deterministic oracle}
+
+\begin{document}
+
+\maketitle
+
+\section{Job model}
+
+\begin{itemize}
+    \item \(n\) jobs
+    \item \(K\) classes of jobs
+    \item jobs in class \(k\) have processing time \(p(k)\)
+    \item assume that \(p(1)\le p(2)\le\dots\le p(K)\)
+    \item no preemption
+\end{itemize}
+
+\section{Oracle model}
+
+Assume we do not know in which class a given job is. We consider we have access to a cheap oracle, giving the class of a
+job. The oracle is not perfect, i.e., it may give a wrong class for a given job. The oracle is deterministic, i.e., it
+always gives the same answer for a given job, no matter if its prediction is correct or not.
+
+We may represent this kind of oracle as a \(K\times K\) matrix \(E\), such that the entry \(e_{ij}\) on the \(i\)-th row
+and the \(j\)-th column represents the number of jobs that the oracle believes to be in class \(i\), whereas they are in
+reality in class \(j\).
+
+\begin{example}
+    Consider the following oracle for \(K=3\) classes of jobs:
+    \[
+        E=\begin{pmatrix}
+            1 & 1 & 3 \\
+            2 & 2 & 1 \\
+            1 & 1 & 2 \\
+        \end{pmatrix}.
+    \]
+    The oracle believes that:
+    \begin{itemize}
+        \item 5 jobs are in class 1, among which 1 job is actually in class 2, and 3 jobs are in class 3;
+        \item 5 jobs are in class 2, among which 2 jobs are actually in class 1, and 1 job is in class 3;
+        \item 4 jobs are in class 3, among which 1 job is actually in class 1, and 1 job is in class 2.
+    \end{itemize}
+\end{example}
+
+We note \(J_{ij}\) the set of jobs that the oracle believes to be in class \(i\) but are actually in class \(j\) (thus,
+\(e_{ij}=|J_{ij}|\)).
+We note \(A_k\) (resp.\ \(B_k\)) the set of jobs that are actually in class \(k\) (resp.\ the set of jobs that the
+oracle believes to be in class \(k\)), i.e., \(A_k=\bigcup_{i=1}^{K} J_{ik}\) and \(B_k=\bigcup_{j=1}^{K} J_{kj}\).
+We also note \(a_k\) (resp.\ \(b_k\)) the number of jobs in \(A_k\) (resp.\ \(B_k\)), i.e.,
+\(a_k=|A_k|=\sum_{i=1}^{K} e_{ik}\) and \(b_k=|B_k|=\sum_{j=1}^{K} e_{kj}\).
+
+\subsection{Bloom filter model}
+
+For 2 classes of jobs, the oracle may consist in a probabilistic data structure called a Bloom filter, which represents
+a set. Assume a Bloom filter represents the set of \emph{large} jobs. One property of Bloom filters is that they may
+produce false positives (i.e., the BF believes that a job is large while it is small), but never produce false
+negatives.
+
+Hence, a Bloom filter oracle can always be represented by a matrix of the following form:
+\[
+    \begin{pmatrix}
+        a & 0 \\
+        b & c \\
+    \end{pmatrix}.
+\]
+
+\section{Minimizing the sum of completion times}
+
+Consider the problem \(1||\sum C_j\).
+
+\subsection{Clairvoyant model}
+
+The optimal algorithm in the clairvoyant model is SPT.
+
+Let \(\Delta_{ij}\) be the minimum starting time of jobs in \(J_{ij}\), i.e.,
+\[
+    \Delta_{ij}=\sum_{i'=1}^{K} \sum_{j'=1}^{j-1} e_{i'j'} \cdot p(j') + \sum_{i'=1}^{i-1} e_{i'j} \cdot p(j).
+\]
+
+Hence,
+\[
+    \text{SPT}=\sum C_j=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
+\]
+
+\subsection{Non-clairvoyant model}
+
+In the non-clairvoyant model, simply shuffling jobs yields
+\begin{align*}
+    \text{SHUF}=E(\sum C_j)&=E(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_n)) \\
+    &=nE(P_1)+(n-1)E(P_2)+\dots+E(P_n) \\
+    &=\frac{n(n+1)}{2}E(P_i) \\
+    &=\frac{n+1}{2}\sum p_j,
+\end{align*}
+where each \(P_i\) is a random variable denoting the processing time of the \(i\)-th scheduled job (we have
+\(P(P_i=p(k))=\frac{a_k}{n}\) for any \(i,k\), hence \(E(P_i)=\sum_{k=1}^{K} \frac{a_k p(k)}{n}\) for any \(i\)).
+
+\subsection{Using the oracle}
+
+Let us see what is the worst possible objective if we fully trust the oracle, i.e., we try to apply the SPT algorithm
+with the given predictions.
+
+This time, we have
+\[
+    \Delta_{ij}=\sum_{i'=1}^{i-1} \sum_{j'=1}^{K} e_{i'j'} \cdot p(j') + \sum_{j'=j+1}^{K} e_{ij'} \cdot p(j'),
+\]
+and
+\[
+    \sum C_j\le\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
+\]
+
+Another possibility is to shuffle each set \(B_k\) independently, in order to try to avoid putting large jobs first.
+
+Let \(\Delta_i\) denote the minimum starting time of each job in \(B_i\), i.e.,
+\[
+    \Delta_i=\sum_{i'=1}^{i-1} \sum_{j=1}^{K} e_{i'j} \cdot p(j).
+\]
+
+We have \(E(\sum C_j)=E(\sum_{j\in B_1} C_j + \sum_{j\in B_2} C_j + \dots + \sum_{j\in B_K} C_j)=\sum_{i=1}^{K} E(\sum_{j\in B_i} C_j)\).
+
+Moreover,
+\begin{align*}
+    E(\sum_{j\in B_i} C_j)&=b_i \cdot \Delta_i + E(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{b_i})) \\
+    &=b_i \cdot \Delta_i + \frac{b_i(b_i+1)}{2} \cdot \sum_{k=1}^{K} \frac{e_{ik}}{b_i} \cdot p(k) \\
+    &=b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
+\end{align*}
+
+Hence,
+\[
+    \text{SHUFOR}=E(\sum C_j)=\sum_{i=1}^{K} b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
+\]
+
+Note that this algorithm is not robust: consider the extreme case where the oracle is completely wrong, i.e., it is
+represented by an anti-diagonal matrix. The algorithm will schedule jobs in non-increasing order of processing times. In
+this case, it would have been better to shuffle all jobs together.
+
+\todo[inline]{\textbf{Question}: which class of oracles yields \(\text{SHUFOR}\le\text{SHUF}\)?}
+
+A better algorithm could consists in picking \(e_{i1}\) jobs randomly in each set \(B_i\), and schedule them first.
+Then, pick \(e_{i2}\) jobs randomly in each \(B_i\), and schedule them in second. Repeat the procedure until the last
+column.
+
+\todo[inline]{\textbf{TODO}: give the expression of \(E(\sum C_j)\).}
+
+\end{document}
