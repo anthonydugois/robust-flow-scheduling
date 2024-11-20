@@ -1,1 +1,16 @@
 build
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrbd
+*.save
