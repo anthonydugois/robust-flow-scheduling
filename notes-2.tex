@@ -67,13 +67,68 @@ a set. Assume a Bloom filter represents the set of \emph{large} jobs. One proper
 produce false positives (i.e., the BF believes that a job is large while it is small), but never produce false
 negatives.
 
-Hence, a Bloom filter oracle can always be represented by a matrix of the following form:
+Hence, a Bloom filter oracle for 2 classes of jobs can always be represented by a matrix of the following form:
 \[
     \begin{pmatrix}
         a & 0 \\
         b & c \\
     \end{pmatrix}.
 \]
+
+We may generalize this model by chaining Bloom filters: for \(K\) classes of jobs, use \(K-1\) Bloom filters
+\(\mathcal{B}_1,\cdots,\mathcal{B}_{K-1}\), where \(\mathcal{B}_k\) encodes the set of jobs of class \(k\).
+As \(K\le 2n\) and querying a Bloom filter takes time \(O(h)\) (where \(h\) is the number of hash functions
+used in the filter) with \(h\) much smaller than \(n\), querying the Bloom filter chain remains polynomial.
+In this manner, we have an oracle that is guaranteed to never underestimate jobs and can be represented by a lower
+triangular matrix.
+
+\section{Knowledge model}
+
+\noindent\textbf{Clairvoyant model.} Everything is known about a problem instance.
+
+\noindent\textbf{Non-clairvoyant model.} Nothing is known about a problem instance.
+
+\noindent\textbf{Oracle-clairvoyant model.} The matrix \(E\) is known.
+
+\noindent\textbf{Realistic BF model.} For an oracle which consists as a chain of BF, we cannot know the full matrix
+\(E\) in the general case. Indeed, even if one assumes that the values \(a_1,\cdots,a_K\) are given as the instance,
+the structural properties of BF give access only to values \(b_1,\cdots,b_K\) (by a simple application of the oracle)
+and \(e_{11},e_{22},\cdots,e_{KK}\) (by deducing the false positive rate of each BF). For example, for a
+\(4\times 4\) matrix, we get the following form:
+\[
+    \begin{pmatrix}
+        e_{11} & 0      & 0      & 0      \\
+        a      & e_{22} & 0      & 0      \\
+        b      & c      & e_{33} & 0      \\
+        d      & e      & f      & e_{44} \\
+    \end{pmatrix},
+\]
+where \(a,b,c,d,e,f\) are unknowns. Unfortunately, in the general case one cannot get the knowledge of \(E\) by simply
+solving the linear system
+\[
+    \begin{pmatrix}
+        1 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 1 & 1 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 1 & 1 & 1 \\
+        1 & 1 & 0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 1 \\
+    \end{pmatrix}
+    \begin{pmatrix}
+        a \\ b \\ c \\ d \\ e \\ f \\
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        b_2-e_{22} \\
+        b_3-e_{33} \\
+        b_4-e_{44} \\
+        a_1-e_{11} \\
+        a_2-e_{22} \\
+        a_3-e_{33} \\
+    \end{pmatrix}.
+\]
+
+\todo[inline]{\textbf{TODO}: this seems obvious but maybe can be justified with a variant of Rouché-Capelli theorem.}
 
 \section{Minimizing the sum of completion times}
 
@@ -93,6 +148,15 @@ Hence,
     \text{SPT}=\sum C_j=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
 \]
 
+We can express the objective \(\sum C_j\) of any algorithm \(\mathcal{A}\) as \(\text{SPT}+\sum \eta_j\),
+where \(\eta_j\) denotes the additional cost incurred by the job \(j\) in the schedule produced by \(\mathcal{A}\).
+
+In a given schedule, for any job \(j\) in class \(k\), we have
+\[
+    \eta_j=\sum_{\ell=1}^{k-1} n(\ell,j)\cdot (p(k)-p(\ell)),
+\]
+where \(n(\ell,j)\) denotes the number of jobs of class \(\ell\) scheduled \emph{after} the job \(j\).
+
 \subsection{Non-clairvoyant model}
 
 In the non-clairvoyant model, simply shuffling jobs yields
@@ -105,7 +169,7 @@ In the non-clairvoyant model, simply shuffling jobs yields
 where each \(P_i\) is a random variable denoting the processing time of the \(i\)-th scheduled job (we have
 \(P(P_i=p(k))=\frac{a_k}{n}\) for any \(i,k\), hence \(E(P_i)=\sum_{k=1}^{K} \frac{a_k p(k)}{n}\) for any \(i\)).
 
-\subsection{Using the oracle}
+\subsection{Oracle-clairvoyant model}
 
 Let us see what is the worst possible objective if we fully trust the oracle, i.e., we try to apply the SPT algorithm
 with the given predictions.
@@ -117,6 +181,15 @@ This time, we have
 and
 \[
     \sum C_j\le\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
+\]
+
+For any job \(\tau\) in the set \(J_{ij}\), we have
+\[
+    \eta_{\tau}=\sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
+\]
+Thus, in the worst case, we have
+\[
+    \sum\eta_j=\sum_{i=1}^K \sum_{j=1}^K e_{ij} \sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
 \]
 
 Another possibility is to shuffle each set \(B_k\) independently, in order to try to avoid putting large jobs first.
