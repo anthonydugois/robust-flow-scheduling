@@ -136,8 +136,9 @@ Consider the problem \(1||\sum C_j\).
 
 \subsection{Clairvoyant model}
 
-The optimal algorithm in the clairvoyant model is SPT.
+The optimal algorithm in the clairvoyant model is Shortest Processing Time (SPT), which schedules jobs by non-decreasing order of processing times.
 
+Knowing the exact distribution of job sizes, it is thus quite easy to compute the optimal objective.
 Let \(\Delta_{ij}\) be the minimum starting time of jobs in \(J_{ij}\), i.e.,
 \[
     \Delta_{ij}=\sum_{i'=1}^{K} \sum_{j'=1}^{j-1} e_{i'j'} \cdot p(j') + \sum_{i'=1}^{i-1} e_{i'j} \cdot p(j).
@@ -145,12 +146,11 @@ Let \(\Delta_{ij}\) be the minimum starting time of jobs in \(J_{ij}\), i.e.,
 
 Hence,
 \[
-    \text{SPT}=\sum C_j=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
+    \text{SPT}=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
 \]
 
-We can express the objective \(\sum C_j\) of any algorithm \(\mathcal{A}\) as \(\text{SPT}+\sum \eta_j\),
+Then, we can express the objective \(\sum C_j\) of any algorithm \(\mathcal{A}\) as \(\text{SPT}+\sum \eta_j\),
 where \(\eta_j\) denotes the additional cost incurred by the job \(j\) in the schedule produced by \(\mathcal{A}\).
-
 In a given schedule, for any job \(j\) in class \(k\), we have
 \[
     \eta_j=\sum_{\ell=1}^{k-1} n(\ell,j)\cdot (p(k)-p(\ell)),
@@ -159,71 +159,147 @@ where \(n(\ell,j)\) denotes the number of jobs of class \(\ell\) scheduled \emph
 
 \subsection{Non-clairvoyant model}
 
-In the non-clairvoyant model, simply shuffling jobs yields
+In the non-clairvoyant model, simply shuffling jobs yields (in expectation)
 \begin{align*}
-    \text{SHUF}=E(\sum C_j)&=E(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_n)) \\
-    &=nE(P_1)+(n-1)E(P_2)+\dots+E(P_n) \\
-    &=\frac{n(n+1)}{2}E(P_i) \\
+    \text{RANDOM}&=\mathbb{E}(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_n)) \\
+    &=n\mathbb{E}(P_1)+(n-1)\mathbb{E}(P_2)+\dots+\mathbb{E}(P_n) \\
+    &=\frac{n(n+1)}{2}\mathbb{E}(P_i) \\
     &=\frac{n+1}{2}\sum p_j,
 \end{align*}
 where each \(P_i\) is a random variable denoting the processing time of the \(i\)-th scheduled job (we have
-\(P(P_i=p(k))=\frac{a_k}{n}\) for any \(i,k\), hence \(E(P_i)=\sum_{k=1}^{K} \frac{a_k p(k)}{n}\) for any \(i\)).
+\(P(P_i=p(k))=\frac{a_k}{n}\) for any \(i,k\), hence \(\mathbb{E}(P_i)=\sum_{k=1}^{K} \frac{a_k p(k)}{n}\) for any \(i\)).
 
 \subsection{Oracle-clairvoyant model}
 
-Let us see what is the worst possible objective if we fully trust the oracle, i.e., we try to apply the SPT algorithm
-with the given predictions.
+In the following, we use the three following notations:
+\begin{itemize}
+    \item \(W^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible objective given by a strategy \(\mathcal{A}\) on an oracle \(E\).
+    \item \(\mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the expected objective given by a strategy \(\mathcal{A}\) on an oracle \(E\).
+    \item \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)=\max_E \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible expected objective given by a strategy \(\mathcal{A}\).
+    The oracles \(E\) giving this value are called the \emph{worst-case oracles} for \(\mathcal{A}\).
+\end{itemize}
+The strategy \(\mathcal{A}\) is omitted when it is clear from the context.
+Obviously, our goal is to find a strategy such that \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)<\max_E W^{\mathcal{A}}_E\left(\sum C_j\right)\) (avoiding the worst-possible case in expectation) and \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\le\rho\cdot\text{SPT}\) for a given \(\rho\ge 1\) (there is a guarantee for any kind of oracle).
 
-This time, we have
+Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset \(\mathcal{E}\) of oracles such that we can obtain a good guarantee for \(\mathbb{W}^{\mathcal{A}}_{E\in\mathcal{E}}\left(\sum C_j\right)\).
+
+\subsubsection{SPT}
+
+Let us see what is the worst possible objective if we fully trust the oracle, i.e., we try to apply the SPT algorithm with the given predictions.
+It can be seen as scheduling the sets \(B_1,B_2,\dots,B_K\) in order, without knowing the ordering of jobs in each \(B_k\).
+
+Thus, in the worst-case, SPT could schedule jobs of each set \(B_k\) in non-increasing order of processing times, yielding for any \(E\)
 \[
-    \Delta_{ij}=\sum_{i'=1}^{i-1} \sum_{j'=1}^{K} e_{i'j'} \cdot p(j') + \sum_{j'=j+1}^{K} e_{ij'} \cdot p(j'),
+    W_E\left(\sum C_j\right)=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
 \]
-and
+with
 \[
-    \sum C_j\le\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
+    \Delta_{ij}=\sum_{i'=1}^{i-1} \sum_{j'=1}^{K} e_{i'j'} \cdot p(j') + \sum_{j'=j+1}^{K} e_{ij'} \cdot p(j').
 \]
 
-For any job \(\tau\) in the set \(J_{ij}\), we have
+In terms of additional cost compared to the clairvoyant optimal solution, for any job \(\tau\) in the set \(J_{ij}\), we have
 \[
-    \eta_{\tau}=\sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
+    W_E\left(\eta_{\tau}\right)=\sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')),
 \]
-Thus, in the worst case, we have
+i.e.,
 \[
-    \sum\eta_j=\sum_{i=1}^K \sum_{j=1}^K e_{ij} \sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
+    W_E\left(\sum\eta_j\right)=\sum_{i=1}^K \sum_{j=1}^K e_{ij} \sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
 \]
 
-Another possibility is to shuffle each set \(B_k\) independently, in order to try to avoid putting large jobs first.
+Now, we may wonder what is the expected objective of SPT, assuming that each set \(B_k\) is shuffled independently beforehand in order to avoid putting large jobs first.
 
 Let \(\Delta_i\) denote the minimum starting time of each job in \(B_i\), i.e.,
 \[
     \Delta_i=\sum_{i'=1}^{i-1} \sum_{j=1}^{K} e_{i'j} \cdot p(j).
 \]
 
-We have \(E(\sum C_j)=E(\sum_{j\in B_1} C_j + \sum_{j\in B_2} C_j + \dots + \sum_{j\in B_K} C_j)=\sum_{i=1}^{K} E(\sum_{j\in B_i} C_j)\).
-
-Moreover,
+We have \(\mathbb{E}_E(\sum C_j)=\mathbb{E}_E(\sum_{j\in B_1} C_j + \sum_{j\in B_2} C_j + \dots + \sum_{j\in B_K} C_j)=\sum_{i=1}^{K} \mathbb{E}_E(\sum_{j\in B_i} C_j)\), with,
 \begin{align*}
-    E(\sum_{j\in B_i} C_j)&=b_i \cdot \Delta_i + E(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{b_i})) \\
+    \mathbb{E}_E\left(\sum_{j\in B_i} C_j\right)
+    &=b_i \cdot \Delta_i + \mathbb{E}_E(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{b_i})) \\
     &=b_i \cdot \Delta_i + \frac{b_i(b_i+1)}{2} \cdot \sum_{k=1}^{K} \frac{e_{ik}}{b_i} \cdot p(k) \\
     &=b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
 \end{align*}
 
 Hence,
 \[
-    \text{SHUFOR}=E(\sum C_j)=\sum_{i=1}^{K} b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
+    \mathbb{E}_E\left(\sum C_j\right)=\sum_{i=1}^{K} b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
 \]
 
-Note that this algorithm is not robust: consider the extreme case where the oracle is completely wrong, i.e., it is
-represented by an anti-diagonal matrix. The algorithm will schedule jobs in non-increasing order of processing times. In
-this case, it would have been better to shuffle all jobs together.
+The most extreme case is when the oracle is completely wrong, i.e., it is represented by an anti-diagonal matrix.
+SPT will schedule jobs in non-increasing order of processing times, yielding the maximum possible objective for the given instance:
+\[
+    \mathbb{W}\left(\sum C_j\right)=\sum_{i=1}^K e_{i,K-i+1}\cdot\Delta_{i}+\frac{e_{i,K-i+1}(e_{i,K-i+1}+1)}{2}\cdot p(K-i+1),
+\]
+with
+\[
+    \Delta_{i}=\sum_{i'=1}^{i-1} e_{i',K-i'+1}\cdot p(K-i'+1),
+\]
+i.e.,
+\[
+    \mathbb{W}\left(\sum C_j\right)=\max_E W_E\left(\sum C_j\right).
+\]
 
-\todo[inline]{\textbf{Question}: which class of oracles yields \(\text{SHUFOR}\le\text{SHUF}\)?}
+For any job \(\tau\) in \(J_{i,K-i+1}\), we have
+\[
+    \mathbb{W}\left(\eta_{\tau}\right)=\sum_{i'=i+1}^K e_{i',K-i'+1}\cdot (p(K-i+1)-p(K-i'+1)),
+\]
+yielding
+\[
+    \mathbb{W}\left(\sum \eta_j\right)=\sum_{i=1}^K e_{i,K-i+1}\sum_{i'=i+1}^K e_{i',K-i'+1}\cdot (p(K-i+1)-p(K-i'+1)).
+\]
 
-A better algorithm could consists in picking \(e_{i1}\) jobs randomly in each set \(B_i\), and schedule them first.
-Then, pick \(e_{i2}\) jobs randomly in each \(B_i\), and schedule them in second. Repeat the procedure until the last
-column.
+\todo[inline]{\textbf{Question}: which class of oracles yields \(\mathbb{E}^{\text{SPT}}_E\left(\sum C_j\right)\le\text{RANDOM}\)?}
 
-\todo[inline]{\textbf{TODO}: give the expression of \(E(\sum C_j)\).}
+\subsubsection{Picking jobs}
+
+A better algorithm (called PICK) could consist in picking \(e_{i1}\) jobs randomly in each set \(B_i\), and schedule them first.
+Then, pick \(e_{i2}\) jobs randomly in each \(B_i\), and schedule them in second. Repeat the procedure until the last column.
+
+There clearly exists an oracle for which the worst-case scenario yields the worst possible objective, i.e., we have
+\[
+    \max_E W^{\text{PICK}}_E\left(\sum C_j\right)=\max_E W^{\text{SPT}}_E\left(\sum C_j\right).
+\]
+
+\todo[inline]{We probably have \(\mathbb{W}^{\text{PICK}}\left(\sum C_j\right)<\max_E W^{\text{PICK}}_E\left(\sum C_j\right)\), i.e., for all oracles we can avoid the worst-case in expectation.}
+
+Let us see what is the expected objective for a given oracle \(E\).
+Let \(\tilde{J}_{ij}\) be the set of jobs scheduled during the step \(i+K(j-1)\).
+We have
+\[
+    \mathbb{E}_E\left(\sum C_j\right)=\sum_{i=1}^K \sum_{j=1}^K \mathbb{E}_E\left(\sum_{t\in \tilde{J}_{ij}} C_t\right),
+\]
+with
+\[
+    \mathbb{E}_E\left(\sum_{t\in \tilde{J}_{ij}} C_t\right)=
+        e_{ij}\mathbb{E}_E\left(\Delta_{ij}\right)+\mathbb{E}_E\left(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{e_{ij}})\right)
+\]
+for all \(i,j\), where \(\Delta_{ij}\) is the minimum starting time of jobs in \(\tilde{J}_{ij}\) and each \(P_t\) is a random variable denoting the processing time of the job scheduled at the \(t\)-th position during the current step.
+
+We observe that the algorithm can be seen as shuffling each set \(B_k\) and scheduling the first \(e_{11}\) jobs in \(B_1\), then the first \(e_{21}\) jobs in \(B_2\), and so on.
+Thus, we clearly have \(\mathbb{E}_E\left(P_t\right)=\sum_{k=1}^K \frac{e_{ik}}{b_i}\) for any job \(t\) belonging to \(B_i\).
+Let \(\bar{p}(i)=\sum_{k=1}^K \frac{e_{ik}}{b_i}\) be the average processing time of jobs \(B_i\).
+
+We also have
+\[
+    \mathbb{E}_E\left(\Delta_{ij}\right)=
+        \sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
+        + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i'),
+\]
+which finally yields
+\[
+    \mathbb{E}_E\left(\sum C_j\right)=
+        \sum_{i=1}^K \sum_{j=1}^K\left[
+            e_{ij}\left(\sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
+                + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i')\right) +
+            \frac{e_{ij}(e_{ij}+1)}{2}\bar{p}(i)
+        \right].
+\]
+
+Therefore, if for all \(i,j\), \(e_{ij}=0\) or \(\bar{p}(i)-p(j)\le\varepsilon p(j)\) for a given \(\varepsilon\ge 0\), we have
+\[
+    \mathbb{E}^{\text{PICK}}_E\left(\sum C_j\right)\le (1+\varepsilon)\text{SPT}.
+\]
 
 \newpage
 \section{Some algorithms}
