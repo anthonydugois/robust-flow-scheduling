@@ -8,6 +8,8 @@
 \usepackage{amssymb}
 \usepackage[]{todonotes}
 
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
 \newtheorem{example}{Example}
 
 \title{Scheduling \(K\) classes of jobs with a deterministic oracle}
@@ -171,17 +173,19 @@ where each \(P_i\) is a random variable denoting the processing time of the \(i\
 
 \subsection{Oracle-clairvoyant model}
 
+Let \(\mathcal{E}(a_1,a_2,\cdots,a_K)\) denote the set of oracles \(E\) such that there are exactly \(a_k\) jobs whose actual class is \(k\), for all \(1\le k\le K\).
+
 In the following, we use the three following notations:
 \begin{itemize}
-    \item \(W^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible objective given by a strategy \(\mathcal{A}\) on an oracle \(E\).
-    \item \(\mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the expected objective given by a strategy \(\mathcal{A}\) on an oracle \(E\).
-    \item \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)=\max_E \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible expected objective given by a strategy \(\mathcal{A}\).
+    \item \(W^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible objective given by a (randomized) strategy \(\mathcal{A}\) on an oracle \(E\).
+    \item \(\mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the expected objective given by a (randomized) strategy \(\mathcal{A}\) on an oracle \(E\).
+    \item \(\mathbb{W}^{\mathcal{A}}_{\mathcal{E}(a_1,\cdots,a_K)}\left(\sum C_j\right)=\max_{E\in\mathcal{E}(a_1,\cdots,a_K)} \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible expected objective given by a (randomized) strategy \(\mathcal{A}\) (we omit the set \(\mathcal{E}\) when it is clear from the context).
     The oracles \(E\) giving this value are called the \emph{worst-case oracles} for \(\mathcal{A}\).
 \end{itemize}
 The strategy \(\mathcal{A}\) is omitted when it is clear from the context.
 Obviously, our goal is to find a strategy such that \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)<\max_E W^{\mathcal{A}}_E\left(\sum C_j\right)\) (avoiding the worst-possible case in expectation) and \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\le\rho\cdot\text{SPT}\) for a given \(\rho\ge 1\) (there is a guarantee for any kind of oracle).
 
-Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset \(\mathcal{E}\) of oracles such that we can obtain a good guarantee for \(\mathbb{W}^{\mathcal{A}}_{E\in\mathcal{E}}\left(\sum C_j\right)\).
+Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset of \(\mathcal{E}(a_1,\cdots,a_K)\) such that we can obtain a good guarantee for \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\).
 
 \subsubsection{SPT}
 
@@ -300,6 +304,105 @@ Therefore, if for all \(i,j\), \(e_{ij}=0\) or \(\bar{p}(i)-p(j)\le\varepsilon p
 \[
     \mathbb{E}^{\text{PICK}}_E\left(\sum C_j\right)\le (1+\varepsilon)\text{SPT}.
 \]
+
+\todo[inline]{maybe we can be more precise; this does not take into account the fact that \(\bar{p}(i)-p(j)<0\) for some \(i,j\) such that \(e_{ij}>0\).}
+
+\noindent\textbf{Bloom filter model.}
+Let us consider instances with 2 classes of jobs, i.e., there are \(a_1\) jobs of class 1 and there are \(a_2\) jobs of class 2.
+Consider the Bloom filter model for the oracle, i.e., the oracle is a matrix \(E\) of the following shape:
+\[
+    E=\begin{pmatrix}
+        e_{11} & 0 \\
+        e_{21} & e_{22} \\
+    \end{pmatrix},
+\]
+with \(a_1=e_{11}+e_{21}\) and \(a_2=e_{22}\).
+In this case, we have
+\begin{align*}
+    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)
+    &=\frac{e_{11}(e_{11}+1)}{2}\bar{p}(1) \\
+    &\quad+e_{21}e_{11}\bar{p}(1)+\frac{e_{21}(e_{21}+1)}{2}\bar{p}(2) \\
+    &\quad+e_{22}(e_{11}\bar{p}(1)+e_{21}\bar{p}(2))+\frac{e_{22}(e_{22}+1)}{2}\bar{p}(2)
+\end{align*}
+and
+\begin{align*}
+    \text{SPT}
+    &=\frac{e_{11}(e_{11}+1)}{2}p(1) \\
+    &\quad+e_{21}e_{11}p(1)+\frac{e_{21}(e_{21}+1)}{2}p(1) \\
+    &\quad+e_{22}(e_{11}p(1)+e_{21}p(1))+\frac{e_{22}(e_{22}+1)}{2}p(2),
+\end{align*}
+
+As \(\bar{p}(1)=p(1)\), this yields
+\begin{align*}
+    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}
+    &=\frac{e_{21}(e_{21}+1)}{2}(\bar{p}(2)-p(1)) \\
+    &\quad+e_{22}e_{21}(\bar{p}(2)-p(1)) \\
+    &\quad+\frac{e_{22}(e_{22}+1)}{2}(\bar{p}(2)-p(2)).
+\end{align*}
+
+Now we remark that if \(\lambda\) is the rate of false-positives of the Bloom filter, then we have \(e_{11}=a_1-\lceil\lambda a_1\rceil\), \(e_{21}=\lceil\lambda a_1\rceil\) and \(e_{22}=a_2\).
+
+Thus, we can express \(\bar{p}(2)\) as
+\begin{align*}
+    \bar{p}(2)
+    &=\frac{e_{21}}{e_{21}+e_{22}}p(1)+\frac{e_{22}}{e_{21}+e_{22}}p(2) \\
+    &=\frac{\lceil\lambda a_1\rceil}{\lceil\lambda a_1\rceil+a_2}p(1)+\frac{a_2}{\lceil\lambda a_1\rceil+a_2}p(2).
+\end{align*}
+
+Therefore,
+\[
+    \bar{p}(2)-p(1)=\frac{a_2}{\lceil\lambda a_1\rceil+a_2}(p(2)-p(1))
+\]
+and
+\[
+    \bar{p}(2)-p(2)=-\frac{\lceil\lambda a_1\rceil}{\lceil\lambda a_1\rceil+a_2}(p(2)-p(1)).
+\]
+
+After some calculus, we obtain
+\[
+    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}=\frac{p(2)-p(1)}{2}\cdot\lceil\lambda a_1\rceil\cdot a_2.
+\]
+
+It is well-known that for Bloom filters the rate \(\lambda\) can be approximated as \(\left(1-e^{-kn/m}\right)^k\), where \(n\) is the number of jobs, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
+For a given \(m\), the optimal value for \(k\) (i.e., the value that minimizes \(\lambda\)) is thus \(\frac{m}{n}\ln 2\), which yields
+\[
+    \lambda\approx\frac{1}{2^{\frac{m}{n}\ln 2}}.
+\]
+
+Note that the ratio \(m/n\) represents the average number of bits that are allocated for each job in the Bloom filter.
+
+\begin{theorem}
+    For any \(\varepsilon>0\), the inequality
+    \[
+        \frac{m}{n}\ge\frac{1}{\ln 2}\left(\log_2 a_1-\log_2\left\lfloor\frac{a_1(a_1+1)p(1)+2a_2a_1p(1)+a_2(a_2+1)p(2)}{a_2(p(2)-p(1))}\varepsilon\right\rfloor\right)
+    \]
+    implies
+    \[
+        \frac{\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)}{\text{SPT}}\le 1+\varepsilon.
+    \]
+\end{theorem}
+\begin{proof}
+    Fix \(\varepsilon>0\) and suppose that the inequality holds. Then, after some calculus we get
+    \[
+        \frac{1}{2^{\frac{m}{n}\ln 2}}\le\frac{1}{a_1}\left\lfloor\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT}\right\rfloor,
+    \]
+    where \(\text{SPT}=\frac{a_1(a_1+1)}{2}p(1)+a_2a_1p(1)+\frac{a_2(a_2+1)}{2}p(2)\).
+
+    Hence,
+    \[
+        \lambda a_1\le\left\lfloor\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT}\right\rfloor,
+    \]
+    i.e.,
+    \[
+        \lceil\lambda a_1\rceil\le\left\lfloor\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT}\right\rfloor\le\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT},
+    \]
+    that is,
+    \[
+        1+\frac{p(2)-p(1)}{2\text{SPT}}\lceil\lambda a_1\rceil a_2\le 1+\varepsilon.
+    \]
+
+    As \(\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}=\frac{p(2)-p(1)}{2}\cdot\lceil\lambda a_1\rceil\cdot a_2\), the conclusion follows.
+\end{proof}
 
 \newpage
 \section{Some algorithms}
