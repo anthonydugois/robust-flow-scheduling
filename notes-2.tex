@@ -9,6 +9,7 @@
 \usepackage[]{todonotes}
 
 \newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
 \newtheorem{example}{Example}
 
@@ -329,10 +330,10 @@ and
     \text{SPT}
     &=\frac{e_{11}(e_{11}+1)}{2}p(1) \\
     &\quad+e_{21}e_{11}p(1)+\frac{e_{21}(e_{21}+1)}{2}p(1) \\
-    &\quad+e_{22}(e_{11}p(1)+e_{21}p(1))+\frac{e_{22}(e_{22}+1)}{2}p(2),
+    &\quad+e_{22}(e_{11}p(1)+e_{21}p(1))+\frac{e_{22}(e_{22}+1)}{2}p(2).
 \end{align*}
 
-As \(\bar{p}(1)=p(1)\), this yields
+This yields
 \begin{align*}
     \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}
     &=\frac{e_{21}(e_{21}+1)}{2}(\bar{p}(2)-p(1)) \\
@@ -340,69 +341,66 @@ As \(\bar{p}(1)=p(1)\), this yields
     &\quad+\frac{e_{22}(e_{22}+1)}{2}(\bar{p}(2)-p(2)).
 \end{align*}
 
-Now we remark that if \(\lambda\) is the rate of false-positives of the Bloom filter, then we have \(e_{11}=a_1-\lceil\lambda a_1\rceil\), \(e_{21}=\lceil\lambda a_1\rceil\) and \(e_{22}=a_2\).
-
-Thus, we can express \(\bar{p}(2)\) as
-\begin{align*}
-    \bar{p}(2)
-    &=\frac{e_{21}}{e_{21}+e_{22}}p(1)+\frac{e_{22}}{e_{21}+e_{22}}p(2) \\
-    &=\frac{\lceil\lambda a_1\rceil}{\lceil\lambda a_1\rceil+a_2}p(1)+\frac{a_2}{\lceil\lambda a_1\rceil+a_2}p(2).
-\end{align*}
-
-Therefore,
+As \(\bar{p}(1)=p(1)\) and \(\bar{p}(2)=\frac{e_{21}p(1)+e_{22}p(2)}{e_{21}+e_{22}}\), we have
 \[
-    \bar{p}(2)-p(1)=\frac{a_2}{\lceil\lambda a_1\rceil+a_2}(p(2)-p(1))
+    \bar{p}(2)-p(1)=\frac{e_{22}}{e_{21}+e_{22}}(p(2)-p(1))
 \]
 and
 \[
-    \bar{p}(2)-p(2)=-\frac{\lceil\lambda a_1\rceil}{\lceil\lambda a_1\rceil+a_2}(p(2)-p(1)).
+    \bar{p}(2)-p(2)=-\frac{e_{21}}{e_{21}+e_{22}}(p(2)-p(1)).
 \]
 
 After some calculus, we obtain
-\[
-    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}=\frac{p(2)-p(1)}{2}\cdot\lceil\lambda a_1\rceil\cdot a_2.
-\]
+\begin{equation}
+    \label{eq.diff}
+    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}=\frac{p(2)-p(1)}{2}e_{21}e_{22}.
+\end{equation}
 
-It is well-known that for Bloom filters the rate \(\lambda\) can be approximated as \(\left(1-e^{-kn/m}\right)^k\), where \(n\) is the number of jobs, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
+In a Bloom filter, the probability \(\lambda\) of getting a false positive when requesting an element that is not in the set can be approximated as \(\left(1-e^{-kn/m}\right)^k\), where \(n\) is the number of inserted elements, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
 For a given \(m\), the optimal value for \(k\) (i.e., the value that minimizes \(\lambda\)) is thus \(\frac{m}{n}\ln 2\), which yields
 \[
     \lambda\approx\frac{1}{2^{\frac{m}{n}\ln 2}}.
 \]
+Note that the ratio \(m/n\) represents the average number of bits that are allocated for each element in the Bloom filter.
 
-Note that the ratio \(m/n\) represents the average number of bits that are allocated for each job in the Bloom filter.
+We can now state the following theorem.
 
 \begin{theorem}
-    For any \(\varepsilon>0\), the inequality
+    For any \(\delta>0\), allocating at least
     \[
-        \frac{m}{n}\ge\frac{1}{\ln 2}\left(\log_2 a_1-\log_2\left\lfloor\frac{a_1(a_1+1)p(1)+2a_2a_1p(1)+a_2(a_2+1)p(2)}{a_2(p(2)-p(1))}\varepsilon\right\rfloor\right)
+        \frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}
     \]
-    implies
-    \[
-        \frac{\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)}{\text{SPT}}\le 1+\varepsilon.
-    \]
+    bits per job in the Bloom filter implies \(\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}\le\delta\).
 \end{theorem}
 \begin{proof}
-    Fix \(\varepsilon>0\) and suppose that the inequality holds. Then, after some calculus we get
+    Fix \(\delta>0\) and suppose that
     \[
-        \frac{1}{2^{\frac{m}{n}\ln 2}}\le\frac{1}{a_1}\left\lfloor\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT}\right\rfloor,
+        \frac{m}{a_2}\ge\frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}.
     \]
-    where \(\text{SPT}=\frac{a_1(a_1+1)}{2}p(1)+a_2a_1p(1)+\frac{a_2(a_2+1)}{2}p(2)\).
 
-    Hence,
+    Then, after some calculus we get
     \[
-        \lambda a_1\le\left\lfloor\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT}\right\rfloor,
-    \]
-    i.e.,
-    \[
-        \lceil\lambda a_1\rceil\le\left\lfloor\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT}\right\rfloor\le\frac{2\varepsilon}{a_2(p(2)-p(1))}\text{SPT},
+        \frac{1}{2^{\frac{m}{a_2}\ln 2}}\le\frac{2\delta}{a_1a_2(p(2)-p(1))},
     \]
     that is,
     \[
-        1+\frac{p(2)-p(1)}{2\text{SPT}}\lceil\lambda a_1\rceil a_2\le 1+\varepsilon.
+        \frac{p(2)-p(1)}{2}\lambda a_1a_2\le\delta,
     \]
+    where \(\lambda\) is the probability of getting a false positive.
 
-    As \(\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}=\frac{p(2)-p(1)}{2}\cdot\lceil\lambda a_1\rceil\cdot a_2\), the conclusion follows.
+    Observe that \(e_{21}\approx\lambda a_1\) and \(e_{22}=a_2\).
+    By Equation~\ref{eq.diff}, we get
+    \[
+        \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}\le\delta.
+    \]
 \end{proof}
+
+\begin{corollary}
+    For any \(0\le\alpha<1\), allocating \(\alpha n\) bits in the Bloom filter implies
+    \[
+        \delta=a_1a_2(p(2)-p(1))\cdot 2^{-\left(\alpha\ln 2 \frac{a_1+a_2}{a_2}+1\right)}.
+    \]
+\end{corollary}
 
 \newpage
 \section{Some algorithms}
