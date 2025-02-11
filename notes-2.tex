@@ -356,12 +356,12 @@ After some calculus, we obtain
     \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}=\frac{p(2)-p(1)}{2}e_{21}e_{22}.
 \end{equation}
 
-In a Bloom filter, the probability \(\lambda\) of getting a false positive when requesting an element that is not in the set can be approximated as \(\left(1-e^{-kn/m}\right)^k\), where \(n\) is the number of inserted elements, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
-For a given \(m\), the optimal value for \(k\) (i.e., the value that minimizes \(\lambda\)) is thus \(\frac{m}{n}\ln 2\), which yields
+In a Bloom filter, the probability \(\lambda\) of getting a false positive when requesting an element that is not in the set can be approximated as \(\left(1-e^{-kN/m}\right)^k\), where \(N\) is the number of inserted elements, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
+For a given \(m\), the optimal value for \(k\) (i.e., the value that minimizes \(\lambda\)) is thus \(\frac{m}{N}\ln 2\), which yields
 \[
-    \lambda\approx\frac{1}{2^{\frac{m}{n}\ln 2}}.
+    \lambda\approx\frac{1}{2^{\frac{m}{N}\ln 2}}.
 \]
-Note that the ratio \(m/n\) represents the average number of bits that are allocated for each element in the Bloom filter.
+Note that the ratio \(m/N\) represents the average number of bits that are allocated for each element in the Bloom filter.
 
 We can now state the following theorem.
 
@@ -370,17 +370,17 @@ We can now state the following theorem.
     \[
         \frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}
     \]
-    bits per job in the Bloom filter implies \(\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}\le\delta\).
+    bits per element in the Bloom filter implies \(\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}\le\delta\).
 \end{theorem}
 \begin{proof}
     Fix \(\delta>0\) and suppose that
     \[
-        \frac{m}{a_2}\ge\frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}.
+        \frac{m}{N}\ge\frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}.
     \]
 
     Then, after some calculus we get
     \[
-        \frac{1}{2^{\frac{m}{a_2}\ln 2}}\le\frac{2\delta}{a_1a_2(p(2)-p(1))},
+        \frac{1}{2^{\frac{m}{N}\ln 2}}\le\frac{2\delta}{a_1a_2(p(2)-p(1))},
     \]
     that is,
     \[
@@ -395,12 +395,12 @@ We can now state the following theorem.
     \]
 \end{proof}
 
-\begin{corollary}
-    For any \(0\le\alpha<1\), allocating \(\alpha n\) bits in the Bloom filter implies
-    \[
-        \delta=a_1a_2(p(2)-p(1))\cdot 2^{-\left(\alpha\ln 2 \frac{a_1+a_2}{a_2}+1\right)}.
-    \]
-\end{corollary}
+% \begin{corollary}
+%     For any \(0\le\alpha<1\), allocating \(\alpha n\) bits in the Bloom filter implies
+%     \[
+%         \delta=a_1a_2(p(2)-p(1))\cdot 2^{-\left(\alpha\ln 2 \frac{a_1+a_2}{a_2}+1\right)}.
+%     \]
+% \end{corollary}
 
 \newpage
 \section{Some algorithms}
