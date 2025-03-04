@@ -3,12 +3,14 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+\usepackage{fullpage}
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[]{todonotes}
 
 \newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
 \newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
 \newtheorem{example}{Example}
@@ -93,7 +95,9 @@ triangular matrix.
 
 \noindent\textbf{Oracle-clairvoyant model.} The matrix \(E\) is known.
 
-\noindent\textbf{Realistic BF model.} For an oracle which consists as a chain of BF, we cannot know the full matrix
+\noindent\textbf{Realistic BF model.}
+\todo[inline]{This can be discussed; with some hypothesis (as described in Sec 4.3.2), it is possible to infer the matrix}
+For an oracle which consists as a chain of BF, we cannot know the full matrix
 \(E\) in the general case. Indeed, even if one assumes that the values \(a_1,\cdots,a_K\) are given as the instance,
 the structural properties of BF give access only to values \(b_1,\cdots,b_K\) (by a simple application of the oracle)
 and \(e_{11},e_{22},\cdots,e_{KK}\) (by deducing the false positive rate of each BF). For example, for a
@@ -174,28 +178,74 @@ where each \(P_i\) is a random variable denoting the processing time of the \(i\
 
 \subsection{Oracle-clairvoyant model}
 
-Let \(\mathcal{E}(a_1,a_2,\cdots,a_K)\) denote the set of oracles \(E\) such that there are exactly \(a_k\) jobs whose actual class is \(k\), for all \(1\le k\le K\).
+\begin{definition}
+    For a given instance of the problem, we define the \emph{oracle set} \(\mathcal{E}(a_1,a_2,\ldots,a_K)\), i.e., all oracles \(E\) such that \(\sum_{i=1}^{K} e_{ij}=a_j\) for all \(1\le j\le K\).
+\end{definition}
 
-In the following, we use the three following notations:
-\begin{itemize}
-    \item \(W^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible objective given by a (randomized) strategy \(\mathcal{A}\) on an oracle \(E\).
-    \item \(\mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the expected objective given by a (randomized) strategy \(\mathcal{A}\) on an oracle \(E\).
-    \item \(\mathbb{W}^{\mathcal{A}}_{\mathcal{E}(a_1,\cdots,a_K)}\left(\sum C_j\right)=\max_{E\in\mathcal{E}(a_1,\cdots,a_K)} \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible expected objective given by a (randomized) strategy \(\mathcal{A}\) (we omit the set \(\mathcal{E}\) when it is clear from the context).
-    The oracles \(E\) giving this value are called the \emph{worst-case oracles} for \(\mathcal{A}\).
-\end{itemize}
-The strategy \(\mathcal{A}\) is omitted when it is clear from the context.
-Obviously, our goal is to find a strategy such that \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)<\max_E W^{\mathcal{A}}_E\left(\sum C_j\right)\) (avoiding the worst-possible case in expectation) and \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\le\rho\cdot\text{SPT}\) for a given \(\rho\ge 1\) (there is a guarantee for any kind of oracle).
+\begin{definition}
+    We define \(S\) as the set of possible scenarios for a randomized algorithm.
+    We note \(C^{\mathcal{A}}_j(\sigma)\) the completion time of job \(j\) when scheduled by \(\mathcal{A}\) under scenario \(\sigma\in S\).
+\end{definition}
+
+\newcommand{\W}{\mathbb{W}}
+\newcommand{\E}{\mathbb{E}}
+
+\begin{definition}
+    We define the following measures:
+    \begin{itemize}
+        \item \(\W^{\mathcal{A}}_E\left[\sum C_j\right]=\max_{\sigma\in S}\sum C^{\mathcal{A}}_j(\sigma)\):
+        the worst objective on all possible scenarios given by a (randomized) strategy \(\mathcal{A}\) with oracle \(E\); this can be seen as playing against an adversary that controls the random generator.
+        \item \(\widehat{\W}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \W^{\mathcal{A}}_E\left[\sum C_j\right]\):
+        the worst-possible objective when the worst oracles (with respect to strategy \(\mathcal{A}\)) are considered.
+        \item \(\E^{\mathcal{A}}_E\left[\sum C_j\right]=\frac{1}{|S|}\sum_{\sigma\in S}\sum C^{\mathcal{A}}_j(\sigma)\):
+        the expected objective given by a (randomized) strategy \(\mathcal{A}\) with oracle \(E\) (all scenarios being considered equiprobable).
+        \item \(\widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right]\):
+        the expected objective when the worst oracles (with respect to strategy \(\mathcal{A}\)) are considered.
+    \end{itemize}
+    The strategy \(\mathcal{A}\) is omitted when it is clear from the context.
+\end{definition}
+
+% In the following, we use the three following notations:
+% \begin{itemize}
+%     \item \(W^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible objective given by a (randomized) strategy \(\mathcal{A}\) on an oracle \(E\); this can be seen as playing against an adversary that controls the random generator.
+%     \item \(\mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the expected objective given by a (randomized) strategy \(\mathcal{A}\) on an oracle \(E\).
+%     \item \(\mathbb{W}^{\mathcal{A}}_{\mathcal{E}(a_1,\cdots,a_K)}\left(\sum C_j\right)=\max_{E\in\mathcal{E}(a_1,\cdots,a_K)} \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)\): the worst-possible expected objective given by a (randomized) strategy \(\mathcal{A}\) (we omit the set \(\mathcal{E}\) when it is clear from the context).
+%     The oracles \(E\) giving this value are called the \emph{worst-case oracles} for \(\mathcal{A}\).
+% \end{itemize}
+
+\begin{definition}[Robustness and consistency]
+    An algorithm \(\mathcal{A}\) is said \(r\)-robust (with \(r\ge 1\)) if
+    \[
+        \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le r\cdot \text{SPT}.
+    \]
+    It is said \(c\)-consistent (with \(c\ge 1\)) if
+    \[
+        \min_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le c\cdot \text{SPT}.
+    \]
+\end{definition}
+
+\begin{definition}[Worst-case avoiding algorithms]
+    An algorithm \(\mathcal{A}\) is said \emph{worst-case avoiding} if
+    \[
+        \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right] < \widehat{\W}^{\mathcal{A}}\left[\sum C_j\right].
+    \]
+\end{definition}
+
+% Obviously, our goal is to find a strategy such that \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)<\max_E W^{\mathcal{A}}_E\left(\sum C_j\right)\) (avoiding the worst-possible case in expectation) and \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\le\rho\cdot\text{SPT}\) for a given \(\rho\ge 1\) (there is a guarantee for any kind of oracle).
+% Moreover, we want \(\min_{E\in\mathcal{E}(a_1,\cdots,a_K)} \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)=\text{SPT}\).
 
 Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset of \(\mathcal{E}(a_1,\cdots,a_K)\) such that we can obtain a good guarantee for \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\).
 
-\subsubsection{SPT}
+% \todo[inline]{It would be interesting to establish relationship of these notions with classical robustness/consistency in learning-augmented algorithms.}
+
+\subsubsection{NCL-SPT (non-clairvoyant SPT)}
 
 Let us see what is the worst possible objective if we fully trust the oracle, i.e., we try to apply the SPT algorithm with the given predictions.
 It can be seen as scheduling the sets \(B_1,B_2,\dots,B_K\) in order, without knowing the ordering of jobs in each \(B_k\).
 
-Thus, in the worst-case, SPT could schedule jobs of each set \(B_k\) in non-increasing order of processing times, yielding for any \(E\)
+In the worst scenario, NCL-SPT will schedule jobs of each set \(B_k\) in non-increasing order of processing times, yielding for any \(E\)
 \[
-    W_E\left(\sum C_j\right)=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
+    \W_E\left[\sum C_j\right]=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
 \]
 with
 \[
@@ -204,55 +254,56 @@ with
 
 In terms of additional cost compared to the clairvoyant optimal solution, for any job \(\tau\) in the set \(J_{ij}\), we have
 \[
-    W_E\left(\eta_{\tau}\right)=\sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')),
+    \W_E\left[\eta_{\tau}\right]=\sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')),
 \]
 i.e.,
 \[
-    W_E\left(\sum\eta_j\right)=\sum_{i=1}^K \sum_{j=1}^K e_{ij} \sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
+    \W_E\left[\sum\eta_j\right]=\sum_{i=1}^K \sum_{j=1}^K e_{ij} \sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
 \]
 
-Now, we may wonder what is the expected objective of SPT, assuming that each set \(B_k\) is shuffled independently beforehand in order to avoid putting large jobs first.
+Now, we may wonder what is the expected objective of NCL-SPT, assuming that each set \(B_k\) is shuffled independently beforehand in order to avoid putting large jobs first.
 
 Let \(\Delta_i\) denote the minimum starting time of each job in \(B_i\), i.e.,
 \[
     \Delta_i=\sum_{i'=1}^{i-1} \sum_{j=1}^{K} e_{i'j} \cdot p(j).
 \]
 
-We have \(\mathbb{E}_E(\sum C_j)=\mathbb{E}_E(\sum_{j\in B_1} C_j + \sum_{j\in B_2} C_j + \dots + \sum_{j\in B_K} C_j)=\sum_{i=1}^{K} \mathbb{E}_E(\sum_{j\in B_i} C_j)\), with,
+We have \(\E_E\left[\sum C_j\right]=\E_E\left[\sum_{j\in B_1} C_j + \sum_{j\in B_2} C_j + \dots + \sum_{j\in B_K} C_j\right]=\sum_{i=1}^{K} \E_E\left[\sum_{j\in B_i} C_j\right]\), with,
 \begin{align*}
-    \mathbb{E}_E\left(\sum_{j\in B_i} C_j\right)
-    &=b_i \cdot \Delta_i + \mathbb{E}_E(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{b_i})) \\
+    \E_E\left[\sum_{j\in B_i} C_j\right]
+    &=b_i \cdot \Delta_i + \E_E\left[P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{b_i})\right] \\
     &=b_i \cdot \Delta_i + \frac{b_i(b_i+1)}{2} \cdot \sum_{k=1}^{K} \frac{e_{ik}}{b_i} \cdot p(k) \\
     &=b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
 \end{align*}
 
 Hence,
 \[
-    \mathbb{E}_E\left(\sum C_j\right)=\sum_{i=1}^{K} b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
+    \E_E\left[\sum C_j\right]=\sum_{i=1}^{K} b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
 \]
 
-The most extreme case is when the oracle is completely wrong, i.e., it is represented by an anti-diagonal matrix.
-SPT will schedule jobs in non-increasing order of processing times, yielding the maximum possible objective for the given instance:
-\[
-    \mathbb{W}\left(\sum C_j\right)=\sum_{i=1}^K e_{i,K-i+1}\cdot\Delta_{i}+\frac{e_{i,K-i+1}(e_{i,K-i+1}+1)}{2}\cdot p(K-i+1),
-\]
-with
-\[
-    \Delta_{i}=\sum_{i'=1}^{i-1} e_{i',K-i'+1}\cdot p(K-i'+1),
-\]
-i.e.,
-\[
-    \mathbb{W}\left(\sum C_j\right)=\max_E W_E\left(\sum C_j\right).
-\]
+\begin{theorem}
+    NCL-SPT is \emph{not} worst-case avoiding, i.e., \(\widehat{\E}\left[\sum C_j\right]=\widehat{\W}\left[\sum C_j\right]\).
+\end{theorem}
+\begin{proof}
+    The most extreme case is when the oracle is completely wrong, i.e., it is represented by an anti-diagonal matrix.
+    NCL-SPT will then be forced to schedule jobs in non-increasing order of processing times, yielding the maximum possible objective for the given instance:
+    \[
+        \widehat{\E}\left[\sum C_j\right]=\widehat{\W}\left[\sum C_j\right]=\sum_{i=1}^K e_{i,K-i+1}\cdot\Delta_{i}+\frac{e_{i,K-i+1}(e_{i,K-i+1}+1)}{2}\cdot p(K-i+1),
+    \]
+    with
+    \[
+        \Delta_{i}=\sum_{i'=1}^{i-1} e_{i',K-i'+1}\cdot p(K-i'+1).
+    \]
 
-For any job \(\tau\) in \(J_{i,K-i+1}\), we have
-\[
-    \mathbb{W}\left(\eta_{\tau}\right)=\sum_{i'=i+1}^K e_{i',K-i'+1}\cdot (p(K-i+1)-p(K-i'+1)),
-\]
-yielding
-\[
-    \mathbb{W}\left(\sum \eta_j\right)=\sum_{i=1}^K e_{i,K-i+1}\sum_{i'=i+1}^K e_{i',K-i'+1}\cdot (p(K-i+1)-p(K-i'+1)).
-\]
+    % For any job \(\tau\) in \(J_{i,K-i+1}\), we have
+    % \[
+    %     \widehat{\E}\left[\eta_{\tau}\right]=\sum_{i'=i+1}^K e_{i',K-i'+1}\cdot (p(K-i+1)-p(K-i'+1)),
+    % \]
+    % yielding
+    % \[
+    %     \widehat{\E}\left[\sum \eta_j\right]=\sum_{i=1}^K e_{i,K-i+1}\sum_{i'=i+1}^K e_{i',K-i'+1}\cdot (p(K-i+1)-p(K-i'+1)).
+    % \]
+\end{proof}
 
 \todo[inline]{\textbf{Question}: which class of oracles yields \(\mathbb{E}^{\text{SPT}}_E\left(\sum C_j\right)\le\text{RANDOM}\)?}
 
@@ -261,54 +312,65 @@ yielding
 A better algorithm (called PICK) could consist in picking \(e_{i1}\) jobs randomly in each set \(B_i\), and schedule them first.
 Then, pick \(e_{i2}\) jobs randomly in each \(B_i\), and schedule them in second. Repeat the procedure until the last column.
 
-There clearly exists an oracle for which the worst-case scenario yields the worst possible objective, i.e., we have
-\[
-    \max_E W^{\text{PICK}}_E\left(\sum C_j\right)=\max_E W^{\text{SPT}}_E\left(\sum C_j\right).
-\]
+%%% NOT SO SURE ABOUT THE FOLLOWING: ========
+% There clearly exists an oracle for which the worst-case scenario yields the worst possible objective, i.e., we have
+% \[
+%     \max_E W^{\text{PICK}}_E\left(\sum C_j\right)=\max_E W^{\text{SPT}}_E\left(\sum C_j\right).
+% \]
+%%% =========================================
 
-\todo[inline]{We probably have \(\mathbb{W}^{\text{PICK}}\left(\sum C_j\right)<\max_E W^{\text{PICK}}_E\left(\sum C_j\right)\), i.e., for all oracles we can avoid the worst-case in expectation.}
+% \todo[inline]{We probably have \(\mathbb{W}^{\text{PICK}}\left(\sum C_j\right)<\max_E W^{\text{PICK}}_E\left(\sum C_j\right)\), i.e., for all oracles we can avoid the worst-case in expectation.}
 
 Let us see what is the expected objective for a given oracle \(E\).
 Let \(\tilde{J}_{ij}\) be the set of jobs scheduled during the step \(i+K(j-1)\).
 We have
 \[
-    \mathbb{E}_E\left(\sum C_j\right)=\sum_{i=1}^K \sum_{j=1}^K \mathbb{E}_E\left(\sum_{t\in \tilde{J}_{ij}} C_t\right),
+    \E_E\left[\sum C_j\right]=\sum_{i=1}^K \sum_{j=1}^K \E_E\left[\sum_{t\in \tilde{J}_{ij}} C_t\right],
 \]
 with
 \[
-    \mathbb{E}_E\left(\sum_{t\in \tilde{J}_{ij}} C_t\right)=
-        e_{ij}\mathbb{E}_E\left(\Delta_{ij}\right)+\mathbb{E}_E\left(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{e_{ij}})\right)
+    \E_E\left[\sum_{t\in \tilde{J}_{ij}} C_t\right]=
+        e_{ij}\E_E\left[\Delta_{ij}\right]+\E_E\left[P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{e_{ij}})\right]
 \]
 for all \(i,j\), where \(\Delta_{ij}\) is the minimum starting time of jobs in \(\tilde{J}_{ij}\) and each \(P_t\) is a random variable denoting the processing time of the job scheduled at the \(t\)-th position during the current step.
 
 We observe that the algorithm can be seen as shuffling each set \(B_k\) and scheduling the first \(e_{11}\) jobs in \(B_1\), then the first \(e_{21}\) jobs in \(B_2\), and so on.
-Thus, we clearly have \(\mathbb{E}_E\left(P_t\right)=\sum_{k=1}^K \frac{e_{ik}}{b_i}\) for any job \(t\) belonging to \(B_i\).
+Thus, we clearly have \(\E_E\left[P_t\right]=\sum_{k=1}^K \frac{e_{ik}}{b_i}\) for any job \(t\) belonging to \(B_i\).
 Let \(\bar{p}(i)=\sum_{k=1}^K \frac{e_{ik}}{b_i}\) be the average processing time of jobs \(B_i\).
 
 We also have
 \[
-    \mathbb{E}_E\left(\Delta_{ij}\right)=
+    \E_E\left[\Delta_{ij}\right]=
         \sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
         + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i'),
 \]
 which finally yields
 \[
-    \mathbb{E}_E\left(\sum C_j\right)=
+    \E_E\left[\sum C_j\right]=
         \sum_{i=1}^K \sum_{j=1}^K\left[
             e_{ij}\left(\sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
                 + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i')\right) +
             \frac{e_{ij}(e_{ij}+1)}{2}\bar{p}(i)
+        \right],
+\]
+that is,
+\[
+    \E_E\left[\sum C_j\right]-\text{SPT}=
+        \sum_{i=1}^K \sum_{j=1}^K\left[
+            e_{ij}\left(\sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} (\bar{p}(i')-p(j'))
+                + \sum_{i'=1}^{i-1} e_{i'j} (\bar{p}(i')-p(j))\right) +
+            \frac{e_{ij}(e_{ij}+1)}{2}(\bar{p}(i)-p(j)).
         \right].
 \]
 
 Therefore, if for all \(i,j\), \(e_{ij}=0\) or \(\bar{p}(i)-p(j)\le\varepsilon p(j)\) for a given \(\varepsilon\ge 0\), we have
 \[
-    \mathbb{E}^{\text{PICK}}_E\left(\sum C_j\right)\le (1+\varepsilon)\text{SPT}.
+    \E^{\text{PICK}}_E\left[\sum C_j\right]\le (1+\varepsilon)\text{SPT}.
 \]
 
 \todo[inline]{maybe we can be more precise; this does not take into account the fact that \(\bar{p}(i)-p(j)<0\) for some \(i,j\) such that \(e_{ij}>0\).}
 
-\noindent\textbf{Bloom filter model.}
+\noindent\textbf{Bloom filter model (2 classes).}
 Let us consider instances with 2 classes of jobs, i.e., there are \(a_1\) jobs of class 1 and there are \(a_2\) jobs of class 2.
 Consider the Bloom filter model for the oracle, i.e., the oracle is a matrix \(E\) of the following shape:
 \[
@@ -320,7 +382,7 @@ Consider the Bloom filter model for the oracle, i.e., the oracle is a matrix \(E
 with \(a_1=e_{11}+e_{21}\) and \(a_2=e_{22}\).
 In this case, we have
 \begin{align*}
-    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)
+    \E_E^{\text{PICK}}\left[\sum C_j\right]
     &=\frac{e_{11}(e_{11}+1)}{2}\bar{p}(1) \\
     &\quad+e_{21}e_{11}\bar{p}(1)+\frac{e_{21}(e_{21}+1)}{2}\bar{p}(2) \\
     &\quad+e_{22}(e_{11}\bar{p}(1)+e_{21}\bar{p}(2))+\frac{e_{22}(e_{22}+1)}{2}\bar{p}(2)
@@ -335,7 +397,7 @@ and
 
 This yields
 \begin{align*}
-    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}
+    \E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}
     &=\frac{e_{21}(e_{21}+1)}{2}(\bar{p}(2)-p(1)) \\
     &\quad+e_{22}e_{21}(\bar{p}(2)-p(1)) \\
     &\quad+\frac{e_{22}(e_{22}+1)}{2}(\bar{p}(2)-p(2)).
@@ -353,7 +415,7 @@ and
 After some calculus, we obtain
 \begin{equation}
     \label{eq.diff}
-    \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}=\frac{p(2)-p(1)}{2}e_{21}e_{22}.
+    \E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}=\frac{p(2)-p(1)}{2}e_{21}e_{22}.
 \end{equation}
 
 In a Bloom filter, the probability \(\lambda\) of getting a false positive when requesting an element that is not in the set can be approximated as \(\left(1-e^{-kN/m}\right)^k\), where \(N\) is the number of inserted elements, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
@@ -370,7 +432,7 @@ We can now state the following theorem.
     \[
         \frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}
     \]
-    bits per element in the Bloom filter implies \(\mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}\le\delta\).
+    bits per element in the Bloom filter implies \(\E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}\le\delta\).
 \end{theorem}
 \begin{proof}
     Fix \(\delta>0\) and suppose that
@@ -391,16 +453,70 @@ We can now state the following theorem.
     Observe that \(e_{21}\approx\lambda a_1\) and \(e_{22}=a_2\).
     By Equation~\ref{eq.diff}, we get
     \[
-        \mathbb{E}_E^{\text{PICK}}\left(\sum C_j\right)-\text{SPT}\le\delta.
+        \E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}\le\delta.
     \]
 \end{proof}
 
-% \begin{corollary}
-%     For any \(0\le\alpha<1\), allocating \(\alpha n\) bits in the Bloom filter implies
-%     \[
-%         \delta=a_1a_2(p(2)-p(1))\cdot 2^{-\left(\alpha\ln 2 \frac{a_1+a_2}{a_2}+1\right)}.
-%     \]
-% \end{corollary}
+\noindent\textbf{Bloom filter model (generalized).}
+Now consider instances with \(K\) classes of jobs (i.e., there are \(a_k\) jobs of class \(k\)) and oracles composed of \(K-1\) chained Bloom filters, where the Bloom filter \(\mathcal{B}_k\) encodes the set of jobs belonging to class \(K-k+1\).
+
+In this model, the oracle is a matrix \(E\) of the following shape:
+\[
+    E=\begin{pmatrix}
+        e_{11} & 0      & \cdots & 0 & 0 \\
+        e_{21} & e_{22} & \cdots & 0 & 0 \\
+        \cdots & \cdots & \cdots & \cdots & \cdots \\
+        e_{K-1,1} & e_{K-1,2} & \cdots & e_{K-1,K-1} & 0 \\
+        e_{K,1}   & e_{K,2}   & \cdots & e_{K,K-1}   & e_{K,K} \\
+    \end{pmatrix}.
+\]
+
+Let \(\lambda_k\) be the false positive rate of each \(\mathcal{B}_k\).
+In general, we have
+\begin{align*}
+    e_{K,K}&=a_K, \\
+    e_{K,1}+\cdots+e_{K,K-1}&=\lambda_1(a_1+\cdots+a_{K-1}), \\
+    e_{K-1,1}+\cdots+e_{K-1,K-2}&=\lambda_2((1-\lambda_1)(a_1+\cdots+a_{K-1})-e_{K-1,K-1}), \\
+    &=\lambda_2(1-\lambda_1)(a_1+\cdots+a_{K-1})-\lambda_2(e_{K-1,K-1}), \\
+    e_{K-2,1}+\cdots+e_{K-2,K-3}&=\lambda_3((1-\lambda_2)((1-\lambda_1)(a_1+\cdots+a_{K-1})-e_{K-1,K-1})-e_{K-2,K-2}), \\
+    &=\lambda_3(1-\lambda_2)(1-\lambda_1)(a_1+\cdots+a_{K-1})-\lambda_3(1-\lambda_2)e_{K-1,K-1}-\lambda_3e_{K-2,K-2}, \\
+    &\cdots \\
+\end{align*}
+
+This way, finding a general expression for each \(e_{ij}\) seems out of reach.
+Hence, in the following we make the reasonable assumption that, for a given Bloom filter \(\mathcal{B}_k\), the probability to obtain a false positive is the same no matter the class, that is, for all class \(j\ne K-k+1\):
+\[
+    \mathbb{P}(\mathcal{B}_k\text{ outputs 1}\mid\text{job in class }j)=
+    \mathbb{P}(\mathcal{B}_k\text{ outputs 1}\mid\text{job not in class }K-k+1)=
+    \lambda_k.
+\]
+Now, we have
+\begin{align*}
+    e_{K,K}&=a_K, \\
+    e_{K,j}&=\lambda_1a_j,1\le j<K, \\
+    e_{K-1,K-1}&=(1-\lambda_1)a_{K-1}, \\
+    e_{K-1,j}&=\lambda_2(1-\lambda_1)a_j,1\le j<K-1, \\
+    e_{K-2,K-2}&=(1-\lambda_2)(1-\lambda_1)a_{K-2}, \\
+    &\cdots \\
+\end{align*}
+Thus, we can express each \(e_{ij}\) as:
+\[
+    e_{ij}=\begin{cases}
+        a_j\cdot\lambda_{K-i+1}\prod_{i'=1}^{K-i} (1-\lambda_{i'}) & \text{ if }i>j, \\
+        a_j\cdot\prod_{i'=1}^{K-i} (1-\lambda_{i'}) & \text{ if }i=j, \\
+        0 & \text{ otherwise.} \\
+    \end{cases}
+\]
+
+Simplifying further, it seems also very reasonable to assume that we want the same false positive rate for all Bloom filters in the chain, that is, \(\lambda_k=\lambda\) for all \(k\).
+With the convention \(0^0=1\), we get
+\[
+    e_{ij}=\begin{cases}
+        a_j\cdot\lambda(1-\lambda)^{K-i} & \text{ if }i>j, \\
+        a_j\cdot(1-\lambda)^{K-i} & \text{ if }i=j, \\
+        0 & \text{ otherwise.} \\
+    \end{cases}
+\]
 
 \newpage
 \section{Some algorithms}
