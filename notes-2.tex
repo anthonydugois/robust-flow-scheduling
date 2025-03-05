@@ -164,6 +164,19 @@ In a given schedule, for any job \(j\) in class \(k\), we have
 \]
 where \(n(\ell,j)\) denotes the number of jobs of class \(\ell\) scheduled \emph{after} the job \(j\).
 
+\subsubsection{Worst-case}
+
+Note that the worst-case consists in scheduling jobs in non-increasing order of processing times, that is, scheduling jobs according to Longest Processing Time (LPT) strategy.
+
+In this case, we get
+\[
+    \text{LPT}=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
+\]
+with
+\[
+    \Delta_{ij}=\sum_{i'=1}^{K} \sum_{j'=j+1}^{K} e_{i'j'} \cdot p(j') + \sum_{i'=1}^{i-1} e_{i'j} \cdot p(j).
+\]
+
 \subsection{Non-clairvoyant model}
 
 In the non-clairvoyant model, simply shuffling jobs yields (in expectation)
@@ -183,7 +196,7 @@ where each \(P_i\) is a random variable denoting the processing time of the \(i\
 \end{definition}
 
 \begin{definition}
-    We define \(S\) as the set of possible scenarios for a randomized algorithm.
+    For a given instance of the problem, we define \(S\) as the set of possible scenarios for a randomized algorithm.
     We note \(C^{\mathcal{A}}_j(\sigma)\) the completion time of job \(j\) when scheduled by \(\mathcal{A}\) under scenario \(\sigma\in S\).
 \end{definition}
 
@@ -191,7 +204,7 @@ where each \(P_i\) is a random variable denoting the processing time of the \(i\
 \newcommand{\E}{\mathbb{E}}
 
 \begin{definition}
-    We define the following measures:
+    For a given instance of the problem, we define the following measures:
     \begin{itemize}
         \item \(\W^{\mathcal{A}}_E\left[\sum C_j\right]=\max_{\sigma\in S}\sum C^{\mathcal{A}}_j(\sigma)\):
         the worst objective on all possible scenarios given by a (randomized) strategy \(\mathcal{A}\) with oracle \(E\); this can be seen as playing against an adversary that controls the random generator.
@@ -214,18 +227,18 @@ where each \(P_i\) is a random variable denoting the processing time of the \(i\
 % \end{itemize}
 
 \begin{definition}[Robustness and consistency]
-    An algorithm \(\mathcal{A}\) is said \(r\)-robust (with \(r\ge 1\)) if
+    An algorithm \(\mathcal{A}\) is said \(r\)-robust (with \(r\ge 1\)) if, for all instances,
     \[
         \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le r\cdot \text{SPT}.
     \]
-    It is said \(c\)-consistent (with \(c\ge 1\)) if
+    It is said \(c\)-consistent (with \(c\ge 1\)) if, for all instances,
     \[
         \min_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le c\cdot \text{SPT}.
     \]
 \end{definition}
 
-\begin{definition}[Worst-case avoiding algorithms]
-    An algorithm \(\mathcal{A}\) is said \emph{worst-case avoiding} if
+\begin{definition}[Stochastically robust algorithms]
+    For a given instance of the problem, an algorithm \(\mathcal{A}\) is said \emph{stochastically robust} if
     \[
         \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right] < \widehat{\W}^{\mathcal{A}}\left[\sum C_j\right].
     \]
@@ -234,7 +247,7 @@ where each \(P_i\) is a random variable denoting the processing time of the \(i\
 % Obviously, our goal is to find a strategy such that \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)<\max_E W^{\mathcal{A}}_E\left(\sum C_j\right)\) (avoiding the worst-possible case in expectation) and \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\le\rho\cdot\text{SPT}\) for a given \(\rho\ge 1\) (there is a guarantee for any kind of oracle).
 % Moreover, we want \(\min_{E\in\mathcal{E}(a_1,\cdots,a_K)} \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)=\text{SPT}\).
 
-Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset of \(\mathcal{E}(a_1,\cdots,a_K)\) such that we can obtain a good guarantee for \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\).
+\todo[inline]{Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset of \(\mathcal{E}(a_1,\cdots,a_K)\) such that we can obtain a good guarantee for \(\widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]\).}
 
 % \todo[inline]{It would be interesting to establish relationship of these notions with classical robustness/consistency in learning-augmented algorithms.}
 
@@ -282,17 +295,13 @@ Hence,
 \]
 
 \begin{theorem}
-    NCL-SPT is \emph{not} worst-case avoiding, i.e., \(\widehat{\E}\left[\sum C_j\right]=\widehat{\W}\left[\sum C_j\right]\).
+    For any instance of the problem, NCL-SPT is \emph{not} stochastically efficient.
 \end{theorem}
 \begin{proof}
-    The most extreme case is when the oracle is completely wrong, i.e., it is represented by an anti-diagonal matrix.
+    The most extreme case is when the oracle is represented by an anti-diagonal matrix.
     NCL-SPT will then be forced to schedule jobs in non-increasing order of processing times, yielding the maximum possible objective for the given instance:
     \[
-        \widehat{\E}\left[\sum C_j\right]=\widehat{\W}\left[\sum C_j\right]=\sum_{i=1}^K e_{i,K-i+1}\cdot\Delta_{i}+\frac{e_{i,K-i+1}(e_{i,K-i+1}+1)}{2}\cdot p(K-i+1),
-    \]
-    with
-    \[
-        \Delta_{i}=\sum_{i'=1}^{i-1} e_{i',K-i'+1}\cdot p(K-i'+1).
+        \widehat{\E}\left[\sum C_j\right]=\widehat{\W}\left[\sum C_j\right]=\text{LPT}.
     \]
 
     % For any job \(\tau\) in \(J_{i,K-i+1}\), we have
@@ -335,8 +344,8 @@ with
 for all \(i,j\), where \(\Delta_{ij}\) is the minimum starting time of jobs in \(\tilde{J}_{ij}\) and each \(P_t\) is a random variable denoting the processing time of the job scheduled at the \(t\)-th position during the current step.
 
 We observe that the algorithm can be seen as shuffling each set \(B_k\) and scheduling the first \(e_{11}\) jobs in \(B_1\), then the first \(e_{21}\) jobs in \(B_2\), and so on.
-Thus, we clearly have \(\E_E\left[P_t\right]=\sum_{k=1}^K \frac{e_{ik}}{b_i}\) for any job \(t\) belonging to \(B_i\).
-Let \(\bar{p}(i)=\sum_{k=1}^K \frac{e_{ik}}{b_i}\) be the average processing time of jobs \(B_i\).
+Thus, we clearly have \(\E_E\left[P_t\right]=\sum_{k=1}^K \frac{e_{ik}}{b_i}p(k)\) for any job \(t\) belonging to \(B_i\).
+Let \(\bar{p}(i)=\sum_{k=1}^K \frac{e_{ik}}{b_i}p(k)\) be the average processing time of jobs \(B_i\).
 
 We also have
 \[
@@ -369,6 +378,15 @@ Therefore, if for all \(i,j\), \(e_{ij}=0\) or \(\bar{p}(i)-p(j)\le\varepsilon p
 \]
 
 \todo[inline]{maybe we can be more precise; this does not take into account the fact that \(\bar{p}(i)-p(j)<0\) for some \(i,j\) such that \(e_{ij}>0\).}
+
+\begin{theorem}
+    There exists an instance such that \(\widehat{\W}^{\text{PICK}}\left[\sum C_j\right]=\text{LPT}\).
+\end{theorem}
+\begin{proof}
+    If \(a_j=a_{j'}\) for all \(j,j'\), there exists an oracle such that \(e_{ij}=e_{i'j'}\) for all \(i,i',j,j'\).
+
+    In this case, in the worst-possible scenario, during each round \(i\) the algorithm will pick the larger remaining jobs in each row, yielding the same objective than LPT.
+\end{proof}
 
 \noindent\textbf{Bloom filter model (2 classes).}
 Let us consider instances with 2 classes of jobs, i.e., there are \(a_1\) jobs of class 1 and there are \(a_2\) jobs of class 2.
