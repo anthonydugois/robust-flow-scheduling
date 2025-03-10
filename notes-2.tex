@@ -7,6 +7,10 @@
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amssymb}
+
+\usepackage{algpseudocode}
+
+
 \usepackage[]{todonotes}
 
 \newtheorem{theorem}{Theorem}
@@ -538,7 +542,7 @@ With the convention \(0^0=1\), we get
 
 \newpage
 \section{Some algorithms}
-\subsection{A DP}
+\subsection{A DP}\label{DP}
 Find the best possible value of $\mathbb{E}(\sum_{j\in\text{Jobs}}Flowtime_j)$. Let be E the state : \[
         E=\begin{pmatrix}
             a_{1\ 1} & 0 & ...& 0 & 0\\
@@ -618,7 +622,84 @@ $$\text{S} \begin{pmatrix}
         \end{cases}
 $$
 
+\newpage
 
- 
- 
+
+
+\section{A Model with a Band}
+We assume that the algorithms we design have full access to the values of the matrix. Initially, we consider the matrix to be correctly defined. Our objective is to design a consistant algorithm that selects a row in the matrix, from which a task is chosen and executed immediately.
+
+\begin{definition}
+We define the notion of \emph{bandwidth} differently from the standard definitions of bandwidth and lower bandwidth in numerical analysis. When referring to a band of size $b$, we mean that each row of the matrix contains at most $b$ nonzero values, centered around the main diagonal. More precisely:
+
+For rows with index $i \leq b$, the first $i$ values may be nonzero.
+For rows with index $i > b$, the first $i - b$ values are forced to be zero, while the next $b$ values may be nonzero.
+\end{definition}
+
+\subsection{Two Trivial Cases}To a better understanding of  the algorithm presented in Subsection \ref{band-consistent-algo}, we first analyze two extreme cases of the matrix structure.
+
+The first case corresponds to a band of size 1, meaning that the matrix is purely diagonal:  
+\[
+\begin{bmatrix}  
+x_{11} & 0 & 0 & \cdots & 0 \\  
+0 & x_{22} & 0 & \cdots & 0 \\  
+0 & 0 & x_{33} & \cdots & 0 \\  
+\vdots & \vdots & \vdots & \ddots & \vdots \\  
+0 & 0 & 0 & \cdots & x_{nn}  
+\end{bmatrix}  
+\]
+
+In this case, selecting the row with the smallest index that contains a nonzero coefficient ensures choosing the shortest available task. This corresponds to the Shortest Processing Time (SPT) rule, which is known to be optimal.
+
+The second case considers a band of size 2, meaning that each row may contain at most one additional nonzero coefficient in the preceding column:  
+\[
+\begin{bmatrix}  
+x_{11} & 0 & 0 & \cdots & 0 \\  
+x_{21} & x_{22} & 0 & \cdots & 0 \\  
+0 & x_{32} & x_{33} & \cdots & 0 \\  
+\vdots & \vdots & \vdots & \ddots & 0 \\  
+0 & 0 & 0 & x_{n,n-1} & x_{nn}  
+\end{bmatrix}  
+\]
+To illustrate the selection mechanism, consider two consecutive rows $i$ and $i+1$:\[
+\begin{bmatrix}  
+0 & \cdots & x_{i, j-1} & x_{i,j} & 0 & \cdots & 0 \\  
+0 & \cdots & 0 & x_{i+1, j} & x_{i+1, j+1} & \cdots & 0 \\  
+\end{bmatrix}  
+\]
+Choosing row $i$ yields a task of duration at most $p_j$, while choosing row $i+1$ yields a task of duration at least $p_j$. As a result, prioritizing the row with the smallest index ensures the selection of the shortest available task at each step. More generally, always selecting the lowest indexed row provides an optimal algorithm in this setting.
+\subsection{A Consistent Optimal Algorithm}\label{band-consistent-algo}
+
+We now generalize this approach to a band of arbitrary size $b$.
+
+\begin{lemma}
+Let $k$ be the smallest index of a row containing a nonzero coefficient at a given scheduling step. An optimal algorithm will necessarily choose a row within the range $[k, k + b - 2]$.
+\end{lemma}
+
+\begin{proof}
+If the matrix has a bandwidht of size $b$—that is, at most $b$ nonzero values per row—let $i$ be a row containing a nonzero coefficient. The longest task that can be selected from row $i$ has a duration of at most $p_i$. Selecting a row $j$ with $j \geq i + b - 1$ will always yield a task of at least $p_i$. Therefore, restricting the choice to rows within $[k, k + b - 2]$ ensures the selection of the shortest possible task at each step.
+\end{proof}
+
+\paragraph{Optimal Algorithm:} Based on the principle outlined in Lemma 1, we propose the following approach:
+
+\begin{algorithmic}
+\State \textbf{Algorithm} (Matrix $A$)
+\While{$A$ is not empty}
+\State Let $i$ be the minimal index of a row containing a nonzero value.
+\State Apply a dynamic programming (DP) algorithm to the submatrix $A[i : i + b - 2, 0:m]$.
+\While{$i$ remains the smallest index with a nonzero coefficient}
+\State Select a task according to the DP solution.
+\EndWhile
+\EndWhile
+\end{algorithmic}
+
+\paragraph{Complexity Analysis:}
+We consider the sum of all values in the matrix to be $n$. Suppose, in an impossible  worst-case scenario, all values are exactly equal to $n$. For each row $m$, we must execute the DP algorithm on a submatrix containing $b$ elements per row and $b-1$ rows. The number of nonzero elements in such a submatrix is $(b-1)b$, leading to a worst-case DP complexity of $O((n+1)^{b(b-1)})$ since each of those $b(b-1)$ elements can have a value between $0$ and $n$. Since the DP algorithm is executed at most $m$ times, the overall complexity satisfies:
+
+\begin{equation*}
+\mathcal{O}\left(
+	m \cdot \left( \left(n+1)\right)^{b(b-1)}\right)
+	\right),
+\end{equation*}
+which is polynomial if we consider the size of the band as a constant.
 \end{document}
