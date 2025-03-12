@@ -18,6 +18,7 @@
 \newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
 \newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
 
 \title{Scheduling \(K\) classes of jobs with a deterministic oracle}
 
@@ -672,7 +673,7 @@ Choosing row $i$ yields a task of duration at most $p_j$, while choosing row $i+
 
 We now generalize this approach to a band of arbitrary size $b$.
 
-\begin{lemma}
+\begin{lemma}\label{lemma:rowforDP}
 Let $k$ be the smallest index of a row containing a nonzero coefficient at a given scheduling step. An optimal algorithm will necessarily choose a row within the range $[k, k + b - 2]$.
 \end{lemma}
 
@@ -702,4 +703,32 @@ We consider the sum of all values in the matrix to be $n$. Suppose, in an imposs
 	\right),
 \end{equation*}
 which is polynomial if we consider the size of the band as a constant.
+
+More precisely, let $y_{ij}$ be the $j^{th}$ value that can be non-zero in line $i$. Algorithm complexity will be  
+\begin{align*}
+\sum_{i=1}^m \left(\prod_{j=1}^b (y_{ij}+1)\right)\text{, where }\sum_{i, j \in [1:m]}y_{ij}=n
+\end{align*}, that seems to lead us to a maximal complexity of $\left(1+\frac{n}{b(b-1)}\right)^{\left(b(b-1)\right)}$ since it's better to maximize one product than to balance the different terms of the sum.
+
+\begin{remark}For a more balanced matrix (where more than $(b-1)$ different lines have non-zero values), there is a balance between "calculation time" and "adversary power".
+
+\[\begin{bmatrix}  
+\cdots & 5 & 6 & 8 & 5 &  &  & &\cdots \\  
+\cdots &  & 4 & 2 & 7 & 9 &  & &\cdots  \\ 
+\cdots &  &    & 8 & 2 & 4 & 3 & &\cdots  \\   
+\cdots &  &    &    & 6 & 1 & 2 & 6& \cdots 
+\end{bmatrix}  \]
+\end{remark}\begin{proof}
+b=4. Step 1, we compute all matrices with lower values on the 3 firsts lines (indices 1 2 3). We pay for this. Now, we follow decision given by the min avereage tree given by the DP, until the first line is full of zero. And (Step 2) we have to relaunch the DP with the 3 lines (indices 2 3 4). If following the Step 1 DP decisions leads us to\begin{itemize}
+\item only schedule tasks of first line, we pay not so much, because we never have to schedue the biggest tasks of the other lines instance at the beginning of the schedule (example : 9)
+\item schedule some tasks of differents lines, for example one task "7" from the line 2, when we will have to launch again the DP for lines (2 3 4), we will not pay (1+7) in the product but (1+6).
+\item schedule a lot of tasks from differents lines, if during this phase, we choose 9 tasks to schedule from the line 2, and the adversary (randomness) gives us the 9 longest of the line, (to maximize Sum Cj), then at the end of this phase, the next matrix to explore by dp should be that one.
+\[\begin{bmatrix}  
+\cdots &  & 4 & 2 & 7 & 0 &  & &\cdots  \\ 
+\cdots &  &    & 8 & 2 & 4 & 3 & &\cdots  \\   
+\cdots &  &    &    & 6 & 1 & 2 & 6& \cdots 
+\end{bmatrix}  \]
+and we can see considering the last line here is irrelevant, because of lemma~\ref{lemma:rowforDP}, what will reduce time complexity of the next step.
+\end{itemize}
+If there is a balancing between complexity and quality of the solution (throw forcing randomness), maybe it's a lever to design approximation algorithms based on DP ? that cannot be achieved if band matrix is just composed of $(b-1)$ non-zero lines.  \end{proof}
+
 \end{document}
