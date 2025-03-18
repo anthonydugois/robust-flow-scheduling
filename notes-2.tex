@@ -731,4 +731,35 @@ and we can see considering the last line here is irrelevant, because of lemma~\r
 \end{itemize}
 If there is a balancing between complexity and quality of the solution (throw forcing randomness), maybe it's a lever to design approximation algorithms based on DP ? that cannot be achieved if band matrix is just composed of $(b-1)$ non-zero lines.  \end{proof}
 
+
+
+\newpage
+
+\section{Robustness Model}
+
+\subsection{Non-adaptive Algorithms}
+
+Let \(E\) be a known oracle matrix.
+We consider that a scenario \(\sigma\in S\) consists in \(K\) permutations \(\pi_i\), where \(\pi_i\) describes a fixed permutation of the jobs of row \(i\).
+We consider the following game: at each step \(t\) (\(1\le t\le n\), where \(n\) is the number of jobs), choose a row \(r(t)\) from which pulling the job located at the head; add the chosen job to the current schedule and remove it from the row.
+Let \(C(r,\sigma)\) denote the sum of completion times of the schedule generated from sequence \(r\) and scenario \(\sigma\).
+Note \(R\) the set of all possible sequences (for a given matrix).
+
+There are various objectives that can be defined:
+\begin{itemize}
+    \item Min-Max: \(\min_{r\in R} \max_{\sigma\in S} C(r,\sigma)\).
+    \item Min-Average: \(\min_{r\in R} \sum_{\sigma\in S} C(r,\sigma)\), which is equivalent to minimizing the expectation of \(\sum C_j\) if all scenarios are equiprobable (this is what we did in previous sections).
+    \item Min-Max Regret: \(\min_{r\in R}\max_{\sigma\in S} \left(C(r,\sigma)-C(r^*_{\sigma},\sigma)\right)\), where \(r^*_{\sigma}\) is the optimal sequence for scenario \(\sigma\), that is, systematically choosing the row with smallest job at the head.
+\end{itemize}
+
+\textbf{Questions:}
+\begin{enumerate}
+    \item Are Min-Max and Min-Max Regret NP-complete problems?
+    \item For a fixed sequence \(r\), are we able to find the worst-case scenario (i.e., the scenario that maximizes the regret)?
+\end{enumerate}
+
+\subsection{Adaptive Algorithms}
+
+Do we have an equivalent formulation of the problem if we allow our algorithms to adapt the sequence \(r\) according to the knowledge of already-scheduled jobs (that is, when we progressively learn about the scenario \(\sigma\))?
+
 \end{document}
