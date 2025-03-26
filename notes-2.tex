@@ -759,10 +759,13 @@ There are various objectives that can be defined:
     \item Min-Max Regret: \(\min_{r\in R}\max_{\sigma\in S} \left(\tilde{C}(r,\sigma)-\tilde{C}(r^*_{\sigma},\sigma)\right)\), where \(r^*_{\sigma}\) is the optimal sequence for \(\sigma\).
 \end{itemize}
 
-It can be easily seen with a swapping argument that for a given scenario \(\sigma\), the optimal sequence \(r^*_{\sigma}\) consists in choosing, at each step \(t\), the row \(i\) with the smallest job in the head position.
-However, observe that, for each objective, we must choose \(r\) \emph{without} knowing scenario \(\sigma\) (we only know the matrix \(E\)).
+%%% THE FOLLOWING IS *NOT* TRUE ; take 9 10 on row 1 and 10 1 on row 2.
+% It can be easily seen with a swapping argument that for a given scenario \(\sigma\), the optimal sequence \(r^*_{\sigma}\) consists in choosing, at each step \(t\), the row \(i\) with the smallest job in the head position.
+% However, observe that, for each objective, we must choose \(r\) \emph{without} knowing scenario \(\sigma\) (we only know the matrix \(E\)).
 
 \subsubsection{Min-Max}
+
+In any sequence \(r\), we note \(j(\tau)\) the job scheduled at step \(\tau\) in \(r\).
 
 \begin{definition}[Worst-case scenario]
     For the Min-Max problem, we say that the scenario \(\hat{\sigma}\) where each row is arranged in non-increasing order of job sizes is the worst-case scenario.
@@ -775,8 +778,14 @@ However, observe that, for each objective, we must choose \(r\) \emph{without} k
     \]
 \end{lemma}
 \begin{proof}
-    Let \(r\in R\) be a fixed sequence.
-    \todo[inline]{this is a simple swap argument}
+    Let \(r\in R\) be an arbitrary sequence, and let \(\sigma^*\) be a scenario that maximizes the objective.
+    Suppose that there exists a row \(i\) that is not arranged in non-increasing order of job sizes, i.e., there exists a position \(1<k\le b_i\) such that \(p_{\pi^*_i(k-1)}<p_{\pi^*_i(k)}\).
+
+    These jobs \(\pi^*_i(k-1)\) and \(\pi^*_i(k)\) are respectively scheduled during steps \(t_1\) and \(t_2\), with \(t_1<t_2\).
+    As these jobs are coming from row \(i\), we have \(r(t_1)=r(t_2)=i\), and as these jobs are consecutive in \(i\), we also have \(r(\tau)\ne i\) for all \(t_1<\tau<t_2\).
+
+    Thus, swapping \(\pi^*_i(k-1)\) and \(\pi^*_i(k)\) can only increase the objective of the resulting schedule.
+    By repeating the operation, we reach the worst-case scenario \(\hat{\sigma}\).
 \end{proof}
 
 \begin{definition}[Optimal sequence]
@@ -799,21 +808,23 @@ We are going to prove that scheduling rows in non-decreasing order of \(\bar{p}(
     There exists an optimal sequence that is row-ordered.
 \end{lemma}
 \begin{proof}
-    Let \(r^*\in R\) be an optimal sequence for the Min-Max problem.
-    Suppose \(r^*\) is not row-ordered, i.e., there exists a row \(i\) such that \(r^*(t)\ne i\) for a given step \(s_i<t<e_i\), and we assume \(t\) is minimal (in other words, \(r^*\) is row-ordered up to step \(t\)).
-    Then, we have \(r^*(t')=i\) for all \(s_i\le t'<t\) and there exists \(t''>t\) such that \(r^*(t'')=i\) (once again, assume \(t''\) is minimal).
+    \todo[inline]{not sure if this is true.}
 
-    For any step \(\tau\), we note \(j(\tau)\) the job scheduled at step \(\tau\).
-    Observe that if \(j(t)\) is strictly smaller than \(j(t-1)\), then it contradicts the optimality of \(r^*\), as a simple swap of \(r^*(t)\) and \(r^*(t-1)\), which are different, puts \(j(t)\) before \(j(t-1)\) in the schedule and decreases the objective.
-    Thus, \(p_{j(t)}\ge p_{j(t-1)}\).
-    Note that the exact same argument yields \(p_{j(t'')}\ge p_{j(t)}\): \(t''\) is the first step after \(t\) at which row \(i\) is chosen again in \(r^*\), which means that if \(j(t'')\) is strictly smaller than \(j(t)\), then we can obtain a better solution by swapping \(r^*(t)\) and \(r^*(t'')\).
-    Therefore, \(p_{j(t'')}\ge p_{j(t)}\ge p_{j(t-1)}\).
+    % Let \(r^*\in R\) be an optimal sequence for the Min-Max problem.
+    % Suppose \(r^*\) is not row-ordered, i.e., there exists a row \(i\) such that \(r^*(t)\ne i\) for a given step \(s_i<t<e_i\), and we assume \(t\) is minimal (in other words, \(r^*\) is row-ordered up to step \(t\)).
+    % Then, we have \(r^*(t')=i\) for all \(s_i\le t'<t\) and there exists \(t''>t\) such that \(r^*(t'')=i\) (once again, assume \(t''\) is minimal).
 
-    As \(r^*(t'')=r^*(t-1)=i\), we know that \(j(t'')\) and \(j(t-1)\) come from the same row \(i\).
-    We clearly cannot have \(p_{j(t'')}>p_{j(t-1)}\), because it would contradict the scenario \(\hat{\sigma}\).
-    We conclude that \(p_{j(t'')}=p_{j(t-1)}\), and thus, \(p_{j(t'')}=p_{j(t)}\).
-    This means that can swap \(r^*(t)\) and \(r^*(t'')\) without changing the objective of the schedule.
-    By repeating this operation, we reach another optimal sequence that is row-ordered.
+    % For any step \(\tau\), we note \(j(\tau)\) the job scheduled at step \(\tau\).
+    % Observe that if \(j(t)\) is strictly smaller than \(j(t-1)\), then it contradicts the optimality of \(r^*\), as a simple swap of \(r^*(t)\) and \(r^*(t-1)\), which are different, puts \(j(t)\) before \(j(t-1)\) in the schedule and decreases the objective.
+    % Thus, \(p_{j(t)}\ge p_{j(t-1)}\).
+    % Note that the exact same argument yields \(p_{j(t'')}\ge p_{j(t)}\): \(t''\) is the first step after \(t\) at which row \(i\) is chosen again in \(r^*\), which means that if \(j(t'')\) is strictly smaller than \(j(t)\), then we can obtain a better solution by swapping \(r^*(t)\) and \(r^*(t'')\).
+    % Therefore, \(p_{j(t'')}\ge p_{j(t)}\ge p_{j(t-1)}\).
+
+    % As \(r^*(t'')=r^*(t-1)=i\), we know that \(j(t'')\) and \(j(t-1)\) come from the same row \(i\).
+    % We clearly cannot have \(p_{j(t'')}>p_{j(t-1)}\), because it would contradict the scenario \(\hat{\sigma}\).
+    % We conclude that \(p_{j(t'')}=p_{j(t-1)}\), and thus, \(p_{j(t'')}=p_{j(t)}\).
+    % This means that can swap \(r^*(t)\) and \(r^*(t'')\) without changing the objective of the schedule.
+    % By repeating this operation, we reach another optimal sequence that is row-ordered.
 \end{proof}
 
 \begin{theorem}
