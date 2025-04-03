@@ -10,7 +10,6 @@
 
 \usepackage{algpseudocode}
 
-
 \usepackage[]{todonotes}
 
 \newtheorem{theorem}{Theorem}
@@ -19,6 +18,8 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{example}{Example}
 \newtheorem{remark}{Remark}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
 
 \title{Scheduling \(K\) classes of jobs with a deterministic oracle}
 
@@ -738,17 +739,43 @@ If there is a balancing between complexity and quality of the solution (throw fo
 \section{Robustness Model}
 
 \begin{definition}[Scenario]
-    For a given matrix \(E\), a scenario \(\sigma\) consists in \(K\) permutations \(\pi_i\), where \(\pi_i\) describes a fixed permutation of the jobs of row \(i\). We note \(S\) the set of all possible scenarios.
+    For a given matrix \(E\), a scenario \(\sigma\) consists in \(K\) permutations \(\sigma_i\), where \(\sigma_i\) describes a fixed ordering of the jobs of row \(i\) (i.e., \(\sigma_i(k)\) is the \(k\)-th job of row \(i\)).
+    We note \(S\) the set of all possible scenarios.
 \end{definition}
 
 We consider the following game: at each step \(t\) (\(1\le t\le n\), where \(n\) is the number of jobs), choose a row \(r(t)\) from which pulling the job located at the head; add the chosen job to the current schedule and remove it from the row.
 
 \begin{definition}[Sequence]
-    For a given matrix \(E\), a sequence \(r\) is the ordered list of rows from which pulling jobs.
+    For a given matrix \(E\), a sequence \(r=(i_1,i_2,\ldots,i_n)\) is the ordered list of rows from which pulling jobs.
+    Note that a given row will appear several times in the sequence, unless it contains a single job or is empty.
     We note \(R\) the set of all possible sequences.
 \end{definition}
 
+% \begin{definition}[Canonical representation]
+%     A sequence \(r\) can be represented as an ordered list of \(s_r\) tuples \(\overrightarrow{r}=((i_1,k_1),(i_2,k_2),\ldots,(i_{s_r},k_{s_r}))\), where each \((i,k)\) means that \(k\) jobs are pulled from row \(i\).
+%     This list \(\overrightarrow{r}\) is called the canonical representation of \(r\).
+% \end{definition}
+
 Let \(\eta(r,\sigma)\) denote the schedule generated from sequence \(r\) and scenario \(\sigma\), and let \(\tilde{C}(r,\sigma)\) denote the sum of completion times of \(\eta(r,\sigma)\).
+
+\subsection{Optimal Solution}
+
+We can immediately observe that the considered problem is equivalent to the problem \(1|\text{chains}|\sum C_j\).
+Indeed, one can view the fixed ordering of jobs of a given row as a chain of precedence relationships.
+Thus, for a given scenario, we have \(K\) (possibly empty) chains of jobs that we must execute in order on a single-machine.
+
+This problem is polynomially solvable with the following procedure, as described in Theorem 4-2 of~\cite{conway1967theory}:
+
+\begin{enumerate}
+    \item For all row \(i\), let
+    \begin{itemize}
+        \item \(x(i,j)=\frac{1}{j}\sum_{k=1}^j p_{\sigma_i(k)}\) for all \(1\le j\le b_i\);
+        \item \(y(i)=\min_j x(i,j)\);
+        \item \(h(i)=\argmin_j x(i,j)\).
+    \end{itemize}
+    \item Choose row \(\mu=\argmin_i y(i)\) and schedule the first \(h(\mu)\) jobs of \(\mu\).
+    \item Repeat from step 1, ignoring already scheduled jobs.
+\end{enumerate}
 
 \subsection{Non-adaptive Algorithms}
 
@@ -756,19 +783,15 @@ There are various objectives that can be defined:
 \begin{itemize}
     \item Min-Max: \(\min_{r\in R} \max_{\sigma\in S} \tilde{C}(r,\sigma)\).
     \item Min-Average: \(\min_{r\in R} \sum_{\sigma\in S} \tilde{C}(r,\sigma)\), which is equivalent to minimizing the expectation of \(\sum C_j\) if all scenarios are equiprobable (this is what we did in previous sections).
-    \item Min-Max Regret: \(\min_{r\in R}\max_{\sigma\in S} \left(\tilde{C}(r,\sigma)-\tilde{C}(r^*_{\sigma},\sigma)\right)\), where \(r^*_{\sigma}\) is the optimal sequence for \(\sigma\).
+    \item Min-Max Regret: \(\min_{r\in R}\max_{\sigma\in S} \left(\tilde{C}(r,\sigma)-\tilde{C}(r^*_{\sigma},\sigma)\right)\), where \(r^*_{\sigma}\) is the optimal sequence for \(\sigma\) as computed by the previous procedure.
 \end{itemize}
-
-%%% THE FOLLOWING IS *NOT* TRUE ; take 9 10 on row 1 and 10 1 on row 2.
-% It can be easily seen with a swapping argument that for a given scenario \(\sigma\), the optimal sequence \(r^*_{\sigma}\) consists in choosing, at each step \(t\), the row \(i\) with the smallest job in the head position.
-% However, observe that, for each objective, we must choose \(r\) \emph{without} knowing scenario \(\sigma\) (we only know the matrix \(E\)).
 
 \subsubsection{Min-Max}
 
-In any sequence \(r\), we note \(j(\tau)\) the job scheduled at step \(\tau\) in \(r\).
+% In any sequence \(r\), we note \(j(\tau)\) the job scheduled at step \(\tau\) in \(r\).
 
 \begin{definition}[Worst-case scenario]
-    For the Min-Max problem, we say that the scenario \(\hat{\sigma}\) where each row is arranged in non-increasing order of job sizes is the worst-case scenario.
+    For the Min-Max problem, we say that the scenario \(\hat{\sigma}\), where each row is arranged in non-increasing order of job sizes, is the worst-case scenario.
 \end{definition}
 
 \begin{lemma}
@@ -779,36 +802,73 @@ In any sequence \(r\), we note \(j(\tau)\) the job scheduled at step \(\tau\) in
 \end{lemma}
 \begin{proof}
     Let \(r\in R\) be an arbitrary sequence, and let \(\sigma^*\) be a scenario that maximizes the objective.
-    Suppose that there exists a row \(i\) that is not arranged in non-increasing order of job sizes, i.e., there exists a position \(1<k\le b_i\) such that \(p_{\pi^*_i(k-1)}<p_{\pi^*_i(k)}\).
+    Suppose that there exists a row \(i\) that is not arranged in non-increasing order of job sizes, i.e., there exists a position \(1<k\le b_i\) such that \(p_{\sigma^*_i(k-1)}<p_{\sigma^*_i(k)}\).
 
-    These jobs \(\pi^*_i(k-1)\) and \(\pi^*_i(k)\) are respectively scheduled during steps \(t_1\) and \(t_2\), with \(t_1<t_2\).
+    These jobs \(\sigma^*_i(k-1)\) and \(\sigma^*_i(k)\) are respectively scheduled during steps \(t_1\) and \(t_2\), with \(t_1<t_2\).
     As these jobs are coming from row \(i\), we have \(r(t_1)=r(t_2)=i\), and as these jobs are consecutive in \(i\), we also have \(r(\tau)\ne i\) for all \(t_1<\tau<t_2\).
 
-    Thus, swapping \(\pi^*_i(k-1)\) and \(\pi^*_i(k)\) can only increase the objective of the resulting schedule.
-    By repeating the operation, we reach the worst-case scenario \(\hat{\sigma}\).
+    Thus, swapping jobs \(\sigma^*_i(k-1)\) and \(\sigma^*_i(k)\) will necessarily increase the objective of the resulting schedule.
+    By repeating the operation for unordered jobs in each row, we reach the worst-case scenario \(\hat{\sigma}\).
 \end{proof}
 
-\begin{definition}[Optimal sequence]
-    For the Min-Max problem, we say that a sequence \(r^*\) is optimal if
-    \[
-        \tilde{C}(r^*,\hat{\sigma})=\min_{r\in R}\tilde{C}(r,\hat{\sigma}).
-    \]
-\end{definition}
+% \begin{definition}[Optimal sequence]
+%     For the Min-Max problem, we say that a sequence \(r^*\) is optimal if
+%     \[
+%         \tilde{C}(r^*,\hat{\sigma})=\min_{r\in R}\tilde{C}(r,\hat{\sigma}).
+%     \]
+% \end{definition}
 
-\begin{definition}[Row-ordered sequence]
-    Let \(T_i\) be the set of steps at which row \(i\) is chosen in a given sequence \(r\), and let \(s_i=\min T_i\) and \(e_i=\max T_i\).
-    We say that \(r\) is row-ordered if, for all row \(i\), \(r(t)=i\) for all \(s_i\le t\le e_i\).
-    We note \(R_{\text{ord}}\subset R\) the set of all row-ordered sequences.
-\end{definition}
+Coupled to the optimal procedure for a given scenario, this lemma immediately allows us to solve the Min-Max problem.
 
-For a given matrix \(E\), let \(\bar{p}(i)\) be the average processing time of jobs in row \(i\), that is, \(\bar{p}(i)=\frac{1}{b_i} \sum_{j\in B_i} p_j\).
-We are going to prove that scheduling rows in non-decreasing order of \(\bar{p}(i)\) solves the Min-Max problem.
-
-\begin{lemma}\label{lem.opt-row-ordered}
-    There exists an optimal sequence that is row-ordered.
-\end{lemma}
+\begin{theorem}
+    Scheduling rows in non-decreasing order of \(\bar{p}(i)=\frac{1}{b_i} \sum_{k=1}^{b_i} p_{\hat{\sigma}_i(k)}\) is optimal.
+\end{theorem}
 \begin{proof}
-    \todo[inline]{not sure if this is true.}
+    When jobs are ordered in non-increasing order of processing times on a row \(i\), it is easy to prove that \(x(i,b_i)\le x(i,j)\) for all \(j\).
+    Thus, for the worst-case scenario \(\hat{\sigma}\), we have \(y(i)=\frac{1}{b_i} \sum_{k=1}^{b_i} p_{\hat{\sigma}_i(k)}\) and \(h(i)=b_i\) for all \(i\).
+\end{proof}
+
+% For a given matrix \(E\), let \(\bar{p}(i)\) be the average processing time of jobs in row \(i\), that is, \(\bar{p}(i)=\frac{1}{b_i} \sum_{j\in B_i} p_j\).
+% We are going to prove that scheduling rows in non-decreasing order of \(\bar{p}(i)\) solves the Min-Max problem.
+
+% \begin{definition}[Row-ordered sequence]
+%     Let \(T_i\) be the set of steps at which row \(i\) is chosen in a given sequence \(r\), and let \(s_i=\min T_i\) and \(e_i=\max T_i\).
+%     We say that \(r\) is row-ordered if, for all row \(i\), \(r(t)=i\) for all \(s_i\le t\le e_i\).
+%     We note \(R_{\text{ord}}\subset R\) the set of all row-ordered sequences.
+% \end{definition}
+
+% \begin{lemma}
+%     Any optimal sequence begins by executing all jobs of row \(\beta(1)\).
+% \end{lemma}
+% \begin{proof}
+%     Suppose by contradiction that there exists an optimal sequence \(r^*\) such that \(r^*(t_1)=\beta(k)\) (for a given \(k>1\)) and \(r^*(t_2)=\beta(1)\) for two steps \(t_1<t_2\), that is, there is at least one step \(t_1\) during which there remains some jobs to schedule in row \(\beta(1)\) but the optimal solution \(r^*\) chooses to pick a job from another row \(\beta(k)\) instead.
+
+%     Consider the canonical representation \(\overrightarrow{r^*}\) of \(r^*\), and define \(\mathcal{J}^i_\ell\) as the set of jobs scheduled during the steps that correspond to the \(\ell\)-th tuple in \(\overrightarrow{r^*}\) related to row \(i\).
+%     Recall that, according to \(\hat{\sigma}\), jobs coming from the same row are necessarily executed in non-increasing order of processing times.
+%     Thus, we assume in the following that each set \(\mathcal{J}^i_\ell\) is ordered this way.
+
+%     From these definitions, consider the following related scheduling problem: for each set \(\mathcal{J}^i_\ell\), define a job \(j^i_\ell\) with processing time \(p_{j^i_\ell}=\sum_{j\in \mathcal{J}^i_\ell}p_j\) and weight \(w_{j^i_\ell}=|\mathcal{J}^i_\ell|\).
+%     The objective is to minimize the weighted sum of completion times of such jobs, with the additional constraint that two jobs \(j^i_a\) and \(j^i_b\) coming from the same row \(i\) must be scheduled in order, that is, \(j^i_a\) must be put before \(j^i_b\) if \(a<b\).
+
+%     For a given job \(j^i_\ell\), we have
+%     \begin{align*}
+%         w_{j^i_\ell}C_{j^i_\ell}
+%         &=|\mathcal{J}^i_\ell|\cdot \left(s_{j^i_\ell}+\sum_{j\in \mathcal{J}^i_\ell}p_j\right) \\
+%         &=|\mathcal{J}^i_\ell|s_{j^i_\ell}+|\mathcal{J}^i_\ell|\sum_{j\in \mathcal{J}^i_\ell}p_j
+%             +\sum_{k=1}^{|\mathcal{J}^i_\ell|}(k-1)p_{j^i_\ell(k)}-\sum_{k=1}^{|\mathcal{J}^i_\ell|}(k-1)p_{j^i_\ell(k)} \\
+%         &=\sum_{j\in \mathcal{J}^i_\ell} C_j+\sum_{k=1}^{|\mathcal{J}^i_\ell|}(k-1)p_{j^i_\ell(k)}.
+%     \end{align*}
+
+%     As \(r^*\) is the best possible sequence, it also necessarily minimizes \(\sum w_j C_j\); otherwise, it would suffice to rearrange the jobs \(j^i_\ell\) to get a smaller \(\sum w_j C_j\), which would also provide a smaller \(\sum C_j\), contradicting the optimality of \(r^*\).
+
+%     We know that minimizing \(\sum w_j C_j\) is done with Smith's rule, that is, scheduling jobs in decreasing order of \(w_j/p_j\).
+% \end{proof}
+
+% \begin{lemma}\label{lem.opt-row-ordered}
+%     There exists an optimal sequence that is row-ordered.
+% \end{lemma}
+% \begin{proof}
+%     \todo[inline]{not sure if this is true.}
 
     % Let \(r^*\in R\) be an optimal sequence for the Min-Max problem.
     % Suppose \(r^*\) is not row-ordered, i.e., there exists a row \(i\) such that \(r^*(t)\ne i\) for a given step \(s_i<t<e_i\), and we assume \(t\) is minimal (in other words, \(r^*\) is row-ordered up to step \(t\)).
@@ -825,34 +885,34 @@ We are going to prove that scheduling rows in non-decreasing order of \(\bar{p}(
     % We conclude that \(p_{j(t'')}=p_{j(t-1)}\), and thus, \(p_{j(t'')}=p_{j(t)}\).
     % This means that can swap \(r^*(t)\) and \(r^*(t'')\) without changing the objective of the schedule.
     % By repeating this operation, we reach another optimal sequence that is row-ordered.
-\end{proof}
+% \end{proof}
 
-\begin{theorem}
-    Scheduling rows in non-decreasing order of \(\bar{p}(i)\) is optimal.
-\end{theorem}
-\begin{proof}
-    Let \(r^*\) be an optimal sequence for the Min-Max problem such that \(r^*\in R_{\text{ord}}\), which necessarily exists by Lemma~\ref{lem.opt-row-ordered}.
-    Suppose there are two rows \(i_1\) and \(i_2\) such that \(i_1\) is scheduled just before \(i_2\) (i.e., \(e_{i_1}=s_{i_2}-1\) in \(r^*\)) and \(\bar{p}(i_1)\ge\bar{p}(i_2)\).
+% \begin{theorem}
+%     Scheduling rows in non-decreasing order of \(\bar{p}(i)\) is optimal.
+% \end{theorem}
+% \begin{proof}
+%     Let \(r^*\) be an optimal sequence for the Min-Max problem such that \(r^*\in R_{\text{ord}}\), which necessarily exists by Lemma~\ref{lem.opt-row-ordered}.
+%     Suppose there are two rows \(i_1\) and \(i_2\) such that \(i_1\) is scheduled just before \(i_2\) (i.e., \(e_{i_1}=s_{i_2}-1\) in \(r^*\)) and \(\bar{p}(i_1)\ge\bar{p}(i_2)\).
 
-    Let \(\Delta\) be the sum of processing times of all jobs scheduled before rows \(i_1\) and \(i_2\) in \(r^*\).
-    Then, the contribution \(C(i_1\to i_2)\) of \(i_1\) and \(i_2\) in \(r^*\) to the objective is
-    \begin{align*}
-        C(i_1\to i_2)
-        &=\Delta\cdot b_{i_1} + S(i_1) + \left(\Delta + \sum_{j\in B_{i_1}} p_j\right)\cdot b_{i_2} + S(i_2) \\
-        &=\Delta\cdot b_{i_1} + \Delta\cdot b_{i_2} + \bar{p}(i_1)\cdot b_{i_1}\cdot b_{i_2} + S(i_1) + S(i_2),
-    \end{align*}
-    where \(S(i)=\sum_{k=1}^{b_i} (b_i-k+1)\cdot p_{\pi_i(k)}\).
+%     Let \(\Delta\) be the sum of processing times of all jobs scheduled before rows \(i_1\) and \(i_2\) in \(r^*\).
+%     Then, the contribution \(C(i_1\to i_2)\) of \(i_1\) and \(i_2\) in \(r^*\) to the objective is
+%     \begin{align*}
+%         C(i_1\to i_2)
+%         &=\Delta\cdot b_{i_1} + S(i_1) + \left(\Delta + \sum_{j\in B_{i_1}} p_j\right)\cdot b_{i_2} + S(i_2) \\
+%         &=\Delta\cdot b_{i_1} + \Delta\cdot b_{i_2} + \bar{p}(i_1)\cdot b_{i_1}\cdot b_{i_2} + S(i_1) + S(i_2),
+%     \end{align*}
+%     where \(S(i)=\sum_{k=1}^{b_i} (b_i-k+1)\cdot p_{\pi_i(k)}\).
 
-    If we swap \(i_1\) and \(i_2\), the contribution becomes
-    \begin{align*}
-        C(i_2\to i_1)
-        &=\Delta\cdot b_{i_2} + S(i_2) + \left(\Delta + \sum_{j\in B_{i_2}} p_j\right)\cdot b_{i_1} + S(i_1) \\
-        &=\Delta\cdot b_{i_2} + \Delta\cdot b_{i_1} + \bar{p}(i_2)\cdot b_{i_2}\cdot b_{i_1} + S(i_1) + S(i_2).
-    \end{align*}
+%     If we swap \(i_1\) and \(i_2\), the contribution becomes
+%     \begin{align*}
+%         C(i_2\to i_1)
+%         &=\Delta\cdot b_{i_2} + S(i_2) + \left(\Delta + \sum_{j\in B_{i_2}} p_j\right)\cdot b_{i_1} + S(i_1) \\
+%         &=\Delta\cdot b_{i_2} + \Delta\cdot b_{i_1} + \bar{p}(i_2)\cdot b_{i_2}\cdot b_{i_1} + S(i_1) + S(i_2).
+%     \end{align*}
 
-    As \(\bar{p}(i_1)\ge\bar{p}(i_2)\), we have \(C(i_2\to i_1)\le C(i_1\to i_2)\), which means that we can swap \(i_1\) and \(i_2\) without increasing the objective.
-    By repeating this operation, we reach another optimal sequence where rows are scheduled in non-decreasing order of \(\bar{p}(i)\).
-\end{proof}
+%     As \(\bar{p}(i_1)\ge\bar{p}(i_2)\), we have \(C(i_2\to i_1)\le C(i_1\to i_2)\), which means that we can swap \(i_1\) and \(i_2\) without increasing the objective.
+%     By repeating this operation, we reach another optimal sequence where rows are scheduled in non-decreasing order of \(\bar{p}(i)\).
+% \end{proof}
 
 \subsubsection{Min-Average}
 
@@ -869,5 +929,8 @@ See previous sections.
 \subsection{Adaptive Algorithms}
 
 What if we allow our algorithms to adapt the sequence \(r\) according to the knowledge of already-scheduled jobs (that is, when we progressively learn about the scenario \(\sigma\))?
+
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
