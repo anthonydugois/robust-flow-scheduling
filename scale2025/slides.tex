@@ -1,12 +1,505 @@
 \documentclass[aspectratio=169]{beamer}
 
-\title{Robust Non-Clairvoyant Scheduling with Classification Models}
-\author{Anthony Dugois \\ \footnotesize (on-going work with Vincent Fagnon and Giorgio Lucarelli)}
+\usepackage{tikz}
+
+\usetikzlibrary{positioning}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\title{Preliminary Results on Robust Non-Clairvoyant\\Scheduling with Classification Models}
+\author{Anthony Dugois\\\footnotesize (on-going work with Vincent Fagnon and Giorgio Lucarelli)}
 \institute{Université Marie et Louis Pasteur, institut FEMTO-ST, Besançon}
-\date{SCALE \\ \footnotesize april 15, 2025}
+\date{SCALE\\\footnotesize april 15, 2025}
 
 \begin{document}
 
+
 \frame{\titlepage}
+
+\begin{frame}{Outline}
+    \tableofcontents[hideallsubsections]
+\end{frame}
+
+
+\section{Model}
+
+\begin{frame}{Outline}
+    \tableofcontents[currentsection,hideallsubsections]
+\end{frame}
+
+
+\begin{frame}{Dealing with Uncertainty}
+
+\begin{itemize}
+    \item Stochastic models%; need assumptions on parameter distribution
+    \item Min-max (regret) models%; make problems harder (sometimes not at all approximable)
+    \item Learning-augmented models%; tied to error definition
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Classification Model}
+
+\begin{itemize}
+    \item Jobs are classified according to \(K\) classes
+    \item Jobs of a given class \(k\) have similar characteristics (e.g., same processing times)
+    \item The class of a job is unknown
+    \item Access to an oracle based on a classification model, which \textbf{can make mistakes}
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Confusion Matrix}
+
+\begin{columns}
+    \begin{column}{.5\textwidth}
+        The oracle is represented as a \(K\times K\) \emph{confusion matrix}:
+        \[
+            E=\begin{pmatrix}
+                1 & 1 & 3 \\
+                2 & 2 & 1 \\
+                1 & 1 & 2 \\
+            \end{pmatrix}
+        \]
+    \end{column}
+    \begin{column}{.5\textwidth}
+        \begin{itemize}
+            \item Row \(i\): jobs that the oracle \emph{believes} to be in class \(i\)
+            \item Column \(j\): jobs \emph{actually} in class \(j\)
+            \item Entry \(e_{ij}\): number of jobs believed to be in \(i\) but actually in \(j\)
+            \item We suppose that \(E\) is known
+        \end{itemize}
+    \end{column}
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}{A First Scheduling Problem}
+
+\begin{itemize}
+    \item \(1||\sum C_j\) with \(K\) processing times \(p(1)\le\cdots\le p(K)\)
+    \item SPT is optimal when all processing times are known
+    \item In a non-clairvoyant setting, the only solution is to schedule jobs randomly
+\end{itemize}
+
+\vspace{20pt}
+
+\begin{block}{Question}
+    What can we do when we have access to an oracle (and its confusion matrix)?
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{A First Scheduling Problem}
+
+\begin{columns}
+    \begin{column}{.4\textwidth}
+        \centering
+
+        \[
+            E=\begin{pmatrix}
+                \textcolor{green!70!black}{1} & \textcolor{orange!70!black}{1} & \textcolor{red!70!black}{3} \\
+                \textcolor{green!70!black}{2} & \textcolor{orange!70!black}{2} & \textcolor{red!70!black}{1} \\
+                \textcolor{green!70!black}{1} & \textcolor{orange!70!black}{1} & \textcolor{red!70!black}{2} \\
+            \end{pmatrix}
+        \]
+
+        \(\textcolor{green!70!black}{p(1)=1},\textcolor{orange!70!black}{p(2)=4},\textcolor{red!70!black}{p(3)=6}\)
+    \end{column}
+    \begin{column}{.3\textwidth}
+        \centering
+        Seen by oracle
+
+        \vspace{20pt}
+
+        \begin{tikzpicture}[
+            default/.style={
+                inner sep=0,
+                outer sep=0,
+                anchor=south,
+                draw=white
+            }
+        ]
+            \def\x{12pt}
+            \def\y{6pt}
+
+            \begin{scope}
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y
+                ] at (0,0) {};
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (0,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (2*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (3*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (4*\x,0) {};
+            \end{scope}
+
+            \begin{scope}[yshift=-8*\y]
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (0,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (2*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (3*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (4*\x,0) {};
+            \end{scope}
+
+            \begin{scope}[yshift=-16*\y]
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (0,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (2*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (3*\x,0) {};
+            \end{scope}
+        \end{tikzpicture}
+    \end{column}
+    \begin{column}{.3\textwidth}
+        \centering
+        Reality
+
+        \vspace{20pt}
+
+        \begin{tikzpicture}[
+            default/.style={
+                inner sep=0,
+                outer sep=0,
+                anchor=south,
+                draw=white
+            }
+        ]
+            \def\x{12pt}
+            \def\y{6pt}
+
+            \begin{scope}
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (0,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=4*\y,
+                    fill=orange!70!black
+                ] at (\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (2*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (3*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (4*\x,0) {};
+            \end{scope}
+
+            \begin{scope}[yshift=-8*\y]
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (0,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (2*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (3*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (4*\x,0) {};
+            \end{scope}
+
+            \begin{scope}[yshift=-16*\y]
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (0,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=3*\y,
+                    fill=orange!70!black
+                ] at (\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=\y,
+                    fill=green!70!black
+                ] at (2*\x,0) {};
+
+                \node[
+                    default,
+                    minimum width=\x,
+                    minimum height=6*\y,
+                    fill=red!70!black
+                ] at (3*\x,0) {};
+            \end{scope}
+        \end{tikzpicture}
+    \end{column}
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}{A First Scheduling Problem}
+
+\begin{itemize}
+    \item The oracle gives us rows \(B(1),\ldots,B(K)\), where \(B(k)\) contains the jobs that the oracle believes to be in class \(k\)
+    \item We know the distribution in each \(B(k)\) according to the matrix \(E\), but we cannot actually distinguish jobs
+    \item The feasible strategies all consist in choosing a sequence of rows from which randomly picking a job
+    % \item The feasible strategies all consist in choosing a sequence \(r=(r(1),r(2),\ldots,r(n))\), where \(r(t)\in\{1,\ldots,K\}\) denotes the set from which we pick a random job at step \(t\)
+\end{itemize}
+
+\vspace{20pt}
+
+\begin{block}{Question}
+    How to choose an optimal sequence of rows?
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{Refined Problem}
+    \begin{itemize}
+        \item Picking a random job in a set can be seen as considering a fixed ordering of the jobs and pulling the job located at the head
+        \item Consider an (unknown) scenario \(\sigma\), which fixes the ordering of the jobs in each row (let \(\sigma_k\) denote the considered permutation of \(B(k)\))
+        \item The goal is to choose a sequence \(r=(r(1),r(2),\ldots,r(n))\), where \(r(t)\in\{1,\ldots,K\}\) denotes the row from which we pull a job at step \(t\), that minimizes \(\sum C_j\)
+    \end{itemize}
+\end{frame}
+
+
+\section{Some Results}
+
+\begin{frame}{Outline}
+    \tableofcontents[currentsection,hideallsubsections]
+\end{frame}
+
+
+\begin{frame}{Adaptive vs.\ Non-Adaptive Strategies}
+
+\begin{itemize}
+    \item Adaptive: the strategy adapts the sequence \(r\) as it learns about the already-executed jobs (i.e., it learns about \(\sigma\))
+    \item \textbf{Non-adaptive}: the strategy must decide the sequence \(r\) before executing any job, without knowing \(\sigma\)
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Objectives}
+
+Let \(R\) be the set of feasible sequences, \(S\) the set of scenarios, and \(\mathcal{C}(r,\sigma)\) the objective of the schedule generated from sequence \(r\) when applied on scenario \(\sigma\).
+
+\vspace{20pt}
+
+\begin{itemize}
+    \item Min-Max: \(\min_{r\in R} \max_{\sigma\in S} \mathcal{C}(r,\sigma)\)
+    \item Min-Average: \(\min_{r\in R} \sum_{\sigma\in S} \mathcal{C}(r,\sigma)\)
+    \item Min-Max Regret: \(\min_{r\in R} \max_{\sigma\in S} \left(\mathcal{C}(r,\sigma)-\mathcal{C}^*(\sigma)\right)\), where \(\mathcal{C}^*(\sigma)\) is the optimal solution for \(\sigma\)
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Optimal Sequence for a Fixed \(\sigma\)}
+
+\begin{itemize}
+    \item For a fixed scenario \(\sigma\), the problem is equivalent to \(1|\text{chains}|\sum C_j\)
+    \item The following algorithm is optimal:
+    \begin{enumerate}
+        \item Compute \(x(k,j)=\frac{1}{j} \sum_{i=1}^j p_{\sigma_k(i)}\) for all \(1\le k\le K\) and all \(1\le j\le |B(k)|\), where \(p_{\sigma_k(i)}\) is the processing time of the \(i\)-th job in \(B(k)\)
+        \item Compute \(y(k)=\min_j x(k,j)\), \(h(k)=\argmin_j x(k,j)\) for all \(k\)
+        \item Let \(k^*=\argmin_k y(k)\) and schedule the first \(h(k^*)\) jobs of \(B(k^*)\)
+        \item Repeat from step 1
+    \end{enumerate}
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Min-Max: \(\min_{r\in R} \max_{\sigma\in S} \mathcal{C}(r,\sigma)\)}
+
+\begin{lemma}
+    For any fixed sequence \(r\), the worst scenario consists in jobs of each row \(B(k)\) being arranged in decreasing order of processing times.
+\end{lemma}
+
+\begin{theorem}
+    Let \(\bar{p}(k)=\sum_{j=1}^K \frac{e_{kj}}{|B(k)|}p(j)\) be the average processing time of jobs in \(B(k)\).
+    Scheduling sets \(B(k)\) in increasing order of \(\bar{p}(k)\) solves Min-Max.
+\end{theorem}
+
+\end{frame}
+
+
+\begin{frame}{Min-Average: \(\min_{r\in R} \sum_{\sigma\in S} \mathcal{C}(r,\sigma)\)}
+
+\begin{theorem}
+    Scheduling sets \(B(k)\) in increasing order of \(\bar{p}(k)\) solves Min-Average.
+\end{theorem}
+
+\vspace{20pt}
+
+\begin{block}{Open questions}
+    \begin{itemize}
+        \item Generalized problem \(\min_{r\in R} \left(\sum_{\sigma\in S} \mathcal{C}(r,\sigma)^p\right)^{1/p}\)
+        \item Generalized problem \(\min_{r\in R} \sum_{\sigma\in S} w_\sigma \mathcal{C}(r,\sigma)\)
+    \end{itemize}
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{Min-Max Regret: \(\min_{r\in R} \max_{\sigma\in S} \left(\mathcal{C}(r,\sigma)-\mathcal{C}^*(\sigma)\right)\)}
+
+\begin{block}{Open questions}
+    \begin{itemize}
+        \item Is the problem NP-hard?
+        \item For a fixed sequence \(r\), can we find the scenario \(\sigma\) maximizing the regret \(\mathcal{C}(r,\sigma)-\mathcal{C}^*(\sigma)\)?
+    \end{itemize}
+\end{block}
+
+\end{frame}
+
+
+\section{On-Going Work}
+
+\begin{frame}{Outline}
+    \tableofcontents[currentsection,hideallsubsections]
+\end{frame}
+
+
+\begin{frame}{On-Going (and Future) Work}
+
+\begin{itemize}
+    \item Min-Max Regret
+    \item Adaptive strategies
+    \item More complex scheduling problems, e.g., \(P||\sum C_j\), \(1|r_j|\sum C_j\), \(1||\sum w_jC_j\)
+    \item Are there easier oracles than others?
+\end{itemize}
+
+\end{frame}
+
 
 \end{document}
