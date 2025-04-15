@@ -760,7 +760,7 @@ We consider the following game: at each step \(t\) (\(1\le t\le n\), where \(n\)
 
 Let \(\eta(r,\sigma)\) denote the schedule generated from sequence \(r\) and scenario \(\sigma\), and let \(\tilde{C}(r,\sigma)\) denote the sum of completion times of \(\eta(r,\sigma)\).
 
-\subsection{Optimal Solution}
+\subsection{Optimal Solution for a Fixed Scenario}
 
 We can immediately observe that the considered problem is equivalent to the problem \(1|\text{chains}|\sum C_j\).
 Indeed, one can view the fixed ordering of jobs of a given row as a chain of precedence relationships.
@@ -919,6 +919,33 @@ Coupled to the optimal procedure for a given scenario, this lemma immediately al
 \subsubsection{Min-Average}
 
 See previous sections.
+
+\begin{theorem}
+    Scheduling rows in non-decreasing order of \(\bar{p}(i)=\frac{1}{b_i} \sum_{k=1}^{b_i} p_{\hat{\sigma}_i(k)}\) is optimal.
+\end{theorem}
+\begin{proof}
+    Let \(r^*\) be an optimal sequence, i.e., it minimizes \(\E\left[\sum C_j\right]\), and suppose it does not follow the described procedure.
+    Let \(t\) be the first step such that \(\bar{p}(r^*(t))>\bar{p}(r^*(t+1))\).
+
+    Let \(j(i)\) denote the job scheduled at step \(i\).
+    Clearly, \(\E\left[p_{j(i)}\right]=\bar{p}(r^*(i))\).
+    We have
+    \begin{align*}
+        \E\left[\sum C_j\right]
+        &=\E\left[C_{j(1)}+C_{j(2)}+\cdots+C_{j(n)}\right]\\
+        &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+\E\left[C_{j(t)}\right]+\E\left[C_{j(t+1)}\right]+\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\\
+        &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+\E\left[\sum_{i=1}^{t-1} p_{j(i)}+p_{j(t)}\right]+\E\left[\sum_{i=1}^{t-1} p_{j(i)}+p_{j(t)}+p_{j(t+1)}\right]+\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\\
+        &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+2\E\left[\sum_{i=1}^{t-1} p_{j(i)}\right]+2\bar{p}(r^*(t))+\bar{p}(r^*(t+1))+\sum_{i=t+2}^n \E\left[C_{j(i)}\right].
+    \end{align*}
+
+    Swapping \(r^*(t)\) and \(r^*(t+1)\) clearly does not change \(\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]\) nor \(\E\left[\sum_{i=1}^{t-1} p_{j(i)}\right]\).
+    Moreover, it does not change \(\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\) either.
+    As \(\bar{p}(r^*(t))>\bar{p}(r^*(t+1))\), we have
+    \[
+        2\bar{p}(r^*(t))+\bar{p}(r^*(t+1))>2\bar{p}(r^*(t+1))+\bar{p}(r^*(t)),
+    \]
+    which means that swapping \(r^*(t)\) and \(r^*(t+1)\) yields a better solution than \(r^*\), which is a contradiction.
+\end{proof}
 
 \subsubsection{Min-Max Regret}
 
