@@ -394,154 +394,6 @@ Therefore, if for all \(i,j\), \(e_{ij}=0\) or \(\bar{p}(i)-p(j)\le\varepsilon p
     In this case, in the worst-possible scenario, during each round \(i\) the algorithm will pick the larger remaining jobs in each row, yielding the same objective than LPT.
 \end{proof}
 
-\noindent\textbf{Bloom filter model (2 classes).}
-Let us consider instances with 2 classes of jobs, i.e., there are \(a_1\) jobs of class 1 and there are \(a_2\) jobs of class 2.
-Consider the Bloom filter model for the oracle, i.e., the oracle is a matrix \(E\) of the following shape:
-\[
-    E=\begin{pmatrix}
-        e_{11} & 0 \\
-        e_{21} & e_{22} \\
-    \end{pmatrix},
-\]
-with \(a_1=e_{11}+e_{21}\) and \(a_2=e_{22}\).
-In this case, we have
-\begin{align*}
-    \E_E^{\text{PICK}}\left[\sum C_j\right]
-    &=\frac{e_{11}(e_{11}+1)}{2}\bar{p}(1) \\
-    &\quad+e_{21}e_{11}\bar{p}(1)+\frac{e_{21}(e_{21}+1)}{2}\bar{p}(2) \\
-    &\quad+e_{22}(e_{11}\bar{p}(1)+e_{21}\bar{p}(2))+\frac{e_{22}(e_{22}+1)}{2}\bar{p}(2)
-\end{align*}
-and
-\begin{align*}
-    \text{SPT}
-    &=\frac{e_{11}(e_{11}+1)}{2}p(1) \\
-    &\quad+e_{21}e_{11}p(1)+\frac{e_{21}(e_{21}+1)}{2}p(1) \\
-    &\quad+e_{22}(e_{11}p(1)+e_{21}p(1))+\frac{e_{22}(e_{22}+1)}{2}p(2).
-\end{align*}
-
-This yields
-\begin{align*}
-    \E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}
-    &=\frac{e_{21}(e_{21}+1)}{2}(\bar{p}(2)-p(1)) \\
-    &\quad+e_{22}e_{21}(\bar{p}(2)-p(1)) \\
-    &\quad+\frac{e_{22}(e_{22}+1)}{2}(\bar{p}(2)-p(2)).
-\end{align*}
-
-As \(\bar{p}(1)=p(1)\) and \(\bar{p}(2)=\frac{e_{21}p(1)+e_{22}p(2)}{e_{21}+e_{22}}\), we have
-\[
-    \bar{p}(2)-p(1)=\frac{e_{22}}{e_{21}+e_{22}}(p(2)-p(1))
-\]
-and
-\[
-    \bar{p}(2)-p(2)=-\frac{e_{21}}{e_{21}+e_{22}}(p(2)-p(1)).
-\]
-
-After some calculus, we obtain
-\begin{equation}
-    \label{eq.diff}
-    \E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}=\frac{p(2)-p(1)}{2}e_{21}e_{22}.
-\end{equation}
-
-In a Bloom filter, the probability \(\lambda\) of getting a false positive when requesting an element that is not in the set can be approximated as \(\left(1-e^{-kN/m}\right)^k\), where \(N\) is the number of inserted elements, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
-For a given \(m\), the optimal value for \(k\) (i.e., the value that minimizes \(\lambda\)) is thus \(\frac{m}{N}\ln 2\), which yields
-\[
-    \lambda\approx\frac{1}{2^{\frac{m}{N}\ln 2}}.
-\]
-Note that the ratio \(m/N\) represents the average number of bits that are allocated for each element in the Bloom filter.
-
-We can now state the following theorem.
-
-\begin{theorem}
-    For any \(\delta>0\), allocating at least
-    \[
-        \frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}
-    \]
-    bits per element in the Bloom filter implies \(\E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}\le\delta\).
-\end{theorem}
-\begin{proof}
-    Fix \(\delta>0\) and suppose that
-    \[
-        \frac{m}{N}\ge\frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}.
-    \]
-
-    Then, after some calculus we get
-    \[
-        \frac{1}{2^{\frac{m}{N}\ln 2}}\le\frac{2\delta}{a_1a_2(p(2)-p(1))},
-    \]
-    that is,
-    \[
-        \frac{p(2)-p(1)}{2}\lambda a_1a_2\le\delta,
-    \]
-    where \(\lambda\) is the probability of getting a false positive.
-
-    Observe that \(e_{21}\approx\lambda a_1\) and \(e_{22}=a_2\).
-    By Equation~\ref{eq.diff}, we get
-    \[
-        \E_E^{\text{PICK}}\left[\sum C_j\right]-\text{SPT}\le\delta.
-    \]
-\end{proof}
-
-\noindent\textbf{Bloom filter model (generalized).}
-Now consider instances with \(K\) classes of jobs (i.e., there are \(a_k\) jobs of class \(k\)) and oracles composed of \(K-1\) chained Bloom filters, where the Bloom filter \(\mathcal{B}_k\) encodes the set of jobs belonging to class \(K-k+1\).
-
-In this model, the oracle is a matrix \(E\) of the following shape:
-\[
-    E=\begin{pmatrix}
-        e_{11} & 0      & \cdots & 0 & 0 \\
-        e_{21} & e_{22} & \cdots & 0 & 0 \\
-        \cdots & \cdots & \cdots & \cdots & \cdots \\
-        e_{K-1,1} & e_{K-1,2} & \cdots & e_{K-1,K-1} & 0 \\
-        e_{K,1}   & e_{K,2}   & \cdots & e_{K,K-1}   & e_{K,K} \\
-    \end{pmatrix}.
-\]
-
-Let \(\lambda_k\) be the false positive rate of each \(\mathcal{B}_k\).
-In general, we have
-\begin{align*}
-    e_{K,K}&=a_K, \\
-    e_{K,1}+\cdots+e_{K,K-1}&=\lambda_1(a_1+\cdots+a_{K-1}), \\
-    e_{K-1,1}+\cdots+e_{K-1,K-2}&=\lambda_2((1-\lambda_1)(a_1+\cdots+a_{K-1})-e_{K-1,K-1}), \\
-    &=\lambda_2(1-\lambda_1)(a_1+\cdots+a_{K-1})-\lambda_2(e_{K-1,K-1}), \\
-    e_{K-2,1}+\cdots+e_{K-2,K-3}&=\lambda_3((1-\lambda_2)((1-\lambda_1)(a_1+\cdots+a_{K-1})-e_{K-1,K-1})-e_{K-2,K-2}), \\
-    &=\lambda_3(1-\lambda_2)(1-\lambda_1)(a_1+\cdots+a_{K-1})-\lambda_3(1-\lambda_2)e_{K-1,K-1}-\lambda_3e_{K-2,K-2}, \\
-    &\cdots \\
-\end{align*}
-
-This way, finding a general expression for each \(e_{ij}\) seems out of reach.
-Hence, in the following we make the reasonable assumption that, for a given Bloom filter \(\mathcal{B}_k\), the probability to obtain a false positive is the same no matter the class, that is, for all class \(j\ne K-k+1\):
-\[
-    \mathbb{P}(\mathcal{B}_k\text{ outputs 1}\mid\text{job in class }j)=
-    \mathbb{P}(\mathcal{B}_k\text{ outputs 1}\mid\text{job not in class }K-k+1)=
-    \lambda_k.
-\]
-Now, we have
-\begin{align*}
-    e_{K,K}&=a_K, \\
-    e_{K,j}&=\lambda_1a_j,1\le j<K, \\
-    e_{K-1,K-1}&=(1-\lambda_1)a_{K-1}, \\
-    e_{K-1,j}&=\lambda_2(1-\lambda_1)a_j,1\le j<K-1, \\
-    e_{K-2,K-2}&=(1-\lambda_2)(1-\lambda_1)a_{K-2}, \\
-    &\cdots \\
-\end{align*}
-Thus, we can express each \(e_{ij}\) as:
-\[
-    e_{ij}=\begin{cases}
-        a_j\cdot\lambda_{K-i+1}\prod_{i'=1}^{K-i} (1-\lambda_{i'}) & \text{ if }i>j, \\
-        a_j\cdot\prod_{i'=1}^{K-i} (1-\lambda_{i'}) & \text{ if }i=j, \\
-        0 & \text{ otherwise.} \\
-    \end{cases}
-\]
-
-Simplifying further, it seems also very reasonable to assume that we want the same false positive rate for all Bloom filters in the chain, that is, \(\lambda_k=\lambda\) for all \(k\).
-With the convention \(0^0=1\), we get
-\[
-    e_{ij}=\begin{cases}
-        a_j\cdot\lambda(1-\lambda)^{K-i} & \text{ if }i>j, \\
-        a_j\cdot(1-\lambda)^{K-i} & \text{ if }i=j, \\
-        0 & \text{ otherwise.} \\
-    \end{cases}
-\]
-
 \newpage
 \section{Some algorithms}
 \subsection{A DP}\label{DP}
@@ -918,8 +770,6 @@ Coupled to the optimal procedure for a given scenario, this lemma immediately al
 
 \subsubsection{Min-Average}
 
-See previous sections.
-
 \begin{theorem}
     Scheduling rows in non-decreasing order of \(\bar{p}(i)=\frac{1}{b_i} \sum_{k=1}^{b_i} p_{\hat{\sigma}_i(k)}\) is optimal.
 \end{theorem}
@@ -945,6 +795,188 @@ See previous sections.
         2\bar{p}(r^*(t))+\bar{p}(r^*(t+1))>2\bar{p}(r^*(t+1))+\bar{p}(r^*(t)),
     \]
     which means that swapping \(r^*(t)\) and \(r^*(t+1)\) yields a better solution than \(r^*\), which is a contradiction.
+\end{proof}
+
+\noindent\textbf{Bloom filter model (2 classes).}
+Let us consider instances with 2 classes of jobs, i.e., there are \(a_1\) jobs of class 1 and there are \(a_2\) jobs of class 2.
+Consider the Bloom filter model for the oracle, i.e., the oracle is a matrix \(E\) of the following shape:
+\[
+    E=\begin{pmatrix}
+        e_{11} & 0 \\
+        e_{21} & e_{22} \\
+    \end{pmatrix},
+\]
+with \(a_1=e_{11}+e_{21}\) and \(a_2=e_{22}\).
+
+As \(\bar{p}(1)=p(1)\) and \(\bar{p}(2)=\frac{e_{21}p(1)+e_{22}p(2)}{e_{21}+e_{22}}\), the algorithm will schedule row 1 and then row 2, thus,
+\begin{align*}
+    \E\left[\sum C_j\right]
+    &=\frac{b_1(b_1+1)}{2}\bar{p}(1)+b_2b_1\bar{p}(1)+\frac{b_2(b_2+1)}{2}\bar{p}(2)
+\end{align*}
+and
+\begin{align*}
+    \text{SPT}
+    &=\frac{a_1(a_1+1)}{2}p(1)+a_2a_1p(1)+\frac{a_2(a_2+1)}{2}p(2).
+\end{align*}
+
+This yields
+\begin{align*}
+    \E\left[\sum C_j\right]-\text{SPT}
+    &=\frac{e_{11}(e_{11}+1)}{2}p(1)\\
+    &\quad+(e_{21}+e_{22})e_{11}p(1)\\
+    &\quad+\frac{(e_{21}+e_{22})(e_{21}+e_{22}+1)}{2}\cdot \frac{e_{21}p(1)+e_{22}p(2)}{e_{21}+e_{22}}\\
+    &\quad-\frac{(e_{11}+e_{21})(e_{11}+e_{21}+1)}{2}p(1)\\
+    &\quad-e_{22}(e_{11}+e_{21})p(1)\\
+    &\quad-\frac{e_{22}(e_{22}+1)}{2}p(2).
+\end{align*}
+
+After some calculus, we obtain
+\begin{equation}
+    \label{eq.diff}
+    \E\left[\sum C_j\right]-\text{SPT}=\frac{p(2)-p(1)}{2}e_{21}e_{22}.
+\end{equation}
+
+In a Bloom filter, the probability \(\lambda\) of getting a false positive when requesting an element that is not in the set can be approximated as \(\left(1-e^{-kN/m}\right)^k\), where \(N\) is the number of inserted elements, and \(k\) and \(m\) are respectively the number of hash functions and the memory allocated to the Bloom filter.
+For a given \(m\), the optimal value for \(k\) (i.e., the value that minimizes \(\lambda\)) is thus \(\frac{m}{N}\ln 2\), which yields
+\[
+    \lambda\approx\frac{1}{2^{\frac{m}{N}\ln 2}}.
+\]
+Note that the ratio \(m/N\) represents the average number of bits that are allocated for each element in the Bloom filter.
+We can now state the following theorem.
+
+\begin{theorem}
+    For any \(\delta>0\), allocating at least
+    \[
+        \frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}
+    \]
+    bits per element in the Bloom filter implies \(\E\left[\sum C_j\right]-\text{SPT}\le\delta\).
+\end{theorem}
+\begin{proof}
+    Fix \(\delta>0\) and suppose that
+    \[
+        \frac{m}{N}\ge\frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}.
+    \]
+
+    Then, after some calculus we get
+    \[
+        \frac{1}{2^{\frac{m}{N}\ln 2}}\le\frac{2\delta}{a_1a_2(p(2)-p(1))},
+    \]
+    that is,
+    \[
+        \frac{p(2)-p(1)}{2}\lambda a_1a_2\le\delta,
+    \]
+    where \(\lambda\) is the probability of getting a false positive.
+
+    Observe that \(e_{21}\approx\lambda a_1\) and \(e_{22}=a_2\).
+    By Equation~\ref{eq.diff}, we get \(\E\left[\sum C_j\right]-\text{SPT}\le\delta\).
+\end{proof}
+
+\noindent\textbf{Bloom filter model (generalized).}
+Now consider instances with \(K\) classes of jobs (i.e., there are \(a_k\) jobs of class \(k\)) and oracles composed of \(K-1\) chained Bloom filters, where the Bloom filter \(\mathcal{B}_k\) encodes the set of jobs belonging to class \(K-k+1\).
+
+In this model, the oracle is a matrix \(E\) of the following shape:
+\[
+    E=\begin{pmatrix}
+        e_{11} & 0      & \cdots & 0 & 0 \\
+        e_{21} & e_{22} & \cdots & 0 & 0 \\
+        \cdots & \cdots & \cdots & \cdots & \cdots \\
+        e_{K-1,1} & e_{K-1,2} & \cdots & e_{K-1,K-1} & 0 \\
+        e_{K,1}   & e_{K,2}   & \cdots & e_{K,K-1}   & e_{K,K} \\
+    \end{pmatrix}.
+\]
+
+Let \(\lambda_k\) be the false positive rate of each \(\mathcal{B}_k\).
+In general, we have
+\begin{align*}
+    e_{K,K}&=a_K, \\
+    e_{K,1}+\cdots+e_{K,K-1}&=\lambda_1(a_1+\cdots+a_{K-1}), \\
+    e_{K-1,1}+\cdots+e_{K-1,K-2}&=\lambda_2((1-\lambda_1)(a_1+\cdots+a_{K-1})-e_{K-1,K-1}), \\
+    &=\lambda_2(1-\lambda_1)(a_1+\cdots+a_{K-1})-\lambda_2(e_{K-1,K-1}), \\
+    e_{K-2,1}+\cdots+e_{K-2,K-3}&=\lambda_3((1-\lambda_2)((1-\lambda_1)(a_1+\cdots+a_{K-1})-e_{K-1,K-1})-e_{K-2,K-2}), \\
+    &=\lambda_3(1-\lambda_2)(1-\lambda_1)(a_1+\cdots+a_{K-1})-\lambda_3(1-\lambda_2)e_{K-1,K-1}-\lambda_3e_{K-2,K-2}, \\
+    &\cdots \\
+\end{align*}
+
+This way, finding a general expression for each \(e_{ij}\) seems out of reach.
+Hence, in the following we make the reasonable assumption that, for a given Bloom filter \(\mathcal{B}_k\), the probability to obtain a false positive is the same no matter the class, that is, for all class \(j\ne K-k+1\):
+\[
+    \mathbb{P}(\mathcal{B}_k\text{ outputs 1}\mid\text{job in class }j)=
+    \mathbb{P}(\mathcal{B}_k\text{ outputs 1}\mid\text{job not in class }K-k+1)=
+    \lambda_k.
+\]
+Now, we have
+\begin{align*}
+    e_{K,K}&=a_K, \\
+    e_{K,j}&=\lambda_1a_j,1\le j<K, \\
+    e_{K-1,K-1}&=(1-\lambda_1)a_{K-1}, \\
+    e_{K-1,j}&=\lambda_2(1-\lambda_1)a_j,1\le j<K-1, \\
+    e_{K-2,K-2}&=(1-\lambda_2)(1-\lambda_1)a_{K-2}, \\
+    &\cdots \\
+\end{align*}
+Thus, we can express each \(e_{ij}\) as:
+\[
+    e_{ij}=\begin{cases}
+        a_j\cdot\lambda_{K-i+1}\prod_{i'=1}^{K-i} (1-\lambda_{i'}) & \text{ if }i>j, \\
+        a_j\cdot\prod_{i'=1}^{K-i} (1-\lambda_{i'}) & \text{ if }i=j, \\
+        0 & \text{ otherwise.} \\
+    \end{cases}
+\]
+
+Simplifying further, it seems also very reasonable to assume that we want the same false positive rate for all Bloom filters in the chain, that is, \(\lambda_k=\lambda\) for all \(k\).
+With the convention \(0^0=1\), we get
+\[
+    e_{ij}=\begin{cases}
+        a_j\cdot\lambda(1-\lambda)^{K-i} & \text{ if }i>j, \\
+        a_j\cdot(1-\lambda)^{K-i} & \text{ if }i=j, \\
+        0 & \text{ otherwise.} \\
+    \end{cases}
+\]
+
+The next theorem indicates that it is not necessary to know the matrix of a chained Bloom filters oracle to get the optimal schedule (in expectation).
+
+\begin{theorem}
+    Trusting the chained Bloom filters oracle is optimal.
+\end{theorem}
+\begin{proof}
+    For each row \(i\), we have
+    \begin{align*}
+        \bar{p}(i)
+        &=\frac{\sum_{j=1}^{i-1} a_j\lambda(1-\lambda)^{K-i}p(j)+a_i(1-\lambda)^{K-i}p(i)}{\sum_{j=1}^{i-1} a_j\lambda(1-\lambda)^{K-i}+a_i(1-\lambda)^{K-i}}\\
+        &=\frac{\lambda \sum_{j=1}^{i-1}a_jp(j)+a_ip(i)}{\lambda \sum_{j=1}^{i-1}a_j+a_i}.
+    \end{align*}
+
+    Therefore, for all \(1\le i<K\),
+    \begin{align*}
+        \bar{p}(i+1)-\bar{p}(i)
+        &=\frac{(\lambda \sum_{j=1}^{i-1}a_j+a_i)(\lambda \sum_{j=1}^{i}a_jp(j)+a_{i+1}p(i+1))}{(\lambda \sum_{j=1}^{i-1}a_j+a_i)(\lambda \sum_{j=1}^{i}a_j+a_{i+1})}\\
+        &\quad-\frac{(\lambda \sum_{j=1}^{i}a_j+a_{i+1})(\lambda \sum_{j=1}^{i-1}a_jp(j)+a_ip(i))}{(\lambda \sum_{j=1}^{i-1}a_j+a_i)(\lambda \sum_{j=1}^{i}a_j+a_{i+1})},
+    \end{align*}
+    which has the same sign than
+    \begin{align*}
+        &\lambda^2\left(\sum_{j=1}^{i-1}a_j\right)\left(\sum_{j=1}^{i}a_jp(j)\right)+\lambda\left(\sum_{j=1}^{i-1}a_j\right)a_{i+1}p(i+1)+a_i\lambda \sum_{j=1}^{i}a_jp(j)+a_ia_{i+1}p(i+1)\\
+        &\quad-\lambda^2\left(\sum_{j=1}^{i}a_j\right)\left(\sum_{j=1}^{i-1}a_jp(j)\right)-\lambda \left(\sum_{j=1}^{i}a_j\right)a_ip(i)-a_{i+1}\lambda \sum_{j=1}^{i-1}a_jp(j)-a_{i+1}a_ip(i).
+    \end{align*}
+
+    Clearly,
+    \begin{align*}
+        &\lambda^2\left(\left(\sum_{j=1}^{i-1}a_j\right)\left(\sum_{j=1}^{i}a_jp(j)\right)-\left(\sum_{j=1}^{i}a_j\right)\left(\sum_{j=1}^{i-1}a_jp(j)\right)\right)\\
+        &=\lambda^2\left(\left(\sum_{j=1}^{i-1}a_j\right)\left(\sum_{j=1}^{i-1}a_jp(j)+a_ip(i)\right)-\left(\sum_{j=1}^{i-1}a_j+a_i\right)\left(\sum_{j=1}^{i-1}a_jp(j)\right)\right)\\
+        &=\lambda^2a_i \sum_{j=1}^{i-1} a_j(p(i)-p(j))\ge 0
+    \end{align*}
+    and \(a_ia_{i+1}p(i+1)-a_{i+1}a_ip(i)\ge 0\).
+
+    It remains to study the sign of
+    \[
+        \lambda \left(a_{i+1}\left(\sum_{j=1}^{i-1}a_jp(i+1)-\sum_{j=1}^{i-1}a_jp(j)\right)+a_i\left(\sum_{j=1}^{i}a_jp(j)-\sum_{j=1}^{i}a_jp(i)\right)\right).
+    \]
+
+    If \(a_{i+1}\ge a_i\), this expression is greater or equal to
+    \[
+        \lambda a_i \left(\sum_{j=1}^{i-1}a_jp(i+1)-\sum_{j=1}^{i-1}a_jp(j)+\sum_{j=1}^{i}a_jp(j)-\sum_{j=1}^{i}a_jp(i)\right)=\lambda a_i \sum_{j=1}^{i-1} a_j(p(i+1)-p(i))\ge 0,
+    \]
+    and the reasoning is analogous if \(a_{i+1}<a_i\).
+
+    We conclude that \(\bar{p}(i+1)\ge\bar{p}(i)\), which means that trusting the oracle naturally follows the optimal algorithm to minimize \(\E\left[\sum C_j\right]\).
 \end{proof}
 
 \subsubsection{Min-Max Regret}
