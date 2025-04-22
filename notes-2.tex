@@ -478,6 +478,21 @@ $$
 
 \todo[inline]{This does not seem to be a counterexample: let \(a,b,c\) be the possible processing times, and suppose that \(2b\le a+c\). Then, doing the job \(b\) and then the jobs \(a,c\) gives \(\E(\sum C_j)=((3b+2a+c)+(3b+2c+a))/2\). If we do one job of line 2, then one job of line 1 and we finish with line 2, this gives \(\E(\sum C'_j)=((3a+2b+c)+(3c+2b+a))/2\). We get \(\E(\sum C'_j)-\E(\sum C_j)=(a-2b+c)/2\), which is positive, and thus the heuristic always gives the best solution in this case.}
 
+
+
+\todo[inline]{Ok, let me redo in detail. I have the matrix (0 1 0 ; 1 0 1), \\
+If we choose line 1, we pay $3b+\frac{1}{2}(2a+c)+\frac{1}{2}(2c+a) = 3b+\frac{3}{2}a+\frac{3}{2}c$\\
+
+If we choose line 2, we have two scenarios:
+\\- either we got the small task first, we pay $3a$, and we have to solve (0 1 0 ; 0 0 1), the best is to choose line 1 and pay $2b+c$, 
+\\- or we got the big task first, we pay $3c$, and we have to solve (0 1 0 ; 1 0 0), the \textbf{best is to choose line 2}, so we pay $2a+b$ (\textbf{maybe here, it's the vision adaptive vs non-adaptive that cause the missunderstanding })
+\\ Which gives in total: $\frac{1}{2}\left(3a+2b+c\right) + \frac{1}{2}\left(3c+2a+b\right) = \frac{5}{2}a+\frac{3}{2}b+\frac{4}{2}c$. (Symetry is broken here)\\
+Now, under your assumption, $2b\leq a+c$, the heuristic will choose line 1.\\
+But, if I take for instance $a=1$, $b=3$, $c=6$ (that respect $ 2b = 6 \leq 7 = a+1$ ): \\
+Choosing line 1 costs: $3b+\frac{3}{2}a+\frac{3}{2}c=19.5$\\
+Choosing line 2 costs: $\frac{5}{2}a+\frac{3}{2}b+\frac{4}{2}c=19$}
+
+
 \newpage
 
 
