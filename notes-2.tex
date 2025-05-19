@@ -16,6 +16,7 @@
 \newtheorem{definition}{Definition}
 \newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
 \newtheorem{example}{Example}
 \newtheorem{remark}{Remark}
 
@@ -1001,6 +1002,44 @@ The next theorem indicates that it is not necessary to know the matrix of a chai
     \item Is Min-Max Regret an NP-complete problem?
     \item For a fixed sequence \(r\), are we able to find the scenario that maximizes the regret?
 \end{enumerate}
+
+\noindent\textbf{Two classes.}
+\begin{proposition}
+    For any sequence \(r\) executing row \(i\) completely and then row \(j\) (for \(i,j\in\{1,2\}\)), the scenario that consists in putting jobs of row \(i\) in non-increasing order of processing times and jobs of row \(j\) in non-decreasing processing times maximizes the regret of \(r\).
+\end{proposition}
+\begin{proof}
+    Without loss of generality, let \(r\) be a sequence that executes the first row completely before the second row.
+    Let \(\sigma^*\) be the scenario where jobs of row 1 are arranged in non-increasing order of processing times and jobs of row 2 are arranged in non-decreasing order of processing times.
+
+    By contradiction, suppose there is a scenario \(\hat{\sigma}\) such that \(\tilde{C}(r,\hat{\sigma})-C^*(\hat{\sigma})>\tilde{C}(r,\sigma^*)-C^*(\sigma^*)\), and such that at least one of the following properties is true:
+    \begin{enumerate}
+        \item there are two jobs \(j_1,j_2\) placed in this order in row 1 and such that \(p_{j_1}<p_{j_2}\), or
+        \item there are two jobs \(j_1,j_2\) placed in this order in row 2 and such that \(p_{j_1}>p_{j_2}\).
+    \end{enumerate}
+
+    As there are only 2 classes, it is immediate to deduce that \(p_{j_1}=p(1)\) and \(p_{j_2}=p(2)\) in the first case, and vice versa in the second case.
+
+    Suppose that the first property is true.
+
+    \todo[inline]{wip}
+
+    Now suppose that the second property is true.
+    Let \(N_k\) denote the number of jobs of type \(k\) that are placed after \(j_1\) on row 2 in scenario \(\hat{\sigma}\).
+    Let \(\hat{\sigma}'\) be the scenario \(\hat{\sigma}\) where the job \(j_1\) is moved at the end of row 2.
+    We clearly have \(\tilde{C}(r,\hat{\sigma}')=\tilde{C}(r,\hat{\sigma})-(N_1+N_2)p(2)+N_1p(1)+N_2p(2)\), that is, \(\tilde{C}(r,\hat{\sigma})-\tilde{C}(r,\hat{\sigma}')=N_1(p(2)-p(1))\).
+
+    Let \(r^*\) be the optimal sequence for \(\hat{\sigma}\), and let \(N^*_k\) denote the numbers of jobs of type \(k\) that are executed after \(j_1\) in \(r^*\).
+    Observe that \(N^*_k\ge N_k\) for all \(k\), because any solution must execute jobs of a given row in order.
+    We have
+    \[
+        C^*(\hat{\sigma}')\le\tilde{C}(r^*,\hat{\sigma}')=C^*(\hat{\sigma})-(N^*_1+N^*_2)p(2)+N^*_1p(1)+N^*_2p(2),
+    \]
+    that is,
+    \[
+        C^*(\hat{\sigma})-C^*(\hat{\sigma}')\ge N^*_1(p(2)-p(1))\ge N_1(p(2)-p(1)).
+    \]
+    We conclude \(\tilde{C}(r,\hat{\sigma})-\tilde{C}(r,\hat{\sigma}')-(C^*(\hat{\sigma})-C^*(\hat{\sigma}'))\le 0\), i.e., \(\tilde{C}(r,\hat{\sigma})-C^*(\hat{\sigma})\le\tilde{C}(r,\hat{\sigma}')-C^*(\hat{\sigma}')\).
+\end{proof}
 
 \subsection{Adaptive Algorithms}
 
