@@ -8,6 +8,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
+\usepackage{algorithm}
 \usepackage{algpseudocode}
 
 \usepackage[]{todonotes}
@@ -22,13 +23,24 @@
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 
-\title{Scheduling \(K\) classes of jobs with a deterministic oracle}
+\newcommand{\W}{\mathbb{W}}
+\newcommand{\E}{\mathbb{E}}
+
+\title{Robust Non-Clairvoyant Scheduling with Classification Models}
+\author{Anthony Dugois, Vincent Fagnon, and Giorgio Lucarelli}
+\date{}
 
 \begin{document}
 
 \maketitle
 
-\section{Job model}
+\section{Introduction}
+
+\section{Related Work}
+
+\section{Scheduling Problem}
+
+\subsection{Job model}
 
 \begin{itemize}
     \item \(n\) jobs
@@ -38,7 +50,7 @@
     \item no preemption
 \end{itemize}
 
-\section{Oracle model}
+\subsection{Oracle model}
 
 Assume we do not know in which class a given job is. We consider we have access to a cheap oracle, giving the class of a
 job. The oracle is not perfect, i.e., it may give a wrong class for a given job. The oracle is deterministic, i.e., it
@@ -72,7 +84,7 @@ oracle believes to be in class \(k\)), i.e., \(A_k=\bigcup_{i=1}^{K} J_{ik}\) an
 We also note \(a_k\) (resp.\ \(b_k\)) the number of jobs in \(A_k\) (resp.\ \(B_k\)), i.e.,
 \(a_k=|A_k|=\sum_{i=1}^{K} e_{ik}\) and \(b_k=|B_k|=\sum_{j=1}^{K} e_{kj}\).
 
-\subsection{Bloom filter model}
+\subsubsection{Bloom filter model}
 
 For 2 classes of jobs, the oracle may consist in a probabilistic data structure called a Bloom filter, which represents
 a set. Assume a Bloom filter represents the set of \emph{large} jobs. One property of Bloom filters is that they may
@@ -94,59 +106,55 @@ used in the filter) with \(h\) much smaller than \(n\), querying the Bloom filte
 In this manner, we have an oracle that is guaranteed to never underestimate jobs and can be represented by a lower
 triangular matrix.
 
-\section{Knowledge model}
+% \subsection{Knowledge model}
 
-\noindent\textbf{Clairvoyant model.} Everything is known about a problem instance.
+% \noindent\textbf{Clairvoyant model.} Everything is known about a problem instance.
 
-\noindent\textbf{Non-clairvoyant model.} Nothing is known about a problem instance.
+% \noindent\textbf{Non-clairvoyant model.} Nothing is known about a problem instance.
 
-\noindent\textbf{Oracle-clairvoyant model.} The matrix \(E\) is known.
+% \noindent\textbf{Oracle-clairvoyant model.} The matrix \(E\) is known.
 
-\noindent\textbf{Realistic BF model.}
-\todo[inline]{This can be discussed; with some hypothesis (as described in Sec 4.3.2), it is possible to infer the matrix}
-For an oracle which consists as a chain of BF, we cannot know the full matrix
-\(E\) in the general case. Indeed, even if one assumes that the values \(a_1,\cdots,a_K\) are given as the instance,
-the structural properties of BF give access only to values \(b_1,\cdots,b_K\) (by a simple application of the oracle)
-and \(e_{11},e_{22},\cdots,e_{KK}\) (by deducing the false positive rate of each BF). For example, for a
-\(4\times 4\) matrix, we get the following form:
-\[
-    \begin{pmatrix}
-        e_{11} & 0      & 0      & 0      \\
-        a      & e_{22} & 0      & 0      \\
-        b      & c      & e_{33} & 0      \\
-        d      & e      & f      & e_{44} \\
-    \end{pmatrix},
-\]
-where \(a,b,c,d,e,f\) are unknowns. Unfortunately, in the general case one cannot get the knowledge of \(E\) by simply
-solving the linear system
-\[
-    \begin{pmatrix}
-        1 & 0 & 0 & 0 & 0 & 0 \\
-        0 & 1 & 1 & 0 & 0 & 0 \\
-        0 & 0 & 0 & 1 & 1 & 1 \\
-        1 & 1 & 0 & 1 & 0 & 0 \\
-        0 & 0 & 1 & 0 & 1 & 0 \\
-        0 & 0 & 0 & 0 & 0 & 1 \\
-    \end{pmatrix}
-    \begin{pmatrix}
-        a \\ b \\ c \\ d \\ e \\ f \\
-    \end{pmatrix}
-    =
-    \begin{pmatrix}
-        b_2-e_{22} \\
-        b_3-e_{33} \\
-        b_4-e_{44} \\
-        a_1-e_{11} \\
-        a_2-e_{22} \\
-        a_3-e_{33} \\
-    \end{pmatrix}.
-\]
+% \noindent\textbf{Realistic BF model.}
+% \todo[inline]{This can be discussed; with some hypothesis (as described in Sec 4.3.2), it is possible to infer the matrix}
+% For an oracle which consists as a chain of BF, we cannot know the full matrix
+% \(E\) in the general case. Indeed, even if one assumes that the values \(a_1,\cdots,a_K\) are given as the instance,
+% the structural properties of BF give access only to values \(b_1,\cdots,b_K\) (by a simple application of the oracle)
+% and \(e_{11},e_{22},\cdots,e_{KK}\) (by deducing the false positive rate of each BF). For example, for a
+% \(4\times 4\) matrix, we get the following form:
+% \[
+%     \begin{pmatrix}
+%         e_{11} & 0      & 0      & 0      \\
+%         a      & e_{22} & 0      & 0      \\
+%         b      & c      & e_{33} & 0      \\
+%         d      & e      & f      & e_{44} \\
+%     \end{pmatrix},
+% \]
+% where \(a,b,c,d,e,f\) are unknowns. Unfortunately, in the general case one cannot get the knowledge of \(E\) by simply
+% solving the linear system
+% \[
+%     \begin{pmatrix}
+%         1 & 0 & 0 & 0 & 0 & 0 \\
+%         0 & 1 & 1 & 0 & 0 & 0 \\
+%         0 & 0 & 0 & 1 & 1 & 1 \\
+%         1 & 1 & 0 & 1 & 0 & 0 \\
+%         0 & 0 & 1 & 0 & 1 & 0 \\
+%         0 & 0 & 0 & 0 & 0 & 1 \\
+%     \end{pmatrix}
+%     \begin{pmatrix}
+%         a \\ b \\ c \\ d \\ e \\ f \\
+%     \end{pmatrix}
+%     =
+%     \begin{pmatrix}
+%         b_2-e_{22} \\
+%         b_3-e_{33} \\
+%         b_4-e_{44} \\
+%         a_1-e_{11} \\
+%         a_2-e_{22} \\
+%         a_3-e_{33} \\
+%     \end{pmatrix}.
+% \]
 
-\todo[inline]{\textbf{TODO}: this seems obvious but maybe can be justified with a variant of Rouché-Capelli theorem.}
-
-\section{Minimizing the sum of completion times}
-
-Consider the problem \(1||\sum C_j\).
+% \todo[inline]{\textbf{TODO}: this seems obvious but maybe can be justified with a variant of Rouché-Capelli theorem.}
 
 \subsection{Clairvoyant model}
 
@@ -196,34 +204,69 @@ In the non-clairvoyant model, simply shuffling jobs yields (in expectation)
 where each \(P_i\) is a random variable denoting the processing time of the \(i\)-th scheduled job (we have
 \(P(P_i=p(k))=\frac{a_k}{n}\) for any \(i,k\), hence \(\mathbb{E}(P_i)=\sum_{k=1}^{K} \frac{a_k p(k)}{n}\) for any \(i\)).
 
-\subsection{Oracle-clairvoyant model}
+\section{Robustness Problems}
 
-\begin{definition}
-    For a given instance of the problem, we define the \emph{oracle set} \(\mathcal{E}(a_1,a_2,\ldots,a_K)\), i.e., all oracles \(E\) such that \(\sum_{i=1}^{K} e_{ij}=a_j\) for all \(1\le j\le K\).
+When solving an instance of the problem, the ordering of the jobs of each set returned by the oracle is completely unknown (that is, if the oracle gives us what it thinks being the set of small jobs, we know the distribution of sizes in this set, but we do not know whether the first job is actually small or not).
+Thus, it seems unfair to compare to SPT: our decisions can always be subject to a malicious adversary giving us large jobs first in this unknown ordering.
+Instead, we want to compare to an optimal solution that is also subject to the fixed ordering of jobs.
+
+This defines a new problem: the oracle returns \(K\) sets of jobs (the \(k\)-th set containing jobs supposedly of class \(k\)), but we do not know the ordering of each set.
+Of course, we still know the distribution of real sizes in each set, thanks to the knowledge of the confusion matrix.
+The only decision that we can make here is choosing the set from which pulling and executing a job.
+After \(n\) choices, we obtain the full schedule, our goal being to minimize the sum of completion times.
+
+\subsection{Scenarios, Sequences and Schedules}
+
+We formally define below the notions of scenario (ordering of jobs in each set), sequence (list of choices, which constitutes a solution) and schedule (the realization of a sequence on a given scenario).
+
+\begin{definition}[Scenario]
+    For a given matrix \(E\), a scenario \(\sigma\in S\) is a vector of \(K\) permutations \(\sigma_i\), where \(\sigma_i\) describes a fixed ordering of the jobs \(B_i\), i.e., \(\sigma_i(k)\) is the \(k\)-th job of \(B_i\).
 \end{definition}
 
-\begin{definition}
-    For a given instance of the problem, we define \(S\) as the set of possible scenarios for a randomized algorithm.
-    We note \(C^{\mathcal{A}}_j(\sigma)\) the completion time of job \(j\) when scheduled by \(\mathcal{A}\) under scenario \(\sigma\in S\).
+\begin{definition}[Sequence]
+    For a given matrix \(E\), a sequence \(r=(i_1,i_2,\ldots,i_n)\in R\) is the ordered list of sets from which pulling and executing jobs.
+    Note that a given set will appear several times in the sequence, unless it contains a single job or is empty.
+    The chosen set at step \(t\) is noted \(r(t)\).
+
+    We say that \(\overrightarrow{r}=((i_1,t_1,u_1),(i_2,t_2,u_2),\ldots,(i_h,t_h,u_h))\) is the \textbf{compact representation} of \(r\), where each tuple \((i_k,t_k,u_k)\) denotes the \(k\)-th contiguous segment in \(r\), going from position \(t_k\) to position \(u_k\) (included) and composed only of \(i_k\).
 \end{definition}
 
-\newcommand{\W}{\mathbb{W}}
-\newcommand{\E}{\mathbb{E}}
+For example, the sequence \(r=(1,1,2,2,2,1,1,2,2)\) denotes the following decisions: executing the 2 first jobs of set \(B_1\), then the 3 first jobs of set \(B_2\), then the 2 next jobs of \(B_1\), and then the 2 next jobs of \(B_2\).
+The compact representation of \(r\) is \(\overrightarrow{r}=((1,1,2),(2,3,5),(1,6,7),(2,8,9))\).
 
-\begin{definition}
-    For a given instance of the problem, we define the following measures:
-    \begin{itemize}
-        \item \(\W^{\mathcal{A}}_E\left[\sum C_j\right]=\max_{\sigma\in S}\sum C^{\mathcal{A}}_j(\sigma)\):
-        the worst objective on all possible scenarios given by a (randomized) strategy \(\mathcal{A}\) with oracle \(E\); this can be seen as playing against an adversary that controls the random generator.
-        \item \(\widehat{\W}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \W^{\mathcal{A}}_E\left[\sum C_j\right]\):
-        the worst-possible objective when the worst oracles (with respect to strategy \(\mathcal{A}\)) are considered.
-        \item \(\E^{\mathcal{A}}_E\left[\sum C_j\right]=\frac{1}{|S|}\sum_{\sigma\in S}\sum C^{\mathcal{A}}_j(\sigma)\):
-        the expected objective given by a (randomized) strategy \(\mathcal{A}\) with oracle \(E\) (all scenarios being considered equiprobable).
-        \item \(\widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right]\):
-        the expected objective when the worst oracles (with respect to strategy \(\mathcal{A}\)) are considered.
-    \end{itemize}
-    The strategy \(\mathcal{A}\) is omitted when it is clear from the context.
+\begin{definition}[Schedule]
+    The realization of a sequence \(r\) on a scenario \(\sigma\) generates the schedule \(\eta_{r,\sigma}\), which gives a permutation of the jobs, i.e., the \(k\)-th job in the schedule is denoted by \(\eta_{r,\sigma}(k)\).
+    The sum of completion times of the schedule \(\eta_{r,\sigma}\) is defined as
+    \[
+        \tilde{C}_{r,\sigma}=\sum_{k=1}^n (n-k+1)p_{\eta_{r,\sigma}(k)}.
+    \]
 \end{definition}
+
+% \subsection{Oracle-clairvoyant model}
+
+% \begin{definition}
+%     For a given instance of the problem, we define the \emph{oracle set} \(\mathcal{E}(a_1,a_2,\ldots,a_K)\), i.e., all oracles \(E\) such that \(\sum_{i=1}^{K} e_{ij}=a_j\) for all \(1\le j\le K\).
+% \end{definition}
+
+% \begin{definition}
+%     For a given instance of the problem, we define \(S\) as the set of possible scenarios for a randomized algorithm.
+%     We note \(C^{\mathcal{A}}_j(\sigma)\) the completion time of job \(j\) when scheduled by \(\mathcal{A}\) under scenario \(\sigma\in S\).
+% \end{definition}
+
+% \begin{definition}
+%     For a given instance of the problem, we define the following measures:
+%     \begin{itemize}
+%         \item \(\W^{\mathcal{A}}_E\left[\sum C_j\right]=\max_{\sigma\in S}\sum C^{\mathcal{A}}_j(\sigma)\):
+%         the worst objective on all possible scenarios given by a (randomized) strategy \(\mathcal{A}\) with oracle \(E\); this can be seen as playing against an adversary that controls the random generator.
+%         \item \(\widehat{\W}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \W^{\mathcal{A}}_E\left[\sum C_j\right]\):
+%         the worst-possible objective when the worst oracles (with respect to strategy \(\mathcal{A}\)) are considered.
+%         \item \(\E^{\mathcal{A}}_E\left[\sum C_j\right]=\frac{1}{|S|}\sum_{\sigma\in S}\sum C^{\mathcal{A}}_j(\sigma)\):
+%         the expected objective given by a (randomized) strategy \(\mathcal{A}\) with oracle \(E\) (all scenarios being considered equiprobable).
+%         \item \(\widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right]\):
+%         the expected objective when the worst oracles (with respect to strategy \(\mathcal{A}\)) are considered.
+%     \end{itemize}
+%     The strategy \(\mathcal{A}\) is omitted when it is clear from the context.
+% \end{definition}
 
 % In the following, we use the three following notations:
 % \begin{itemize}
@@ -233,83 +276,83 @@ where each \(P_i\) is a random variable denoting the processing time of the \(i\
 %     The oracles \(E\) giving this value are called the \emph{worst-case oracles} for \(\mathcal{A}\).
 % \end{itemize}
 
-\begin{definition}[Robustness and consistency]
-    An algorithm \(\mathcal{A}\) is said \(r\)-robust (with \(r\ge 1\)) if, for all instances,
-    \[
-        \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le r\cdot \text{SPT}.
-    \]
-    It is said \(c\)-consistent (with \(c\ge 1\)) if, for all instances,
-    \[
-        \min_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le c\cdot \text{SPT}.
-    \]
-\end{definition}
+% \begin{definition}[Robustness and consistency]
+%     An algorithm \(\mathcal{A}\) is said \(r\)-robust (with \(r\ge 1\)) if, for all instances,
+%     \[
+%         \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]=\max_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le r\cdot \text{SPT}.
+%     \]
+%     It is said \(c\)-consistent (with \(c\ge 1\)) if, for all instances,
+%     \[
+%         \min_{E\in\mathcal{E}(a_1,\ldots,a_K)} \E^{\mathcal{A}}_E\left[\sum C_j\right] \le c\cdot \text{SPT}.
+%     \]
+% \end{definition}
 
-\begin{definition}[Stochastically robust algorithms]
-    For a given instance of the problem, an algorithm \(\mathcal{A}\) is said \emph{stochastically robust} if
-    \[
-        \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right] < \widehat{\W}^{\mathcal{A}}\left[\sum C_j\right].
-    \]
-\end{definition}
+% \begin{definition}[Stochastically robust algorithms]
+%     For a given instance of the problem, an algorithm \(\mathcal{A}\) is said \emph{stochastically robust} if
+%     \[
+%         \widehat{\E}^{\mathcal{A}}\left[\sum C_j\right] < \widehat{\W}^{\mathcal{A}}\left[\sum C_j\right].
+%     \]
+% \end{definition}
 
 % Obviously, our goal is to find a strategy such that \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)<\max_E W^{\mathcal{A}}_E\left(\sum C_j\right)\) (avoiding the worst-possible case in expectation) and \(\mathbb{W}^{\mathcal{A}}\left(\sum C_j\right)\le\rho\cdot\text{SPT}\) for a given \(\rho\ge 1\) (there is a guarantee for any kind of oracle).
 % Moreover, we want \(\min_{E\in\mathcal{E}(a_1,\cdots,a_K)} \mathbb{E}^{\mathcal{A}}_E\left(\sum C_j\right)=\text{SPT}\).
 
-\todo[inline]{Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset of \(\mathcal{E}(a_1,\cdots,a_K)\) such that we can obtain a good guarantee for \(\widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]\).}
+% \todo[inline]{Another interesting aspect could be to study which oracles are good for a given strategy, i.e., identifying a subset of \(\mathcal{E}(a_1,\cdots,a_K)\) such that we can obtain a good guarantee for \(\widehat{\E}^{\mathcal{A}}\left[\sum C_j\right]\).}
 
 % \todo[inline]{It would be interesting to establish relationship of these notions with classical robustness/consistency in learning-augmented algorithms.}
 
-\subsubsection{NCL-SPT (non-clairvoyant SPT)}
+% \subsubsection{NCL-SPT (non-clairvoyant SPT)}
 
-Let us see what is the worst possible objective if we fully trust the oracle, i.e., we try to apply the SPT algorithm with the given predictions.
-It can be seen as scheduling the sets \(B_1,B_2,\dots,B_K\) in order, without knowing the ordering of jobs in each \(B_k\).
+% Let us see what is the worst possible objective if we fully trust the oracle, i.e., we try to apply the SPT algorithm with the given predictions.
+% It can be seen as scheduling the sets \(B_1,B_2,\dots,B_K\) in order, without knowing the ordering of jobs in each \(B_k\).
 
-In the worst scenario, NCL-SPT will schedule jobs of each set \(B_k\) in non-increasing order of processing times, yielding for any \(E\)
-\[
-    \W_E\left[\sum C_j\right]=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
-\]
-with
-\[
-    \Delta_{ij}=\sum_{i'=1}^{i-1} \sum_{j'=1}^{K} e_{i'j'} \cdot p(j') + \sum_{j'=j+1}^{K} e_{ij'} \cdot p(j').
-\]
+% In the worst scenario, NCL-SPT will schedule jobs of each set \(B_k\) in non-increasing order of processing times, yielding for any \(E\)
+% \[
+%     \W_E\left[\sum C_j\right]=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
+% \]
+% with
+% \[
+%     \Delta_{ij}=\sum_{i'=1}^{i-1} \sum_{j'=1}^{K} e_{i'j'} \cdot p(j') + \sum_{j'=j+1}^{K} e_{ij'} \cdot p(j').
+% \]
 
-In terms of additional cost compared to the clairvoyant optimal solution, for any job \(\tau\) in the set \(J_{ij}\), we have
-\[
-    \W_E\left[\eta_{\tau}\right]=\sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')),
-\]
-i.e.,
-\[
-    \W_E\left[\sum\eta_j\right]=\sum_{i=1}^K \sum_{j=1}^K e_{ij} \sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
-\]
+% In terms of additional cost compared to the clairvoyant optimal solution, for any job \(\tau\) in the set \(J_{ij}\), we have
+% \[
+%     \W_E\left[\eta_{\tau}\right]=\sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')),
+% \]
+% i.e.,
+% \[
+%     \W_E\left[\sum\eta_j\right]=\sum_{i=1}^K \sum_{j=1}^K e_{ij} \sum_{j'=1}^{j-1}\sum_{i'=i}^K e_{i'j'}(p(j)-p(j')).
+% \]
 
-Now, we may wonder what is the expected objective of NCL-SPT, assuming that each set \(B_k\) is shuffled independently beforehand in order to avoid putting large jobs first.
+% Now, we may wonder what is the expected objective of NCL-SPT, assuming that each set \(B_k\) is shuffled independently beforehand in order to avoid putting large jobs first.
 
-Let \(\Delta_i\) denote the minimum starting time of each job in \(B_i\), i.e.,
-\[
-    \Delta_i=\sum_{i'=1}^{i-1} \sum_{j=1}^{K} e_{i'j} \cdot p(j).
-\]
+% Let \(\Delta_i\) denote the minimum starting time of each job in \(B_i\), i.e.,
+% \[
+%     \Delta_i=\sum_{i'=1}^{i-1} \sum_{j=1}^{K} e_{i'j} \cdot p(j).
+% \]
 
-We have \(\E_E\left[\sum C_j\right]=\E_E\left[\sum_{j\in B_1} C_j + \sum_{j\in B_2} C_j + \dots + \sum_{j\in B_K} C_j\right]=\sum_{i=1}^{K} \E_E\left[\sum_{j\in B_i} C_j\right]\), with,
-\begin{align*}
-    \E_E\left[\sum_{j\in B_i} C_j\right]
-    &=b_i \cdot \Delta_i + \E_E\left[P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{b_i})\right] \\
-    &=b_i \cdot \Delta_i + \frac{b_i(b_i+1)}{2} \cdot \sum_{k=1}^{K} \frac{e_{ik}}{b_i} \cdot p(k) \\
-    &=b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
-\end{align*}
+% We have \(\E_E\left[\sum C_j\right]=\E_E\left[\sum_{j\in B_1} C_j + \sum_{j\in B_2} C_j + \dots + \sum_{j\in B_K} C_j\right]=\sum_{i=1}^{K} \E_E\left[\sum_{j\in B_i} C_j\right]\), with,
+% \begin{align*}
+%     \E_E\left[\sum_{j\in B_i} C_j\right]
+%     &=b_i \cdot \Delta_i + \E_E\left[P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{b_i})\right] \\
+%     &=b_i \cdot \Delta_i + \frac{b_i(b_i+1)}{2} \cdot \sum_{k=1}^{K} \frac{e_{ik}}{b_i} \cdot p(k) \\
+%     &=b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
+% \end{align*}
 
-Hence,
-\[
-    \E_E\left[\sum C_j\right]=\sum_{i=1}^{K} b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
-\]
+% Hence,
+% \[
+%     \E_E\left[\sum C_j\right]=\sum_{i=1}^{K} b_i \cdot \Delta_i + \frac{b_i+1}{2} \sum_{j\in B_i} p_j.
+% \]
 
-\begin{theorem}
-    For any instance of the problem, NCL-SPT is \emph{not} stochastically efficient.
-\end{theorem}
-\begin{proof}
-    The most extreme case is when the oracle is represented by an anti-diagonal matrix.
-    NCL-SPT will then be forced to schedule jobs in non-increasing order of processing times, yielding the maximum possible objective for the given instance:
-    \[
-        \widehat{\E}\left[\sum C_j\right]=\widehat{\W}\left[\sum C_j\right]=\text{LPT}.
-    \]
+% \begin{theorem}
+%     For any instance of the problem, NCL-SPT is \emph{not} stochastically efficient.
+% \end{theorem}
+% \begin{proof}
+%     The most extreme case is when the oracle is represented by an anti-diagonal matrix.
+%     NCL-SPT will then be forced to schedule jobs in non-increasing order of processing times, yielding the maximum possible objective for the given instance:
+%     \[
+%         \widehat{\E}\left[\sum C_j\right]=\widehat{\W}\left[\sum C_j\right]=\text{LPT}.
+%     \]
 
     % For any job \(\tau\) in \(J_{i,K-i+1}\), we have
     % \[
@@ -319,14 +362,14 @@ Hence,
     % \[
     %     \widehat{\E}\left[\sum \eta_j\right]=\sum_{i=1}^K e_{i,K-i+1}\sum_{i'=i+1}^K e_{i',K-i'+1}\cdot (p(K-i+1)-p(K-i'+1)).
     % \]
-\end{proof}
+% \end{proof}
 
-\todo[inline]{\textbf{Question}: which class of oracles yields \(\mathbb{E}^{\text{SPT}}_E\left(\sum C_j\right)\le\text{RANDOM}\)?}
+% \todo[inline]{\textbf{Question}: which class of oracles yields \(\mathbb{E}^{\text{SPT}}_E\left(\sum C_j\right)\le\text{RANDOM}\)?}
 
-\subsubsection{Picking jobs}
+% \subsubsection{Picking jobs}
 
-A better algorithm (called PICK) could consist in picking \(e_{i1}\) jobs randomly in each set \(B_i\), and schedule them first.
-Then, pick \(e_{i2}\) jobs randomly in each \(B_i\), and schedule them in second. Repeat the procedure until the last column.
+% A better algorithm (called PICK) could consist in picking \(e_{i1}\) jobs randomly in each set \(B_i\), and schedule them first.
+% Then, pick \(e_{i2}\) jobs randomly in each \(B_i\), and schedule them in second. Repeat the procedure until the last column.
 
 %%% NOT SO SURE ABOUT THE FOLLOWING: ========
 % There clearly exists an oracle for which the worst-case scenario yields the worst possible objective, i.e., we have
@@ -337,502 +380,212 @@ Then, pick \(e_{i2}\) jobs randomly in each \(B_i\), and schedule them in second
 
 % \todo[inline]{We probably have \(\mathbb{W}^{\text{PICK}}\left(\sum C_j\right)<\max_E W^{\text{PICK}}_E\left(\sum C_j\right)\), i.e., for all oracles we can avoid the worst-case in expectation.}
 
-Let us see what is the expected objective for a given oracle \(E\).
-Let \(\tilde{J}_{ij}\) be the set of jobs scheduled during the step \(i+K(j-1)\).
-We have
-\[
-    \E_E\left[\sum C_j\right]=\sum_{i=1}^K \sum_{j=1}^K \E_E\left[\sum_{t\in \tilde{J}_{ij}} C_t\right],
-\]
-with
-\[
-    \E_E\left[\sum_{t\in \tilde{J}_{ij}} C_t\right]=
-        e_{ij}\E_E\left[\Delta_{ij}\right]+\E_E\left[P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{e_{ij}})\right]
-\]
-for all \(i,j\), where \(\Delta_{ij}\) is the minimum starting time of jobs in \(\tilde{J}_{ij}\) and each \(P_t\) is a random variable denoting the processing time of the job scheduled at the \(t\)-th position during the current step.
+% Let us see what is the expected objective for a given oracle \(E\).
+% Let \(\tilde{J}_{ij}\) be the set of jobs scheduled during the step \(i+K(j-1)\).
+% We have
+% \[
+%     \E_E\left[\sum C_j\right]=\sum_{i=1}^K \sum_{j=1}^K \E_E\left[\sum_{t\in \tilde{J}_{ij}} C_t\right],
+% \]
+% with
+% \[
+%     \E_E\left[\sum_{t\in \tilde{J}_{ij}} C_t\right]=
+%         e_{ij}\E_E\left[\Delta_{ij}\right]+\E_E\left[P_1+(P_1+P_2)+\dots+(P_1+\dots+P_{e_{ij}})\right]
+% \]
+% for all \(i,j\), where \(\Delta_{ij}\) is the minimum starting time of jobs in \(\tilde{J}_{ij}\) and each \(P_t\) is a random variable denoting the processing time of the job scheduled at the \(t\)-th position during the current step.
 
-We observe that the algorithm can be seen as shuffling each set \(B_k\) and scheduling the first \(e_{11}\) jobs in \(B_1\), then the first \(e_{21}\) jobs in \(B_2\), and so on.
-Thus, we clearly have \(\E_E\left[P_t\right]=\sum_{k=1}^K \frac{e_{ik}}{b_i}p(k)\) for any job \(t\) belonging to \(B_i\).
-Let \(\bar{p}(i)=\sum_{k=1}^K \frac{e_{ik}}{b_i}p(k)\) be the average processing time of jobs \(B_i\).
+% We observe that the algorithm can be seen as shuffling each set \(B_k\) and scheduling the first \(e_{11}\) jobs in \(B_1\), then the first \(e_{21}\) jobs in \(B_2\), and so on.
+% Thus, we clearly have \(\E_E\left[P_t\right]=\sum_{k=1}^K \frac{e_{ik}}{b_i}p(k)\) for any job \(t\) belonging to \(B_i\).
+% Let \(\bar{p}(i)=\sum_{k=1}^K \frac{e_{ik}}{b_i}p(k)\) be the average processing time of jobs \(B_i\).
 
-We also have
-\[
-    \E_E\left[\Delta_{ij}\right]=
-        \sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
-        + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i'),
-\]
-which finally yields
-\[
-    \E_E\left[\sum C_j\right]=
-        \sum_{i=1}^K \sum_{j=1}^K\left[
-            e_{ij}\left(\sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
-                + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i')\right) +
-            \frac{e_{ij}(e_{ij}+1)}{2}\bar{p}(i)
-        \right],
-\]
-that is,
-\[
-    \E_E\left[\sum C_j\right]-\text{SPT}=
-        \sum_{i=1}^K \sum_{j=1}^K\left[
-            e_{ij}\left(\sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} (\bar{p}(i')-p(j'))
-                + \sum_{i'=1}^{i-1} e_{i'j} (\bar{p}(i')-p(j))\right) +
-            \frac{e_{ij}(e_{ij}+1)}{2}(\bar{p}(i)-p(j)).
-        \right].
-\]
+% We also have
+% \[
+%     \E_E\left[\Delta_{ij}\right]=
+%         \sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
+%         + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i'),
+% \]
+% which finally yields
+% \[
+%     \E_E\left[\sum C_j\right]=
+%         \sum_{i=1}^K \sum_{j=1}^K\left[
+%             e_{ij}\left(\sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} \bar{p}(i')
+%                 + \sum_{i'=1}^{i-1} e_{i'j} \bar{p}(i')\right) +
+%             \frac{e_{ij}(e_{ij}+1)}{2}\bar{p}(i)
+%         \right],
+% \]
+% that is,
+% \[
+%     \E_E\left[\sum C_j\right]-\text{SPT}=
+%         \sum_{i=1}^K \sum_{j=1}^K\left[
+%             e_{ij}\left(\sum_{i'=1}^K \sum_{j'=1}^{j-1} e_{i'j'} (\bar{p}(i')-p(j'))
+%                 + \sum_{i'=1}^{i-1} e_{i'j} (\bar{p}(i')-p(j))\right) +
+%             \frac{e_{ij}(e_{ij}+1)}{2}(\bar{p}(i)-p(j)).
+%         \right].
+% \]
 
-Therefore, if for all \(i,j\), \(e_{ij}=0\) or \(\bar{p}(i)-p(j)\le\varepsilon p(j)\) for a given \(\varepsilon\ge 0\), we have
-\[
-    \E^{\text{PICK}}_E\left[\sum C_j\right]\le (1+\varepsilon)\text{SPT}.
-\]
+% Therefore, if for all \(i,j\), \(e_{ij}=0\) or \(\bar{p}(i)-p(j)\le\varepsilon p(j)\) for a given \(\varepsilon\ge 0\), we have
+% \[
+%     \E^{\text{PICK}}_E\left[\sum C_j\right]\le (1+\varepsilon)\text{SPT}.
+% \]
 
-\todo[inline]{maybe we can be more precise; this does not take into account the fact that \(\bar{p}(i)-p(j)<0\) for some \(i,j\) such that \(e_{ij}>0\).}
+% \todo[inline]{maybe we can be more precise; this does not take into account the fact that \(\bar{p}(i)-p(j)<0\) for some \(i,j\) such that \(e_{ij}>0\).}
 
-\begin{theorem}
-    There exists an instance such that \(\widehat{\W}^{\text{PICK}}\left[\sum C_j\right]=\text{LPT}\).
-\end{theorem}
-\begin{proof}
-    If \(a_j=a_{j'}\) for all \(j,j'\), there exists an oracle such that \(e_{ij}=e_{i'j'}\) for all \(i,i',j,j'\).
+% \begin{theorem}
+%     There exists an instance such that \(\widehat{\W}^{\text{PICK}}\left[\sum C_j\right]=\text{LPT}\).
+% \end{theorem}
+% \begin{proof}
+%     If \(a_j=a_{j'}\) for all \(j,j'\), there exists an oracle such that \(e_{ij}=e_{i'j'}\) for all \(i,i',j,j'\).
 
-    In this case, in the worst-possible scenario, during each round \(i\) the algorithm will pick the larger remaining jobs in each row, yielding the same objective than LPT.
-\end{proof}
+%     In this case, in the worst-possible scenario, during each round \(i\) the algorithm will pick the larger remaining jobs in each row, yielding the same objective than LPT.
+% \end{proof}
 
-\newpage
-\section{Some algorithms}
-\subsection{A DP}\label{DP}
-Find the best possible value of $\mathbb{E}(\sum_{j\in\text{Jobs}}Flowtime_j)$. Let be E the state : \[
-        E=\begin{pmatrix}
-            a_{1\ 1} & 0 & ...& 0 & 0\\
-            a_{2\ 1} & a_{2\ 2} & ...& 0 & 0 \\
-            ... & ... & ... & ... & ...\\
-			a_{m-1\ 1} & a_{m-2\ 2} & ...& a_{m-1\ m-1} & 0 \\	
-			a_{m\ 1} & a_{m\ 2} & ... & a_{m\ m-1}& a_{m\ m} \\
-        \end{pmatrix}.
-    \]
+\section{Non-adaptive Algorithms}
 
-The DP choose a task from non-null line k that minimises g(k), such as : $$
-g(k) = \sum_{ i \in [0,m] } \left(\frac{a_{ki}}{\sum_{ j \in [0,m] } a_{kj}}\cdot \left(\sum_{\ell<i}\left(\left(p_i-p_\ell\right)\sum_{q\in[1,m]}a_{q\ell}  \right) + \text{Solve} \begin{pmatrix}
-            a_{1\ 1} & 0 & ...& 0 & 0\\
-            ... & ... & ... & ... & ...\\
-			a_{k1} & ... & a_{ki} -1& ... & 0 \\
-			... & ... & ... & ... & ...\\
-			a_{m\ 1} & a_{m\ 2} & ... & a_{m\ m-1}& a_{m\ m} \\
-        \end{pmatrix}\right)\right)
-$$
+We begin by studying so-called non-adaptive algorithms, which define the class of algorithms that must provide a sequence before executing any job and cannot revise their solution on the fly as the schedule executes.
 
-On an example.
+\subsection{Optimal Sequence for a Fixed Scenario}
 
-$$
-\text{S} \begin{pmatrix}
-            0 &   &   \\
-            0 & 1 &   \\ 
-            4 & 0 & 2 \\
-        \end{pmatrix} = \min \begin{cases}
-        \text{I can't choose a job from line 1.}\\
-        \text{If I choose a job from the line 2, i will pay :}\\
-            \hspace{2em}\frac{1}{1}\cdot\left(4\cdot\left(p_2-p_1\right)+ \text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 4 & 0 & 2 \\ \end{pmatrix}\right) \\ 
-        \text{If I choose a job from line 3, i will pay :}\\
-            \hspace{2em}\frac{4}{4+2}\left(0+\text{S} \begin{pmatrix}
-            0 &   &   \\
-            0 & 1 &   \\ 
-            3 & 0 & 2 \\
-        \end{pmatrix}\right) + \frac{2}{4+2}\left(4\cdot\left(p_3-p_1\right)+1\cdot\left(p_3-p_2\right)+\text{S} \begin{pmatrix}
-            0 &   &   \\
-            0 & 1 &   \\ 
-            4 & 0 & 1 \\
-        \end{pmatrix}\right) \\
-        \end{cases}
-$$
-And solving a matrix with no uncertainty gives 0.
+We can immediately observe that, when the scenario is known, the considered problem is \(1|\text{chains}|\sum C_j\).
+Indeed, one can view the fixed ordering of jobs of a given set \(B_i\) as a chain of precedence relationships.
+Thus, for a given scenario, we have \(K\) (possibly empty) chains of jobs that we must execute in order on a single-machine.
+This problem is polynomially solvable with Algorithm~\ref{alg.chain-opt}, as described in Theorem 4-2 of~\cite{conway1967theory}.
+In the following, we call this algorithm \textsc{Chain-Opt}, and we assume that the given solution maximizes the number of jobs scheduled at each step, that is, if \(y(\mu)=x(\mu,j)=x(\mu,j')\) for two distinct positions \(j<j'\), we set \(h(\mu)=j'\).
 
-\subsubsection*{Complexity}
-Let $n$ the number of jobs and $m$ the number of class for a job. The number of different matrices the dynamic program have to compute is $c=\prod_{i\in[1,m]}\prod_{j\in[1,m]}\left(a_{ij}+1\right)$, where $\sum a_{ij}=n$. Nash equilibrium says the biggest value of $c$ is achieved where all values of $a_{ij}$ are equal. The number of relevant values (that are not forced to be equal to zero) in the matrix is $\frac{m(m+1)}{2}$. Since we are in integer domain, we can define an instance where $n$ is divible by $\frac{m(m+1)}{2}$, so all values of $a_{ij}$ are equal. So number of matrices the DP have to compute is near $\frac{n}{0.5m(m+1)}^{0.5m(m+1)}$). This is not polynomial, even if we impose hypothesis like number of class $m$ is bounded by $log(n)$.\\
-(We can argue when there is no uncertainty remaining, we can directly say S(matrix)=0, and maybe consider $\frac{1}{2}m(m-1)$ instead of $\frac{1}{2}m(m+1)$ ?)
-
-
-\subsection{A naive heuristic}
-Choose the line with less pondarate average.
-
-Counter example : $p_1 = 1.1$, $p_2 = 3.01$ and $p_3=5.001$.\\
-For this matrix $\begin{pmatrix}
-            0 &   &   \\
-            0 & 1 &   \\ 
-            1 & 0 & 1 \\
-        \end{pmatrix}$, the average cost of choosing a task from line 2 is $p_2=3.01$, and the average cost from line 3 is $\frac{p_1+p_3}{2}=3.0505$. This heuristic choose line 2 while the DP will find the minimal expected cost with choosing line 3.
- 
-$$ \text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 1 & 0 & 1 \\ \end{pmatrix}  =\frac{1}{2}\left(0+\text{S}\begin{pmatrix}0 &   &   \\0 & 0 &  \\ 0 & 0 & 1 \\ \end{pmatrix}\right) + \frac{1}{2}\left((5.001-1.1)+\text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 0 & 0 & 1 \\ \end{pmatrix}\right) = 1.9505 $$
-$$\text{S} \begin{pmatrix}
-            0 &   &   \\
-            0 & 1 &   \\ 
-            1 & 0 & 1 \\
-        \end{pmatrix} = \min \begin{cases}
-            \frac{1}{1}\cdot\left(\left(3.01-1.1\right)+ \text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 1 & 0 & 1 \\ \end{pmatrix}\right)  = 3.8605 \\
-            \frac{1}{2}\left(0+\text{S} \begin{pmatrix}
-            0 &   &   \\
-            0 & 1 &   \\ 
-            0 & 0 & 1 \\
-        \end{pmatrix}\right) + \frac{1}{2}\left(\left(5.001-1.1\right)+\left(5.001-3.01\right)+\text{S} \begin{pmatrix}
-            0 &   &   \\
-            0 & 1 &   \\ 
-            1 & 0 & 0 \\
-        \end{pmatrix}\right)=2.946 \\
-        \end{cases}
-$$
-
-\todo[inline]{This does not seem to be a counterexample: let \(a,b,c\) be the possible processing times, and suppose that \(2b\le a+c\). Then, doing the job \(b\) and then the jobs \(a,c\) gives \(\E(\sum C_j)=((3b+2a+c)+(3b+2c+a))/2\). If we do one job of line 2, then one job of line 1 and we finish with line 2, this gives \(\E(\sum C'_j)=((3a+2b+c)+(3c+2b+a))/2\). We get \(\E(\sum C'_j)-\E(\sum C_j)=(a-2b+c)/2\), which is positive, and thus the heuristic always gives the best solution in this case.}
-
-
-
-\todo[inline]{Ok, let me redo in detail. I have the matrix (0 1 0 ; 1 0 1), \\
-If we choose line 1, we pay $3b+\frac{1}{2}(2a+c)+\frac{1}{2}(2c+a) = 3b+\frac{3}{2}a+\frac{3}{2}c$\\
-
-If we choose line 2, we have two scenarios:
-\\- either we got the small task first, we pay $3a$, and we have to solve (0 1 0 ; 0 0 1), the best is to choose line 1 and pay $2b+c$, 
-\\- or we got the big task first, we pay $3c$, and we have to solve (0 1 0 ; 1 0 0), the \textbf{best is to choose line 2}, so we pay $2a+b$ (\textbf{maybe here, it's the vision adaptive vs non-adaptive that cause the missunderstanding })
-\\ Which gives in total: $\frac{1}{2}\left(3a+2b+c\right) + \frac{1}{2}\left(3c+2a+b\right) = \frac{5}{2}a+\frac{3}{2}b+\frac{4}{2}c$. (Symetry is broken here)\\
-Now, under your assumption, $2b\leq a+c$, the heuristic will choose line 1.\\
-But, if I take for instance $a=1$, $b=3$, $c=6$ (that respect $ 2b = 6 \leq 7 = a+1$ ): \\
-Choosing line 1 costs: $3b+\frac{3}{2}a+\frac{3}{2}c=19.5$\\
-Choosing line 2 costs: $\frac{5}{2}a+\frac{3}{2}b+\frac{4}{2}c=19$}
-
-
-\newpage
-
-
-
-\section{A Model with a Band}
-We assume that the algorithms we design have full access to the values of the matrix. Initially, we consider the matrix to be correctly defined. Our objective is to design a consistant algorithm that selects a row in the matrix, from which a task is chosen and executed immediately.
+\begin{algorithm}[htbp]
+    \caption{\textsc{Chain-Opt}}
+    \label{alg.chain-opt}
+    \begin{algorithmic}[1]
+        \For{all sets \(B_i\)}
+            \If{\(B_i=\emptyset\)}
+                \State \(y(i)\gets +\infty\)
+                \State \(h(i)\gets -1\)
+            \Else
+                \State \(x(i,j)\gets \frac{1}{j}\sum_{k=1}^j p_{\sigma_i(k)}\) for all \(1\le j\le |B_i|\)
+                \State \(y(i)\gets \min_{1\le j\le |B_i|} x(i,j)\)
+                \State \(h(i)\gets \argmin_{1\le j\le |B_i|} x(i,j)\)
+            \EndIf
+        \EndFor
+        \While{there remain jobs to schedule}
+            \State \(\mu\gets\argmin_{1\le i\le K} y(i)\)
+            \State Schedule the first \(h(\mu)\) jobs of \(B_\mu\) and remove them from the set
+            \If{\(B_\mu=\emptyset\)}
+                \State \(y(\mu)\gets +\infty\)
+                \State \(h(\mu)\gets -1\)
+            \Else
+                \State Update \(x(\mu,j)\) for all \(1\le j\le |B_\mu|\), ignoring already scheduled jobs
+                \State Update \(y(\mu)\) and \(h(\mu)\)
+            \EndIf
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
 
 \begin{definition}
-We define the notion of \emph{bandwidth} differently from the standard definitions of bandwidth and lower bandwidth in numerical analysis. When referring to a band of size $b$, we mean that each row of the matrix contains at most $b$ nonzero values, centered around the main diagonal. More precisely:
-
-For rows with index $i \leq b$, the first $i$ values may be nonzero.
-For rows with index $i > b$, the first $i - b$ values are forced to be zero, while the next $b$ values may be nonzero.
+    For a given scenario \(\sigma\), we say that a sequence returned by \textsc{Chain-Opt} (Algorithm~\ref{alg.chain-opt}) is \(\sigma\)-optimal, and we note it \(r^*_\sigma\).
+    We also note \(\eta^*_\sigma\) (resp.\ \(\tilde{C}^*_\sigma\)) the corresponding schedule (resp.\ sum of completion times).
 \end{definition}
 
-\subsection{Two Trivial Cases}To a better understanding of  the algorithm presented in Subsection \ref{band-consistent-algo}, we first analyze two extreme cases of the matrix structure.
-
-The first case corresponds to a band of size 1, meaning that the matrix is purely diagonal:  
-\[
-\begin{bmatrix}  
-x_{11} & 0 & 0 & \cdots & 0 \\  
-0 & x_{22} & 0 & \cdots & 0 \\  
-0 & 0 & x_{33} & \cdots & 0 \\  
-\vdots & \vdots & \vdots & \ddots & \vdots \\  
-0 & 0 & 0 & \cdots & x_{nn}  
-\end{bmatrix}  
-\]
-
-In this case, selecting the row with the smallest index that contains a nonzero coefficient ensures choosing the shortest available task. This corresponds to the Shortest Processing Time (SPT) rule, which is known to be optimal.
-
-The second case considers a band of size 2, meaning that each row may contain at most one additional nonzero coefficient in the preceding column:  
-\[
-\begin{bmatrix}  
-x_{11} & 0 & 0 & \cdots & 0 \\  
-x_{21} & x_{22} & 0 & \cdots & 0 \\  
-0 & x_{32} & x_{33} & \cdots & 0 \\  
-\vdots & \vdots & \vdots & \ddots & 0 \\  
-0 & 0 & 0 & x_{n,n-1} & x_{nn}  
-\end{bmatrix}  
-\]
-To illustrate the selection mechanism, consider two consecutive rows $i$ and $i+1$:\[
-\begin{bmatrix}  
-0 & \cdots & x_{i, j-1} & x_{i,j} & 0 & \cdots & 0 \\  
-0 & \cdots & 0 & x_{i+1, j} & x_{i+1, j+1} & \cdots & 0 \\  
-\end{bmatrix}  
-\]
-Choosing row $i$ yields a task of duration at most $p_j$, while choosing row $i+1$ yields a task of duration at least $p_j$. As a result, prioritizing the row with the smallest index ensures the selection of the shortest available task at each step. More generally, always selecting the lowest indexed row provides an optimal algorithm in this setting.
-\subsection{A Consistent Optimal Algorithm}\label{band-consistent-algo}
-
-We now generalize this approach to a band of arbitrary size $b$.
-
-\begin{lemma}\label{lemma:rowforDP}
-Let $k$ be the smallest index of a row containing a nonzero coefficient at a given scheduling step. An optimal algorithm will necessarily choose a row within the range $[k, k + b - 2]$.
-\end{lemma}
-
-\begin{proof}
-If the matrix has a bandwidht of size $b$—that is, at most $b$ nonzero values per row—let $i$ be a row containing a nonzero coefficient. The longest task that can be selected from row $i$ has a duration of at most $p_i$. Selecting a row $j$ with $j \geq i + b - 1$ will always yield a task of at least $p_i$. Therefore, restricting the choice to rows within $[k, k + b - 2]$ ensures the selection of the shortest possible task at each step.
-\end{proof}
-
-\paragraph{Optimal Algorithm:} Based on the principle outlined in Lemma 1, we propose the following approach:
-
-\begin{algorithmic}
-\State \textbf{Algorithm} (Matrix $A$)
-\While{$A$ is not empty}
-\State Let $i$ be the minimal index of a row containing a nonzero value.
-\State Apply a dynamic programming (DP) algorithm to the submatrix $A[i : i + b - 2, 0:m]$.
-\While{$i$ remains the smallest index with a nonzero coefficient}
-\State Select a task according to the DP solution.
-\EndWhile
-\EndWhile
-\end{algorithmic}
-
-\paragraph{Complexity Analysis:}
-We consider the sum of all values in the matrix to be $n$. Suppose, in an impossible  worst-case scenario, all values are exactly equal to $n$. For each row $m$, we must execute the DP algorithm on a submatrix containing $b$ elements per row and $b-1$ rows. The number of nonzero elements in such a submatrix is $(b-1)b$, leading to a worst-case DP complexity of $O((n+1)^{b(b-1)})$ since each of those $b(b-1)$ elements can have a value between $0$ and $n$. Since the DP algorithm is executed at most $m$ times, the overall complexity satisfies:
-
-\begin{equation*}
-\mathcal{O}\left(
-	m \cdot \left( \left(n+1)\right)^{b(b-1)}\right)
-	\right),
-\end{equation*}
-which is polynomial if we consider the size of the band as a constant.
-
-More precisely, let $y_{ij}$ be the $j^{th}$ value that can be non-zero in line $i$. Algorithm complexity will be  
-\begin{align*}
-\sum_{i=1}^m \left(\prod_{j=1}^b (y_{ij}+1)\right)\text{, where }\sum_{i, j \in [1:m]}y_{ij}=n
-\end{align*}, that seems to lead us to a maximal complexity of $\left(1+\frac{n}{b(b-1)}\right)^{\left(b(b-1)\right)}$ since it's better to maximize one product than to balance the different terms of the sum.
-
-\begin{remark}For a more balanced matrix (where more than $(b-1)$ different lines have non-zero values), there is a balance between "calculation time" and "adversary power".
-
-\[\begin{bmatrix}  
-\cdots & 5 & 6 & 8 & 5 &  &  & &\cdots \\  
-\cdots &  & 4 & 2 & 7 & 9 &  & &\cdots  \\ 
-\cdots &  &    & 8 & 2 & 4 & 3 & &\cdots  \\   
-\cdots &  &    &    & 6 & 1 & 2 & 6& \cdots 
-\end{bmatrix}  \]
-\end{remark}\begin{proof}
-b=4. Step 1, we compute all matrices with lower values on the 3 firsts lines (indices 1 2 3). We pay for this. Now, we follow decision given by the min avereage tree given by the DP, until the first line is full of zero. And (Step 2) we have to relaunch the DP with the 3 lines (indices 2 3 4). If following the Step 1 DP decisions leads us to\begin{itemize}
-\item only schedule tasks of first line, we pay not so much, because we never have to schedue the biggest tasks of the other lines instance at the beginning of the schedule (example : 9)
-\item schedule some tasks of differents lines, for example one task "7" from the line 2, when we will have to launch again the DP for lines (2 3 4), we will not pay (1+7) in the product but (1+6).
-\item schedule a lot of tasks from differents lines, if during this phase, we choose 9 tasks to schedule from the line 2, and the adversary (randomness) gives us the 9 longest of the line, (to maximize Sum Cj), then at the end of this phase, the next matrix to explore by dp should be that one.
-\[\begin{bmatrix}  
-\cdots &  & 4 & 2 & 7 & 0 &  & &\cdots  \\ 
-\cdots &  &    & 8 & 2 & 4 & 3 & &\cdots  \\   
-\cdots &  &    &    & 6 & 1 & 2 & 6& \cdots 
-\end{bmatrix}  \]
-and we can see considering the last line here is irrelevant, because of lemma~\ref{lemma:rowforDP}, what will reduce time complexity of the next step.
-\end{itemize}
-If there is a balancing between complexity and quality of the solution (throw forcing randomness), maybe it's a lever to design approximation algorithms based on DP ? that cannot be achieved if band matrix is just composed of $(b-1)$ non-zero lines.  \end{proof}
-
-
-
-\newpage
-
-\section{Robustness Model}
-
-\begin{definition}[Scenario]
-    For a given matrix \(E\), a scenario \(\sigma\) consists in \(K\) permutations \(\sigma_i\), where \(\sigma_i\) describes a fixed ordering of the jobs of row \(i\) (i.e., \(\sigma_i(k)\) is the \(k\)-th job of row \(i\)).
-    We note \(S\) the set of all possible scenarios.
-\end{definition}
-
-We consider the following game: at each step \(t\) (\(1\le t\le n\), where \(n\) is the number of jobs), choose a row \(r(t)\) from which pulling the job located at the head; add the chosen job to the current schedule and remove it from the row.
-
-\begin{definition}[Sequence]
-    For a given matrix \(E\), a sequence \(r=(i_1,i_2,\ldots,i_n)\) is the ordered list of rows from which pulling jobs.
-    Note that a given row will appear several times in the sequence, unless it contains a single job or is empty.
-    We note \(R\) the set of all possible sequences.
-\end{definition}
-
-% \begin{definition}[Canonical representation]
-%     A sequence \(r\) can be represented as an ordered list of \(s_r\) tuples \(\overrightarrow{r}=((i_1,k_1),(i_2,k_2),\ldots,(i_{s_r},k_{s_r}))\), where each \((i,k)\) means that \(k\) jobs are pulled from row \(i\).
-%     This list \(\overrightarrow{r}\) is called the canonical representation of \(r\).
-% \end{definition}
-
-Let \(\eta(r,\sigma)\) denote the schedule generated from sequence \(r\) and scenario \(\sigma\), and let \(\tilde{C}(r,\sigma)\) denote the sum of completion times of \(\eta(r,\sigma)\).
-
-\subsection{Optimal Solution for a Fixed Scenario}
-
-We can immediately observe that the considered problem is equivalent to the problem \(1|\text{chains}|\sum C_j\).
-Indeed, one can view the fixed ordering of jobs of a given row as a chain of precedence relationships.
-Thus, for a given scenario, we have \(K\) (possibly empty) chains of jobs that we must execute in order on a single-machine.
-
-This problem is polynomially solvable with the following procedure, as described in Theorem 4-2 of~\cite{conway1967theory}:
-
-\begin{enumerate}
-    \item For all row \(i\), let
-    \begin{itemize}
-        \item \(x(i,j)=\frac{1}{j}\sum_{k=1}^j p_{\sigma_i(k)}\) for all \(1\le j\le b_i\);
-        \item \(y(i)=\min_j x(i,j)\);
-        \item \(h(i)=\argmin_j x(i,j)\).
-    \end{itemize}
-    \item Choose row \(\mu=\argmin_i y(i)\) and schedule the first \(h(\mu)\) jobs of \(\mu\).
-    \item Repeat from step 1, ignoring already scheduled jobs.
-\end{enumerate}
-
-\subsection{Non-adaptive Algorithms}
-
-There are various objectives that can be defined:
+As we are interested in finding \emph{robust} solutions (that is, solutions that behave well no matter the scenario), we focus on 3 classical objectives:
 \begin{itemize}
-    \item Min-Max: \(\min_{r\in R} \max_{\sigma\in S} \tilde{C}(r,\sigma)\).
-    \item Min-Average: \(\min_{r\in R} \sum_{\sigma\in S} \tilde{C}(r,\sigma)\), which is equivalent to minimizing the expectation of \(\sum C_j\) if all scenarios are equiprobable (this is what we did in previous sections).
-    \item Min-Max Regret: \(\min_{r\in R}\max_{\sigma\in S} \left(\tilde{C}(r,\sigma)-\tilde{C}(r^*_{\sigma},\sigma)\right)\), where \(r^*_{\sigma}\) is the optimal sequence for \(\sigma\) as computed by the previous procedure.
+    \item The \textbf{min-max} \(\min_{r\in R} \max_{\sigma\in S} \tilde{C}_{r,\sigma}\), which seeks to find the most robust sequence with respect to the worst possible scenario.
+    \item The \textbf{min-average} \(\min_{r\in R} \sum_{\sigma\in S} \tilde{C}_{r,\sigma}\), which is equivalent to minimizing the expectation of \(\sum C_j\) if all scenarios are equiprobable.
+    \item The \textbf{min-max regret} \(\min_{r\in R} \max_{\sigma\in S} \left(\tilde{C}_{r,\sigma}-\tilde{C}^*_\sigma\right)\), which seeks to minimize the absolute deviation from the \(\sigma\)-optimal sequence for any scenario \(\sigma\).
 \end{itemize}
 
-\subsubsection{Min-Max}
+We treat each of these 3 problems in the following sections.
 
-% In any sequence \(r\), we note \(j(\tau)\) the job scheduled at step \(\tau\) in \(r\).
-
-\begin{definition}[Worst-case scenario]
-    For the Min-Max problem, we say that the scenario \(\hat{\sigma}\), where each row is arranged in non-increasing order of job sizes, is the worst-case scenario.
-\end{definition}
+\subsection{Min-Max Problem}
 
 \begin{lemma}
-    For any sequence \(r\), the worst-case scenario \(\hat{\sigma}\) maximizes the objective, i.e.,
+    Let \(\hat{\sigma}\) be the scenario where each set \(B_i\) is arranged in non-increasing order of processing times.
+    Then, for any fixed sequence \(r\), the scenario \(\hat{\sigma}\) maximizes the sum of completion times, i.e.,
     \[
-        \tilde{C}(r,\hat{\sigma})=\max_{\sigma\in S}\tilde{C}(r,\sigma).
+        \tilde{C}_{r,\hat{\sigma}}=\max_{\sigma\in S}\tilde{C}_{r,\sigma}.
     \]
 \end{lemma}
 \begin{proof}
     Let \(r\in R\) be an arbitrary sequence, and let \(\sigma^*\) be a scenario that maximizes the objective.
-    Suppose that there exists a row \(i\) that is not arranged in non-increasing order of job sizes, i.e., there exists a position \(1<k\le b_i\) such that \(p_{\sigma^*_i(k-1)}<p_{\sigma^*_i(k)}\).
+    Suppose that there exists a set \(B_i\) that is not arranged in non-increasing order of processing times, i.e., there exists a position \(1<k\le |B_i|\) such that \(p_{\sigma^*_i(k-1)}<p_{\sigma^*_i(k)}\).
 
     These jobs \(\sigma^*_i(k-1)\) and \(\sigma^*_i(k)\) are respectively scheduled during steps \(t_1\) and \(t_2\), with \(t_1<t_2\).
-    As these jobs are coming from row \(i\), we have \(r(t_1)=r(t_2)=i\), and as these jobs are consecutive in \(i\), we also have \(r(\tau)\ne i\) for all \(t_1<\tau<t_2\).
+    As they are consecutive in \(B_i\), we have \(r(t_1)=r(t_2)=i\) and \(r(\tau)\ne i\) for all \(t_1<\tau<t_2\).
 
-    Thus, swapping jobs \(\sigma^*_i(k-1)\) and \(\sigma^*_i(k)\) will necessarily increase the objective of the resulting schedule.
-    By repeating the operation for unordered jobs in each row, we reach the worst-case scenario \(\hat{\sigma}\).
+    Thus, swapping jobs \(\sigma^*_i(k-1)\) and \(\sigma^*_i(k)\) in \(\sigma^*_i\) will also swap them in the schedule \(\eta_{r,\sigma^*}\) without altering the position of the other jobs, and this operation will necessarily increase the sum of completion times \(\tilde{C}_{r,\sigma^*}\).
+    As \(\sigma^*\) was chosen to maximize this objective, we get a distinct scenario \(\sigma'\) that also maximizes it.
+    By repeatedly swapping consecutive unordered jobs in each set \(B_i\), we obtain the scenario \(\hat{\sigma}\).
 \end{proof}
 
-% \begin{definition}[Optimal sequence]
-%     For the Min-Max problem, we say that a sequence \(r^*\) is optimal if
+This lemma proves that \(\hat{\sigma}\) is the worst scenario for any sequence.
+Thus, it suffices to build the \(\hat{\sigma}\)-optimal sequence to solve the min-max problem.
+The following theorem shows that the solution provided by \textsc{Chain-Opt} for \(\hat{\sigma}\) is in fact equivalent to scheduling the sets \(B_i\) in non-decreasing order of mean processing time.
+
+\begin{theorem}
+    Scheduling the sets \(B_i\) in non-decreasing order of mean processing time is optimal for the min-max problem.
+\end{theorem}
+\begin{proof}
+    By \(\hat{\sigma}\), the jobs are ordered in non-increasing order of processing times in each \(B_i\), which implies \(x(i,|B_i|)\le x(i,j)\) for all \(1\le j\le |B_i|\).
+    Thus, we have \(y(i)=\frac{1}{|B_i|} \sum_{j\in B_i} p_j\) and \(h(i)=|B_i|\) for all \(B_i\).
+\end{proof}
+
+\subsection{Min-Average Problem}
+
+\begin{theorem}
+    Scheduling the sets \(B_i\) in non-decreasing order of mean processing time is optimal for the min-average problem.
+\end{theorem}
+\begin{proof}
+    This problem is equivalent to finding the schedule that minimizes \(\E\left[\sum C_j\right]\).
+    For any \(j\in B_i\), we have \(\E\left[p_j\right]=\frac{1}{|B_i|}\sum_{j\in B_i} p_j\).
+    It is well-known that the optimal solution consists in scheduling jobs in non-decreasing order of \(\E\left[p_j\right]\), which can be done by scheduling the sets \(B_i\) in non-decreasing order of mean processing time.
+\end{proof}
+
+%%% vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+%%% A detailed proof based on a simple interchange argument is available below.
+
+% \begin{proof}
+%     Let \(r^*\) be an optimal sequence, i.e., it minimizes \(\E\left[\sum C_j\right]\), and suppose it does not follow the described procedure.
+%     Let \(t\) be the first step such that \(\bar{p}(r^*(t))>\bar{p}(r^*(t+1))\).
+
+%     Let \(j(i)\) denote the job scheduled at step \(i\).
+%     Clearly, \(\E\left[p_{j(i)}\right]=\bar{p}(r^*(i))\).
+%     We have
+%     \begin{align*}
+%         \E\left[\sum C_j\right]
+%         &=\E\left[C_{j(1)}+C_{j(2)}+\cdots+C_{j(n)}\right]\\
+%         &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+\E\left[C_{j(t)}\right]+\E\left[C_{j(t+1)}\right]+\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\\
+%         &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+\E\left[\sum_{i=1}^{t-1} p_{j(i)}+p_{j(t)}\right]+\E\left[\sum_{i=1}^{t-1} p_{j(i)}+p_{j(t)}+p_{j(t+1)}\right]+\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\\
+%         &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+2\E\left[\sum_{i=1}^{t-1} p_{j(i)}\right]+2\bar{p}(r^*(t))+\bar{p}(r^*(t+1))+\sum_{i=t+2}^n \E\left[C_{j(i)}\right].
+%     \end{align*}
+
+%     Swapping \(r^*(t)\) and \(r^*(t+1)\) clearly does not change \(\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]\) nor \(\E\left[\sum_{i=1}^{t-1} p_{j(i)}\right]\).
+%     Moreover, it does not change \(\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\) either.
+%     As \(\bar{p}(r^*(t))>\bar{p}(r^*(t+1))\), we have
 %     \[
-%         \tilde{C}(r^*,\hat{\sigma})=\min_{r\in R}\tilde{C}(r,\hat{\sigma}).
+%         2\bar{p}(r^*(t))+\bar{p}(r^*(t+1))>2\bar{p}(r^*(t+1))+\bar{p}(r^*(t)),
 %     \]
-% \end{definition}
-
-Coupled to the optimal procedure for a given scenario, this lemma immediately allows us to solve the Min-Max problem.
-
-\begin{theorem}
-    Scheduling rows in non-decreasing order of \(\bar{p}(i)=\frac{1}{b_i} \sum_{k=1}^{b_i} p_{\hat{\sigma}_i(k)}\) is optimal.
-\end{theorem}
-\begin{proof}
-    When jobs are ordered in non-increasing order of processing times on a row \(i\), it is easy to prove that \(x(i,b_i)\le x(i,j)\) for all \(j\).
-    Thus, for the worst-case scenario \(\hat{\sigma}\), we have \(y(i)=\frac{1}{b_i} \sum_{k=1}^{b_i} p_{\hat{\sigma}_i(k)}\) and \(h(i)=b_i\) for all \(i\).
-\end{proof}
-
-% For a given matrix \(E\), let \(\bar{p}(i)\) be the average processing time of jobs in row \(i\), that is, \(\bar{p}(i)=\frac{1}{b_i} \sum_{j\in B_i} p_j\).
-% We are going to prove that scheduling rows in non-decreasing order of \(\bar{p}(i)\) solves the Min-Max problem.
-
-% \begin{definition}[Row-ordered sequence]
-%     Let \(T_i\) be the set of steps at which row \(i\) is chosen in a given sequence \(r\), and let \(s_i=\min T_i\) and \(e_i=\max T_i\).
-%     We say that \(r\) is row-ordered if, for all row \(i\), \(r(t)=i\) for all \(s_i\le t\le e_i\).
-%     We note \(R_{\text{ord}}\subset R\) the set of all row-ordered sequences.
-% \end{definition}
-
-% \begin{lemma}
-%     Any optimal sequence begins by executing all jobs of row \(\beta(1)\).
-% \end{lemma}
-% \begin{proof}
-%     Suppose by contradiction that there exists an optimal sequence \(r^*\) such that \(r^*(t_1)=\beta(k)\) (for a given \(k>1\)) and \(r^*(t_2)=\beta(1)\) for two steps \(t_1<t_2\), that is, there is at least one step \(t_1\) during which there remains some jobs to schedule in row \(\beta(1)\) but the optimal solution \(r^*\) chooses to pick a job from another row \(\beta(k)\) instead.
-
-%     Consider the canonical representation \(\overrightarrow{r^*}\) of \(r^*\), and define \(\mathcal{J}^i_\ell\) as the set of jobs scheduled during the steps that correspond to the \(\ell\)-th tuple in \(\overrightarrow{r^*}\) related to row \(i\).
-%     Recall that, according to \(\hat{\sigma}\), jobs coming from the same row are necessarily executed in non-increasing order of processing times.
-%     Thus, we assume in the following that each set \(\mathcal{J}^i_\ell\) is ordered this way.
-
-%     From these definitions, consider the following related scheduling problem: for each set \(\mathcal{J}^i_\ell\), define a job \(j^i_\ell\) with processing time \(p_{j^i_\ell}=\sum_{j\in \mathcal{J}^i_\ell}p_j\) and weight \(w_{j^i_\ell}=|\mathcal{J}^i_\ell|\).
-%     The objective is to minimize the weighted sum of completion times of such jobs, with the additional constraint that two jobs \(j^i_a\) and \(j^i_b\) coming from the same row \(i\) must be scheduled in order, that is, \(j^i_a\) must be put before \(j^i_b\) if \(a<b\).
-
-%     For a given job \(j^i_\ell\), we have
-%     \begin{align*}
-%         w_{j^i_\ell}C_{j^i_\ell}
-%         &=|\mathcal{J}^i_\ell|\cdot \left(s_{j^i_\ell}+\sum_{j\in \mathcal{J}^i_\ell}p_j\right) \\
-%         &=|\mathcal{J}^i_\ell|s_{j^i_\ell}+|\mathcal{J}^i_\ell|\sum_{j\in \mathcal{J}^i_\ell}p_j
-%             +\sum_{k=1}^{|\mathcal{J}^i_\ell|}(k-1)p_{j^i_\ell(k)}-\sum_{k=1}^{|\mathcal{J}^i_\ell|}(k-1)p_{j^i_\ell(k)} \\
-%         &=\sum_{j\in \mathcal{J}^i_\ell} C_j+\sum_{k=1}^{|\mathcal{J}^i_\ell|}(k-1)p_{j^i_\ell(k)}.
-%     \end{align*}
-
-%     As \(r^*\) is the best possible sequence, it also necessarily minimizes \(\sum w_j C_j\); otherwise, it would suffice to rearrange the jobs \(j^i_\ell\) to get a smaller \(\sum w_j C_j\), which would also provide a smaller \(\sum C_j\), contradicting the optimality of \(r^*\).
-
-%     We know that minimizing \(\sum w_j C_j\) is done with Smith's rule, that is, scheduling jobs in decreasing order of \(w_j/p_j\).
+%     which means that swapping \(r^*(t)\) and \(r^*(t+1)\) yields a better solution than \(r^*\), which is a contradiction.
 % \end{proof}
 
-% \begin{lemma}\label{lem.opt-row-ordered}
-%     There exists an optimal sequence that is row-ordered.
-% \end{lemma}
-% \begin{proof}
-%     \todo[inline]{not sure if this is true.}
+%%% ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    % Let \(r^*\in R\) be an optimal sequence for the Min-Max problem.
-    % Suppose \(r^*\) is not row-ordered, i.e., there exists a row \(i\) such that \(r^*(t)\ne i\) for a given step \(s_i<t<e_i\), and we assume \(t\) is minimal (in other words, \(r^*\) is row-ordered up to step \(t\)).
-    % Then, we have \(r^*(t')=i\) for all \(s_i\le t'<t\) and there exists \(t''>t\) such that \(r^*(t'')=i\) (once again, assume \(t''\) is minimal).
-
-    % For any step \(\tau\), we note \(j(\tau)\) the job scheduled at step \(\tau\).
-    % Observe that if \(j(t)\) is strictly smaller than \(j(t-1)\), then it contradicts the optimality of \(r^*\), as a simple swap of \(r^*(t)\) and \(r^*(t-1)\), which are different, puts \(j(t)\) before \(j(t-1)\) in the schedule and decreases the objective.
-    % Thus, \(p_{j(t)}\ge p_{j(t-1)}\).
-    % Note that the exact same argument yields \(p_{j(t'')}\ge p_{j(t)}\): \(t''\) is the first step after \(t\) at which row \(i\) is chosen again in \(r^*\), which means that if \(j(t'')\) is strictly smaller than \(j(t)\), then we can obtain a better solution by swapping \(r^*(t)\) and \(r^*(t'')\).
-    % Therefore, \(p_{j(t'')}\ge p_{j(t)}\ge p_{j(t-1)}\).
-
-    % As \(r^*(t'')=r^*(t-1)=i\), we know that \(j(t'')\) and \(j(t-1)\) come from the same row \(i\).
-    % We clearly cannot have \(p_{j(t'')}>p_{j(t-1)}\), because it would contradict the scenario \(\hat{\sigma}\).
-    % We conclude that \(p_{j(t'')}=p_{j(t-1)}\), and thus, \(p_{j(t'')}=p_{j(t)}\).
-    % This means that can swap \(r^*(t)\) and \(r^*(t'')\) without changing the objective of the schedule.
-    % By repeating this operation, we reach another optimal sequence that is row-ordered.
-% \end{proof}
-
-% \begin{theorem}
-%     Scheduling rows in non-decreasing order of \(\bar{p}(i)\) is optimal.
-% \end{theorem}
-% \begin{proof}
-%     Let \(r^*\) be an optimal sequence for the Min-Max problem such that \(r^*\in R_{\text{ord}}\), which necessarily exists by Lemma~\ref{lem.opt-row-ordered}.
-%     Suppose there are two rows \(i_1\) and \(i_2\) such that \(i_1\) is scheduled just before \(i_2\) (i.e., \(e_{i_1}=s_{i_2}-1\) in \(r^*\)) and \(\bar{p}(i_1)\ge\bar{p}(i_2)\).
-
-%     Let \(\Delta\) be the sum of processing times of all jobs scheduled before rows \(i_1\) and \(i_2\) in \(r^*\).
-%     Then, the contribution \(C(i_1\to i_2)\) of \(i_1\) and \(i_2\) in \(r^*\) to the objective is
-%     \begin{align*}
-%         C(i_1\to i_2)
-%         &=\Delta\cdot b_{i_1} + S(i_1) + \left(\Delta + \sum_{j\in B_{i_1}} p_j\right)\cdot b_{i_2} + S(i_2) \\
-%         &=\Delta\cdot b_{i_1} + \Delta\cdot b_{i_2} + \bar{p}(i_1)\cdot b_{i_1}\cdot b_{i_2} + S(i_1) + S(i_2),
-%     \end{align*}
-%     where \(S(i)=\sum_{k=1}^{b_i} (b_i-k+1)\cdot p_{\pi_i(k)}\).
-
-%     If we swap \(i_1\) and \(i_2\), the contribution becomes
-%     \begin{align*}
-%         C(i_2\to i_1)
-%         &=\Delta\cdot b_{i_2} + S(i_2) + \left(\Delta + \sum_{j\in B_{i_2}} p_j\right)\cdot b_{i_1} + S(i_1) \\
-%         &=\Delta\cdot b_{i_2} + \Delta\cdot b_{i_1} + \bar{p}(i_2)\cdot b_{i_2}\cdot b_{i_1} + S(i_1) + S(i_2).
-%     \end{align*}
-
-%     As \(\bar{p}(i_1)\ge\bar{p}(i_2)\), we have \(C(i_2\to i_1)\le C(i_1\to i_2)\), which means that we can swap \(i_1\) and \(i_2\) without increasing the objective.
-%     By repeating this operation, we reach another optimal sequence where rows are scheduled in non-decreasing order of \(\bar{p}(i)\).
-% \end{proof}
-
-\subsubsection{Min-Average}
-
-\begin{theorem}
-    Scheduling rows in non-decreasing order of \(\bar{p}(i)=\frac{1}{b_i} \sum_{k=1}^{b_i} p_{\hat{\sigma}_i(k)}\) is optimal.
-\end{theorem}
-\begin{proof}
-    Let \(r^*\) be an optimal sequence, i.e., it minimizes \(\E\left[\sum C_j\right]\), and suppose it does not follow the described procedure.
-    Let \(t\) be the first step such that \(\bar{p}(r^*(t))>\bar{p}(r^*(t+1))\).
-
-    Let \(j(i)\) denote the job scheduled at step \(i\).
-    Clearly, \(\E\left[p_{j(i)}\right]=\bar{p}(r^*(i))\).
-    We have
-    \begin{align*}
-        \E\left[\sum C_j\right]
-        &=\E\left[C_{j(1)}+C_{j(2)}+\cdots+C_{j(n)}\right]\\
-        &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+\E\left[C_{j(t)}\right]+\E\left[C_{j(t+1)}\right]+\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\\
-        &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+\E\left[\sum_{i=1}^{t-1} p_{j(i)}+p_{j(t)}\right]+\E\left[\sum_{i=1}^{t-1} p_{j(i)}+p_{j(t)}+p_{j(t+1)}\right]+\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\\
-        &=\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]+2\E\left[\sum_{i=1}^{t-1} p_{j(i)}\right]+2\bar{p}(r^*(t))+\bar{p}(r^*(t+1))+\sum_{i=t+2}^n \E\left[C_{j(i)}\right].
-    \end{align*}
-
-    Swapping \(r^*(t)\) and \(r^*(t+1)\) clearly does not change \(\sum_{i=1}^{t-1}\E\left[C_{j(i)}\right]\) nor \(\E\left[\sum_{i=1}^{t-1} p_{j(i)}\right]\).
-    Moreover, it does not change \(\sum_{i=t+2}^n \E\left[C_{j(i)}\right]\) either.
-    As \(\bar{p}(r^*(t))>\bar{p}(r^*(t+1))\), we have
-    \[
-        2\bar{p}(r^*(t))+\bar{p}(r^*(t+1))>2\bar{p}(r^*(t+1))+\bar{p}(r^*(t)),
-    \]
-    which means that swapping \(r^*(t)\) and \(r^*(t+1)\) yields a better solution than \(r^*\), which is a contradiction.
-\end{proof}
-
-\noindent\textbf{Bloom filter model (2 classes).}
-Let us consider instances with 2 classes of jobs, i.e., there are \(a_1\) jobs of class 1 and there are \(a_2\) jobs of class 2.
-Consider the Bloom filter model for the oracle, i.e., the oracle is a matrix \(E\) of the following shape:
+\noindent\textbf{Bloom filter model with two classes.}
+Let us consider instances with 2 classes of jobs, i.e., there are \(n_1\) jobs of class 1 and there are \(n_2\) jobs of class 2.
+Consider the Bloom filter model for the oracle, i.e., the confusion matrix \(E\) has the following shape:
 \[
     E=\begin{pmatrix}
         e_{11} & 0 \\
         e_{21} & e_{22} \\
-    \end{pmatrix},
+    \end{pmatrix}
 \]
-with \(a_1=e_{11}+e_{21}\) and \(a_2=e_{22}\).
+with \(n_1=e_{11}+e_{21}\) and \(n_2=e_{22}\).
 
-As \(\bar{p}(1)=p(1)\) and \(\bar{p}(2)=\frac{e_{21}p(1)+e_{22}p(2)}{e_{21}+e_{22}}\), the algorithm will schedule row 1 and then row 2, thus,
+As \(\bar{p}(B_1)=p(1)\) and \(\bar{p}(B_2)=\frac{e_{21}p(1)+e_{22}p(2)}{e_{21}+e_{22}}\), the schedule that minimizes \(\E\left[\sum C_j\right]\) will execute \(B_1\) and then \(B_2\), thus,
 \begin{align*}
     \E\left[\sum C_j\right]
-    &=\frac{b_1(b_1+1)}{2}\bar{p}(1)+b_2b_1\bar{p}(1)+\frac{b_2(b_2+1)}{2}\bar{p}(2)
+    &=\frac{|B_1|(|B_1|+1)}{2}\bar{p}(B_1)+|B_2||B_1|\bar{p}(B_1)+\frac{|B_2|(|B_2|+1)}{2}\bar{p}(B_2).
 \end{align*}
-and
+
+Moreover,
 \begin{align*}
     \text{SPT}
-    &=\frac{a_1(a_1+1)}{2}p(1)+a_2a_1p(1)+\frac{a_2(a_2+1)}{2}p(2).
+    &=\frac{n_1(n_1+1)}{2}p(1)+n_2n_1p(1)+\frac{n_2(n_2+1)}{2}p(2).
 \end{align*}
 
 This yields
@@ -863,31 +616,31 @@ We can now state the following theorem.
 \begin{theorem}
     For any \(\delta>0\), allocating at least
     \[
-        \frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}
+        \frac{\ln n_1n_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}
     \]
     bits per element in the Bloom filter implies \(\E\left[\sum C_j\right]-\text{SPT}\le\delta\).
 \end{theorem}
 \begin{proof}
     Fix \(\delta>0\) and suppose that
     \[
-        \frac{m}{N}\ge\frac{\ln a_1a_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}.
+        \frac{m}{N}\ge\frac{\ln n_1n_2(p(2)-p(1))-\ln 2\delta}{\ln^2 2}.
     \]
 
     Then, after some calculus we get
     \[
-        \frac{1}{2^{\frac{m}{N}\ln 2}}\le\frac{2\delta}{a_1a_2(p(2)-p(1))},
+        \frac{1}{2^{\frac{m}{N}\ln 2}}\le\frac{2\delta}{n_1n_2(p(2)-p(1))},
     \]
     that is,
     \[
-        \frac{p(2)-p(1)}{2}\lambda a_1a_2\le\delta,
+        \frac{p(2)-p(1)}{2}\lambda n_1n_2\le\delta,
     \]
     where \(\lambda\) is the probability of getting a false positive.
 
-    Observe that \(e_{21}\approx\lambda a_1\) and \(e_{22}=a_2\).
-    By Equation~\ref{eq.diff}, we get \(\E\left[\sum C_j\right]-\text{SPT}\le\delta\).
+    Observe that \(e_{21}=\lfloor\lambda n_1\rfloor\) and \(e_{22}=n_2\).
+    By Equation~\eqref{eq.diff}, we get \(\E\left[\sum C_j\right]-\text{SPT}\le\delta\).
 \end{proof}
 
-\noindent\textbf{Bloom filter model (generalized).}
+\noindent\textbf{Generalized Bloom filter model.}
 Now consider instances with \(K\) classes of jobs (i.e., there are \(a_k\) jobs of class \(k\)) and oracles composed of \(K-1\) chained Bloom filters, where the Bloom filter \(\mathcal{B}_k\) encodes the set of jobs belonging to class \(K-k+1\).
 
 In this model, the oracle is a matrix \(E\) of the following shape:
@@ -995,55 +748,266 @@ The next theorem indicates that it is not necessary to know the matrix of a chai
     We conclude that \(\bar{p}(i+1)\ge\bar{p}(i)\), which means that trusting the oracle naturally follows the optimal algorithm to minimize \(\E\left[\sum C_j\right]\).
 \end{proof}
 
-\subsubsection{Min-Max Regret}
+\subsection{Min-Max Regret Problem}
 
-\textbf{Questions:}
-\begin{enumerate}
-    \item Is Min-Max Regret an NP-complete problem?
-    \item For a fixed sequence \(r\), are we able to find the scenario that maximizes the regret?
-\end{enumerate}
+\todo[inline]{\textbf{Questions:} Is Min-Max Regret an NP-complete problem? For a fixed sequence \(r\), are we able to find the scenario that maximizes the regret?}
 
 \noindent\textbf{Two classes.}
+
+In the following, let \(W_r\) denote the set of worst-case scenarios for a sequence \(r\), that is, we have \(\tilde{C}(r,w)-\tilde{C}(r^*,w)=\max_{\sigma}\left\{\tilde{C}(r,\sigma)-\tilde{C}(r^*,\sigma)\right\}\) for all \(w\in W_r\) and \(\tilde{C}(r,w)-\tilde{C}(r^*,w)<\max_{\sigma}\left\{\tilde{C}(r,\sigma)-\tilde{C}(r^*,\sigma)\right\}\) for all \(w\notin W_r\).
+
 \begin{proposition}
-    For any sequence \(r\) executing row \(i\) completely and then row \(j\) (for \(i,j\in\{1,2\}\)), the scenario that consists in putting jobs of row \(i\) in non-increasing order of processing times and jobs of row \(j\) in non-decreasing processing times maximizes the regret of \(r\).
+    For any sequence \(r\) executing row 1 completely and then row 2 (or vice versa), the set of worst-case scenarios \(W_r\) consists of all possible scenarios where at least one of the two rows is ordered in increasing processing times.
 \end{proposition}
-\begin{proof}
-    Without loss of generality, let \(r\) be a sequence that executes the first row completely before the second row.
-    Let \(\sigma^*\) be the scenario where jobs of row 1 are arranged in non-increasing order of processing times and jobs of row 2 are arranged in non-decreasing order of processing times.
 
-    By contradiction, suppose there is a scenario \(\hat{\sigma}\) such that \(\tilde{C}(r,\hat{\sigma})-C^*(\hat{\sigma})>\tilde{C}(r,\sigma^*)-C^*(\sigma^*)\), and such that at least one of the following properties is true:
-    \begin{enumerate}
-        \item there are two jobs \(j_1,j_2\) placed in this order in row 1 and such that \(p_{j_1}<p_{j_2}\), or
-        \item there are two jobs \(j_1,j_2\) placed in this order in row 2 and such that \(p_{j_1}>p_{j_2}\).
-    \end{enumerate}
+\begin{proposition}
+    For any sequence \(r\), there exists at least one worst-case scenario \(w\in W_r\) such that each segment of the optimal solution \(r^*_w\) is decreasing.
+\end{proposition}
 
-    As there are only 2 classes, it is immediate to deduce that \(p_{j_1}=p(1)\) and \(p_{j_2}=p(2)\) in the first case, and vice versa in the second case.
 
-    Suppose that the first property is true.
+% \begin{proposition}
+%     For any sequence \(r\) executing row \(i\) completely and then row \(j\) (for \(i,j\in\{1,2\}\)), the scenario that consists in putting jobs of row \(i\) in non-increasing order of processing times and jobs of row \(j\) in non-decreasing processing times maximizes the regret of \(r\).
+% \end{proposition}
+% \begin{proof}
+%     Without loss of generality, let \(r\) be a sequence that executes the first row completely before the second row.
+%     Let \(\sigma^*\) be the scenario where jobs of row 1 are arranged in non-increasing order of processing times and jobs of row 2 are arranged in non-decreasing order of processing times.
 
-    \todo[inline]{wip}
+%     By contradiction, suppose there is a scenario \(\hat{\sigma}\) such that \(\tilde{C}(r,\hat{\sigma})-C^*(\hat{\sigma})>\tilde{C}(r,\sigma^*)-C^*(\sigma^*)\), and such that at least one of the following properties is true:
+%     \begin{enumerate}
+%         \item there are two jobs \(j_1,j_2\) placed in this order in row 1 and such that \(p_{j_1}<p_{j_2}\), or
+%         \item there are two jobs \(j_1,j_2\) placed in this order in row 2 and such that \(p_{j_1}>p_{j_2}\).
+%     \end{enumerate}
 
-    Now suppose that the second property is true.
-    Let \(N_k\) denote the number of jobs of type \(k\) that are placed after \(j_1\) on row 2 in scenario \(\hat{\sigma}\).
-    Let \(\hat{\sigma}'\) be the scenario \(\hat{\sigma}\) where the job \(j_1\) is moved at the end of row 2.
-    We clearly have \(\tilde{C}(r,\hat{\sigma}')=\tilde{C}(r,\hat{\sigma})-(N_1+N_2)p(2)+N_1p(1)+N_2p(2)\), that is, \(\tilde{C}(r,\hat{\sigma})-\tilde{C}(r,\hat{\sigma}')=N_1(p(2)-p(1))\).
+%     As there are only 2 classes, it is immediate to deduce that \(p_{j_1}=p(1)\) and \(p_{j_2}=p(2)\) in the first case, and vice versa in the second case.
 
-    Let \(r^*\) be the optimal sequence for \(\hat{\sigma}\), and let \(N^*_k\) denote the numbers of jobs of type \(k\) that are executed after \(j_1\) in \(r^*\).
-    Observe that \(N^*_k\ge N_k\) for all \(k\), because any solution must execute jobs of a given row in order.
-    We have
-    \[
-        C^*(\hat{\sigma}')\le\tilde{C}(r^*,\hat{\sigma}')=C^*(\hat{\sigma})-(N^*_1+N^*_2)p(2)+N^*_1p(1)+N^*_2p(2),
-    \]
-    that is,
-    \[
-        C^*(\hat{\sigma})-C^*(\hat{\sigma}')\ge N^*_1(p(2)-p(1))\ge N_1(p(2)-p(1)).
-    \]
-    We conclude \(\tilde{C}(r,\hat{\sigma})-\tilde{C}(r,\hat{\sigma}')-(C^*(\hat{\sigma})-C^*(\hat{\sigma}'))\le 0\), i.e., \(\tilde{C}(r,\hat{\sigma})-C^*(\hat{\sigma})\le\tilde{C}(r,\hat{\sigma}')-C^*(\hat{\sigma}')\).
-\end{proof}
+%     Suppose that the first property is true.
 
-\subsection{Adaptive Algorithms}
+%     \todo[inline]{wip}
+
+%     Now suppose that the second property is true.
+%     Let \(N_k\) denote the number of jobs of type \(k\) that are placed after \(j_1\) on row 2 in scenario \(\hat{\sigma}\).
+%     Let \(\hat{\sigma}'\) be the scenario \(\hat{\sigma}\) where the job \(j_1\) is moved at the end of row 2.
+%     We clearly have \(\tilde{C}(r,\hat{\sigma}')=\tilde{C}(r,\hat{\sigma})-(N_1+N_2)p(2)+N_1p(1)+N_2p(2)\), that is, \(\tilde{C}(r,\hat{\sigma})-\tilde{C}(r,\hat{\sigma}')=N_1(p(2)-p(1))\).
+
+%     Let \(r^*\) be the optimal sequence for \(\hat{\sigma}\), and let \(N^*_k\) denote the numbers of jobs of type \(k\) that are executed after \(j_1\) in \(r^*\).
+%     Observe that \(N^*_k\ge N_k\) for all \(k\), because any solution must execute jobs of a given row in order.
+%     We have
+%     \[
+%         C^*(\hat{\sigma}')\le\tilde{C}(r^*,\hat{\sigma}')=C^*(\hat{\sigma})-(N^*_1+N^*_2)p(2)+N^*_1p(1)+N^*_2p(2),
+%     \]
+%     that is,
+%     \[
+%         C^*(\hat{\sigma})-C^*(\hat{\sigma}')\ge N^*_1(p(2)-p(1))\ge N_1(p(2)-p(1)).
+%     \]
+%     We conclude \(\tilde{C}(r,\hat{\sigma})-\tilde{C}(r,\hat{\sigma}')-(C^*(\hat{\sigma})-C^*(\hat{\sigma}'))\le 0\), i.e., \(\tilde{C}(r,\hat{\sigma})-C^*(\hat{\sigma})\le\tilde{C}(r,\hat{\sigma}')-C^*(\hat{\sigma}')\).
+% \end{proof}
+
+\section{Adaptive Algorithms}
 
 What if we allow our algorithms to adapt the sequence \(r\) according to the knowledge of already-scheduled jobs (that is, when we progressively learn about the scenario \(\sigma\))?
+
+Choosing first the line with smallest average is not optimal, as shown by the following counter-example:
+
+\todo[inline]{Ok, let me redo in detail. I have the matrix (0 1 0 ; 1 0 1), \\
+If we choose line 1, we pay $3b+\frac{1}{2}(2a+c)+\frac{1}{2}(2c+a) = 3b+\frac{3}{2}a+\frac{3}{2}c$\\
+
+If we choose line 2, we have two scenarios:
+\\- either we got the small task first, we pay $3a$, and we have to solve (0 1 0 ; 0 0 1), the best is to choose line 1 and pay $2b+c$, 
+\\- or we got the big task first, we pay $3c$, and we have to solve (0 1 0 ; 1 0 0), the \textbf{best is to choose line 2}, so we pay $2a+b$ (\textbf{maybe here, it's the vision adaptive vs non-adaptive that cause the missunderstanding })
+\\ Which gives in total: $\frac{1}{2}\left(3a+2b+c\right) + \frac{1}{2}\left(3c+2a+b\right) = \frac{5}{2}a+\frac{3}{2}b+\frac{4}{2}c$. (Symetry is broken here)\\
+Now, under your assumption, $2b\leq a+c$, the heuristic will choose line 1.\\
+But, if I take for instance $a=1$, $b=3$, $c=6$ (that respect $ 2b = 6 \leq 7 = a+1$ ): \\
+Choosing line 1 costs: $3b+\frac{3}{2}a+\frac{3}{2}c=19.5$\\
+Choosing line 2 costs: $\frac{5}{2}a+\frac{3}{2}b+\frac{4}{2}c=19$}
+
+\subsection{A DP}\label{DP}
+Find the best possible value of $\mathbb{E}(\sum_{j\in\text{Jobs}}Flowtime_j)$. Let be E the state : \[
+        E=\begin{pmatrix}
+            a_{1\ 1} & 0 & ...& 0 & 0\\
+            a_{2\ 1} & a_{2\ 2} & ...& 0 & 0 \\
+            ... & ... & ... & ... & ...\\
+			a_{m-1\ 1} & a_{m-2\ 2} & ...& a_{m-1\ m-1} & 0 \\	
+			a_{m\ 1} & a_{m\ 2} & ... & a_{m\ m-1}& a_{m\ m} \\
+        \end{pmatrix}.
+    \]
+
+The DP choose a task from non-null line k that minimises g(k), such as : $$
+g(k) = \sum_{ i \in [0,m] } \left(\frac{a_{ki}}{\sum_{ j \in [0,m] } a_{kj}}\cdot \left(\sum_{\ell<i}\left(\left(p_i-p_\ell\right)\sum_{q\in[1,m]}a_{q\ell}  \right) + \text{Solve} \begin{pmatrix}
+            a_{1\ 1} & 0 & ...& 0 & 0\\
+            ... & ... & ... & ... & ...\\
+			a_{k1} & ... & a_{ki} -1& ... & 0 \\
+			... & ... & ... & ... & ...\\
+			a_{m\ 1} & a_{m\ 2} & ... & a_{m\ m-1}& a_{m\ m} \\
+        \end{pmatrix}\right)\right)
+$$
+
+On an example.
+
+$$
+\text{S} \begin{pmatrix}
+            0 &   &   \\
+            0 & 1 &   \\ 
+            4 & 0 & 2 \\
+        \end{pmatrix} = \min \begin{cases}
+        \text{I can't choose a job from line 1.}\\
+        \text{If I choose a job from the line 2, i will pay :}\\
+            \hspace{2em}\frac{1}{1}\cdot\left(4\cdot\left(p_2-p_1\right)+ \text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 4 & 0 & 2 \\ \end{pmatrix}\right) \\ 
+        \text{If I choose a job from line 3, i will pay :}\\
+            \hspace{2em}\frac{4}{4+2}\left(0+\text{S} \begin{pmatrix}
+            0 &   &   \\
+            0 & 1 &   \\ 
+            3 & 0 & 2 \\
+        \end{pmatrix}\right) + \frac{2}{4+2}\left(4\cdot\left(p_3-p_1\right)+1\cdot\left(p_3-p_2\right)+\text{S} \begin{pmatrix}
+            0 &   &   \\
+            0 & 1 &   \\ 
+            4 & 0 & 1 \\
+        \end{pmatrix}\right) \\
+        \end{cases}
+$$
+And solving a matrix with no uncertainty gives 0.
+
+\subsubsection*{Complexity}
+Let $n$ the number of jobs and $m$ the number of class for a job. The number of different matrices the dynamic program have to compute is $c=\prod_{i\in[1,m]}\prod_{j\in[1,m]}\left(a_{ij}+1\right)$, where $\sum a_{ij}=n$. Nash equilibrium says the biggest value of $c$ is achieved where all values of $a_{ij}$ are equal. The number of relevant values (that are not forced to be equal to zero) in the matrix is $\frac{m(m+1)}{2}$. Since we are in integer domain, we can define an instance where $n$ is divible by $\frac{m(m+1)}{2}$, so all values of $a_{ij}$ are equal. So number of matrices the DP have to compute is near $\frac{n}{0.5m(m+1)}^{0.5m(m+1)}$). This is not polynomial, even if we impose hypothesis like number of class $m$ is bounded by $log(n)$.\\
+(We can argue when there is no uncertainty remaining, we can directly say S(matrix)=0, and maybe consider $\frac{1}{2}m(m-1)$ instead of $\frac{1}{2}m(m+1)$ ?)
+
+
+\subsection{A naive heuristic}
+Choose the line with less pondarate average.
+
+Counter example : $p_1 = 1.1$, $p_2 = 3.01$ and $p_3=5.001$.\\
+For this matrix $\begin{pmatrix}
+            0 &   &   \\
+            0 & 1 &   \\ 
+            1 & 0 & 1 \\
+        \end{pmatrix}$, the average cost of choosing a task from line 2 is $p_2=3.01$, and the average cost from line 3 is $\frac{p_1+p_3}{2}=3.0505$. This heuristic choose line 2 while the DP will find the minimal expected cost with choosing line 3.
+ 
+$$ \text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 1 & 0 & 1 \\ \end{pmatrix}  =\frac{1}{2}\left(0+\text{S}\begin{pmatrix}0 &   &   \\0 & 0 &  \\ 0 & 0 & 1 \\ \end{pmatrix}\right) + \frac{1}{2}\left((5.001-1.1)+\text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 0 & 0 & 1 \\ \end{pmatrix}\right) = 1.9505 $$
+$$\text{S} \begin{pmatrix}
+            0 &   &   \\
+            0 & 1 &   \\ 
+            1 & 0 & 1 \\
+        \end{pmatrix} = \min \begin{cases}
+            \frac{1}{1}\cdot\left(\left(3.01-1.1\right)+ \text{S}\begin{pmatrix}0 &   &   \\0 & 0 &   \\ 1 & 0 & 1 \\ \end{pmatrix}\right)  = 3.8605 \\
+            \frac{1}{2}\left(0+\text{S} \begin{pmatrix}
+            0 &   &   \\
+            0 & 1 &   \\ 
+            0 & 0 & 1 \\
+        \end{pmatrix}\right) + \frac{1}{2}\left(\left(5.001-1.1\right)+\left(5.001-3.01\right)+\text{S} \begin{pmatrix}
+            0 &   &   \\
+            0 & 1 &   \\ 
+            1 & 0 & 0 \\
+        \end{pmatrix}\right)=2.946 \\
+        \end{cases}
+$$
+
+
+\newpage
+
+
+
+\subsection{A Model with a Band}
+We assume that the algorithms we design have full access to the values of the matrix. Initially, we consider the matrix to be correctly defined. Our objective is to design a consistant algorithm that selects a row in the matrix, from which a task is chosen and executed immediately.
+
+\begin{definition}
+We define the notion of \emph{bandwidth} differently from the standard definitions of bandwidth and lower bandwidth in numerical analysis. When referring to a band of size $b$, we mean that each row of the matrix contains at most $b$ nonzero values, centered around the main diagonal. More precisely:
+
+For rows with index $i \leq b$, the first $i$ values may be nonzero.
+For rows with index $i > b$, the first $i - b$ values are forced to be zero, while the next $b$ values may be nonzero.
+\end{definition}
+
+\subsubsection{Two Trivial Cases}To a better understanding of  the algorithm presented in Subsection \ref{band-consistent-algo}, we first analyze two extreme cases of the matrix structure.
+
+The first case corresponds to a band of size 1, meaning that the matrix is purely diagonal:  
+\[
+\begin{bmatrix}  
+x_{11} & 0 & 0 & \cdots & 0 \\  
+0 & x_{22} & 0 & \cdots & 0 \\  
+0 & 0 & x_{33} & \cdots & 0 \\  
+\vdots & \vdots & \vdots & \ddots & \vdots \\  
+0 & 0 & 0 & \cdots & x_{nn}  
+\end{bmatrix}  
+\]
+
+In this case, selecting the row with the smallest index that contains a nonzero coefficient ensures choosing the shortest available task. This corresponds to the Shortest Processing Time (SPT) rule, which is known to be optimal.
+
+The second case considers a band of size 2, meaning that each row may contain at most one additional nonzero coefficient in the preceding column:  
+\[
+\begin{bmatrix}  
+x_{11} & 0 & 0 & \cdots & 0 \\  
+x_{21} & x_{22} & 0 & \cdots & 0 \\  
+0 & x_{32} & x_{33} & \cdots & 0 \\  
+\vdots & \vdots & \vdots & \ddots & 0 \\  
+0 & 0 & 0 & x_{n,n-1} & x_{nn}  
+\end{bmatrix}  
+\]
+To illustrate the selection mechanism, consider two consecutive rows $i$ and $i+1$:\[
+\begin{bmatrix}  
+0 & \cdots & x_{i, j-1} & x_{i,j} & 0 & \cdots & 0 \\  
+0 & \cdots & 0 & x_{i+1, j} & x_{i+1, j+1} & \cdots & 0 \\  
+\end{bmatrix}  
+\]
+Choosing row $i$ yields a task of duration at most $p_j$, while choosing row $i+1$ yields a task of duration at least $p_j$. As a result, prioritizing the row with the smallest index ensures the selection of the shortest available task at each step. More generally, always selecting the lowest indexed row provides an optimal algorithm in this setting.
+\subsubsection{A Consistent Optimal Algorithm}\label{band-consistent-algo}
+
+We now generalize this approach to a band of arbitrary size $b$.
+
+\begin{lemma}\label{lemma:rowforDP}
+Let $k$ be the smallest index of a row containing a nonzero coefficient at a given scheduling step. An optimal algorithm will necessarily choose a row within the range $[k, k + b - 2]$.
+\end{lemma}
+
+\begin{proof}
+If the matrix has a bandwidht of size $b$—that is, at most $b$ nonzero values per row—let $i$ be a row containing a nonzero coefficient. The longest task that can be selected from row $i$ has a duration of at most $p_i$. Selecting a row $j$ with $j \geq i + b - 1$ will always yield a task of at least $p_i$. Therefore, restricting the choice to rows within $[k, k + b - 2]$ ensures the selection of the shortest possible task at each step.
+\end{proof}
+
+\paragraph{Optimal Algorithm:} Based on the principle outlined in Lemma 1, we propose the following approach:
+
+\begin{algorithmic}
+\State \textbf{Algorithm} (Matrix $A$)
+\While{$A$ is not empty}
+\State Let $i$ be the minimal index of a row containing a nonzero value.
+\State Apply a dynamic programming (DP) algorithm to the submatrix $A[i : i + b - 2, 0:m]$.
+\While{$i$ remains the smallest index with a nonzero coefficient}
+\State Select a task according to the DP solution.
+\EndWhile
+\EndWhile
+\end{algorithmic}
+
+\paragraph{Complexity Analysis:}
+We consider the sum of all values in the matrix to be $n$. Suppose, in an impossible  worst-case scenario, all values are exactly equal to $n$. For each row $m$, we must execute the DP algorithm on a submatrix containing $b$ elements per row and $b-1$ rows. The number of nonzero elements in such a submatrix is $(b-1)b$, leading to a worst-case DP complexity of $O((n+1)^{b(b-1)})$ since each of those $b(b-1)$ elements can have a value between $0$ and $n$. Since the DP algorithm is executed at most $m$ times, the overall complexity satisfies:
+
+\begin{equation*}
+\mathcal{O}\left(
+	m \cdot \left( \left(n+1)\right)^{b(b-1)}\right)
+	\right),
+\end{equation*}
+which is polynomial if we consider the size of the band as a constant.
+
+More precisely, let $y_{ij}$ be the $j^{th}$ value that can be non-zero in line $i$. Algorithm complexity will be  
+\begin{align*}
+\sum_{i=1}^m \left(\prod_{j=1}^b (y_{ij}+1)\right)\text{, where }\sum_{i, j \in [1:m]}y_{ij}=n
+\end{align*}, that seems to lead us to a maximal complexity of $\left(1+\frac{n}{b(b-1)}\right)^{\left(b(b-1)\right)}$ since it's better to maximize one product than to balance the different terms of the sum.
+
+\begin{remark}For a more balanced matrix (where more than $(b-1)$ different lines have non-zero values), there is a balance between "calculation time" and "adversary power".
+
+\[\begin{bmatrix}  
+\cdots & 5 & 6 & 8 & 5 &  &  & &\cdots \\  
+\cdots &  & 4 & 2 & 7 & 9 &  & &\cdots  \\ 
+\cdots &  &    & 8 & 2 & 4 & 3 & &\cdots  \\   
+\cdots &  &    &    & 6 & 1 & 2 & 6& \cdots 
+\end{bmatrix}  \]
+\end{remark}\begin{proof}
+b=4. Step 1, we compute all matrices with lower values on the 3 firsts lines (indices 1 2 3). We pay for this. Now, we follow decision given by the min avereage tree given by the DP, until the first line is full of zero. And (Step 2) we have to relaunch the DP with the 3 lines (indices 2 3 4). If following the Step 1 DP decisions leads us to\begin{itemize}
+\item only schedule tasks of first line, we pay not so much, because we never have to schedue the biggest tasks of the other lines instance at the beginning of the schedule (example : 9)
+\item schedule some tasks of differents lines, for example one task "7" from the line 2, when we will have to launch again the DP for lines (2 3 4), we will not pay (1+7) in the product but (1+6).
+\item schedule a lot of tasks from differents lines, if during this phase, we choose 9 tasks to schedule from the line 2, and the adversary (randomness) gives us the 9 longest of the line, (to maximize Sum Cj), then at the end of this phase, the next matrix to explore by dp should be that one.
+\[\begin{bmatrix}  
+\cdots &  & 4 & 2 & 7 & 0 &  & &\cdots  \\ 
+\cdots &  &    & 8 & 2 & 4 & 3 & &\cdots  \\   
+\cdots &  &    &    & 6 & 1 & 2 & 6& \cdots 
+\end{bmatrix}  \]
+and we can see considering the last line here is irrelevant, because of lemma~\ref{lemma:rowforDP}, what will reduce time complexity of the next step.
+\end{itemize}
+If there is a balancing between complexity and quality of the solution (throw forcing randomness), maybe it's a lever to design approximation algorithms based on DP ? that cannot be achieved if band matrix is just composed of $(b-1)$ non-zero lines.  \end{proof}
 
 \bibliographystyle{plain}
 \bibliography{refs}
