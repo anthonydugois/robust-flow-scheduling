@@ -40,79 +40,14 @@
 
 \section{Scheduling Problem}
 
-\subsection{Job model}
-
-\begin{itemize}
-    \item \(n\) jobs
-    \item \(K\) classes of jobs
-    \item jobs in class \(k\) have processing time \(p(k)\)
-    \item assume that \(p(1)\le p(2)\le\dots\le p(K)\)
-    \item no preemption
-\end{itemize}
-
-\subsection{Oracle model}
-
-Assume we do not know in which class a given job is. We consider we have access to a cheap oracle, giving the class of a
-job. The oracle is not perfect, i.e., it may give a wrong class for a given job. The oracle is deterministic, i.e., it
-always gives the same answer for a given job, no matter if its prediction is correct or not.
-
-We may represent this kind of oracle as a \(K\times K\) matrix \(E\), such that the entry \(e_{ij}\) on the \(i\)-th row
-and the \(j\)-th column represents the number of jobs that the oracle believes to be in class \(i\), whereas they are in
-reality in class \(j\).
-
-\begin{example}
-    Consider the following oracle for \(K=3\) classes of jobs:
-    \[
-        E=\begin{pmatrix}
-            1 & 1 & 3 \\
-            2 & 2 & 1 \\
-            1 & 1 & 2 \\
-        \end{pmatrix}.
-    \]
-    The oracle believes that:
-    \begin{itemize}
-        \item 5 jobs are in class 1, among which 1 job is actually in class 2, and 3 jobs are in class 3;
-        \item 5 jobs are in class 2, among which 2 jobs are actually in class 1, and 1 job is in class 3;
-        \item 4 jobs are in class 3, among which 1 job is actually in class 1, and 1 job is in class 2.
-    \end{itemize}
-\end{example}
-
-We note \(J_{ij}\) the set of jobs that the oracle believes to be in class \(i\) but are actually in class \(j\) (thus,
-\(e_{ij}=|J_{ij}|\)).
-We note \(A_k\) (resp.\ \(B_k\)) the set of jobs that are actually in class \(k\) (resp.\ the set of jobs that the
-oracle believes to be in class \(k\)), i.e., \(A_k=\bigcup_{i=1}^{K} J_{ik}\) and \(B_k=\bigcup_{j=1}^{K} J_{kj}\).
-We also note \(a_k\) (resp.\ \(b_k\)) the number of jobs in \(A_k\) (resp.\ \(B_k\)), i.e.,
-\(a_k=|A_k|=\sum_{i=1}^{K} e_{ik}\) and \(b_k=|B_k|=\sum_{j=1}^{K} e_{kj}\).
-
-\subsubsection{Bloom filter model}
-
-For 2 classes of jobs, the oracle may consist in a probabilistic data structure called a Bloom filter, which represents
-a set. Assume a Bloom filter represents the set of \emph{large} jobs. One property of Bloom filters is that they may
-produce false positives (i.e., the BF believes that a job is large while it is small), but never produce false
-negatives.
-
-Hence, a Bloom filter oracle for 2 classes of jobs can always be represented by a matrix of the following form:
-\[
-    \begin{pmatrix}
-        a & 0 \\
-        b & c \\
-    \end{pmatrix}.
-\]
-
-We may generalize this model by chaining Bloom filters: for \(K\) classes of jobs, use \(K-1\) Bloom filters
-\(\mathcal{B}_1,\cdots,\mathcal{B}_{K-1}\), where \(\mathcal{B}_k\) encodes the set of jobs of class \(k\).
-As \(K\le 2n\) and querying a Bloom filter takes time \(O(h)\) (where \(h\) is the number of hash functions
-used in the filter) with \(h\) much smaller than \(n\), querying the Bloom filter chain remains polynomial.
-In this manner, we have an oracle that is guaranteed to never underestimate jobs and can be represented by a lower
-triangular matrix.
-
-% \subsection{Knowledge model}
-
-% \noindent\textbf{Clairvoyant model.} Everything is known about a problem instance.
-
-% \noindent\textbf{Non-clairvoyant model.} Nothing is known about a problem instance.
-
-% \noindent\textbf{Oracle-clairvoyant model.} The matrix \(E\) is known.
+We revisit the famous \(1||\sum C_j\) scheduling problem that consists in
+scheduling a set \(\mathcal{J}\) of \(n\) jobs non-preemptively on a single
+machine with the objective of minimizing the sum of completion times.  
+In this work, we consider that the jobs are divided into \(K\) classes, where
+each class \(\mathcal{J}_k\) contains \(n_k\) jobs with identical processing
+time \(p(k)\).  
+In the following, we assume that \(n_k>0\) for all \(k\) and \(p(1)\le
+p(2)\le\cdots\le p(K)\).
 
 % \noindent\textbf{Realistic BF model.}
 % \todo[inline]{This can be discussed; with some hypothesis (as described in Sec 4.3.2), it is possible to infer the matrix}
@@ -156,55 +91,150 @@ triangular matrix.
 
 % \todo[inline]{\textbf{TODO}: this seems obvious but maybe can be justified with a variant of Rouché-Capelli theorem.}
 
-\subsection{Clairvoyant model}
+\subsection{Knowledge Models}
 
-The optimal algorithm in the clairvoyant model is Shortest Processing Time (SPT), which schedules jobs by non-decreasing order of processing times.
-
-Knowing the exact distribution of job sizes, it is thus quite easy to compute the optimal objective.
-Let \(\Delta_{ij}\) be the minimum starting time of jobs in \(J_{ij}\), i.e.,
+In the classical \emph{clairvoyant model}, the exact processing time of each job
+is given as input.  
+In this case, it is well-known that the optimal algorithm is Shortest Processing
+Time first (SPT), which schedules jobs in non-decreasing order of processing
+times.  
+With \(K\) classes of jobs, it is thus quite easy to compute the optimal
+sum of completion times:  
 \[
-    \Delta_{ij}=\sum_{i'=1}^{K} \sum_{j'=1}^{j-1} e_{i'j'} \cdot p(j') + \sum_{i'=1}^{i-1} e_{i'j} \cdot p(j).
+    \sum C_j^{\text{SPT}}=
+        \sum_{k=1}^{K} \frac{n_k(n_k+1)}{2}p(k)+
+        n_k\sum_{\ell=1}^{k-1} n_\ell p(\ell).
+\]
+In contrast, note that the strategy that maximizes the sum of completion times
+is the Longest Processing Time first (LPT), which schedules jobs in
+non-increasing order of processing times.
+
+% Let \(\Delta_{ij}\) be the minimum starting time of jobs in \(J_{ij}\), i.e.,
+% \[
+%     \Delta_{ij}=\sum_{i'=1}^{K} \sum_{j'=1}^{j-1} e_{i'j'} \cdot p(j') + \sum_{i'=1}^{i-1} e_{i'j} \cdot p(j).
+% \]
+
+% Hence,
+% \[
+%     \text{SPT}=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
+% \]
+
+% Then, we can express the objective \(\sum C_j\) of any algorithm \(\mathcal{A}\) as \(\text{SPT}+\sum \eta_j\),
+% where \(\eta_j\) denotes the additional cost incurred by the job \(j\) in the schedule produced by \(\mathcal{A}\).
+% In a given schedule, for any job \(j\) in class \(k\), we have
+% \[
+%     \eta_j=\sum_{\ell=1}^{k-1} n(\ell,j)\cdot (p(k)-p(\ell)),
+% \]
+% where \(n(\ell,j)\) denotes the number of jobs of class \(\ell\) scheduled \emph{after} the job \(j\).
+
+% \subsubsection{Worst-case}
+
+% Note that the worst-case consists in scheduling jobs in non-increasing order of processing times, that is, scheduling jobs according to Longest Processing Time (LPT) strategy.
+
+% In this case, we get
+% \[
+%     \text{LPT}=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
+% \]
+% with
+% \[
+%     \Delta_{ij}=\sum_{i'=1}^{K} \sum_{j'=j+1}^{K} e_{i'j'} \cdot p(j') + \sum_{i'=1}^{i-1} e_{i'j} \cdot p(j).
+% \]
+
+The \emph{non-clairvoyant model} is the exact opposite of the clairvoyant model,
+that is, we assume that we do not know the processing time of any job in the
+considered instance.  
+As preemption is not allowed, the only strategy at hand consists in shuffling
+the jobs before scheduling them, in order to try avoiding the LPT schedule.
+
+As all permutations are equiprobable, we get
+\(\E\left[P_j\right]=\sum_{k=1}^{K}\frac{n_k}{n}p(k)\), where \(P_j\) is a
+random variable that denotes the processing time of the \(j\)-th scheduled job.  
+This yields
+\[
+    \E\left[\sum C_j^{\text{RAND}}\right]=\frac{n+1}{2}\sum_{k=1}^K n_kp(k).
 \]
 
-Hence,
+We consider an intermediate knowledge model where we are given an oracle that
+consists in a classification model, that is, we are allowed to ask the oracle
+about the class of a job.  
+Each request to the oracle is free.  
+However, the oracle may respond with the wrong class.  
+We consider only deterministic oracles, i.e., the oracle always gives the same
+answer for a given job.
+
+For a given instance of the problem, we represent the oracle as a \(K\times K\)
+integer matrix \(E\), called the \emph{confusion matrix} of the oracle, where
+each entry \(e_{ij}\) on the \(i\)-th row and the \(j\)-th column gives the
+number of jobs that the oracle believes to be in class \(\mathcal{J}_i\) whereas
+they are in reality in class \(\mathcal{J}_j\).  
+Unless specified otherwise, the confusion matrix \(E\) is known to the
+scheduler.  
+For example, consider the following oracle for 3 classes of jobs:
 \[
-    \text{SPT}=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j).
+    E=\begin{pmatrix}
+        1 & 1 & 3 \\
+        2 & 2 & 1 \\
+        1 & 1 & 2 \\
+    \end{pmatrix}.
+\]
+This oracle believes that:
+\begin{itemize}
+    \item 5 jobs are in class \(\mathcal{J}_1\), among which 1 job is actually
+    in class \(\mathcal{J}_2\), and 3 jobs are in class \(\mathcal{J}_3\);
+    \item 5 jobs are in class \(\mathcal{J}_2\), among which 2 jobs are actually
+    in class \(\mathcal{J}_1\), and 1 job is in class \(\mathcal{J}_3\);
+    \item 4 jobs are in class \(\mathcal{J}_3\), among which 1 job is actually
+    in class \(\mathcal{J}_1\), and 1 job is in class \(\mathcal{J}_2\).
+\end{itemize}
+
+For each \(1\le k\le K\), we note \(\mathcal{R}_k\) the set of jobs that the
+oracle believes to be in class \(\mathcal{J}_k\) (that is, the number of jobs in
+\(\mathcal{R}_k\) is equal to the sum of entries of the \(k\)-th row).  
+Observe that \(e_{ij}=|\mathcal{R}_i\cap\mathcal{J}_j|\) for all \(i,j\).  
+Moreover, we note \(c(E)\) the number of classes where \(E\) classifies at least
+one job, i.e., \(c(E)=|\{1\le k\le K:\mathcal{R}_k\ne\emptyset\}|\).  
+Finally, for a given instance of the problem, we denote the set of all possible oracles as \(\mathcal{E}(n_1,\ldots,n_K)\), i.e., the set of oracles \(E\) such that \(\sum_{i=1}^K e_{ik}=n_k\) for all \(k\).
+
+\medskip\noindent\textbf{Trivial oracles.} Any oracle \(E\) such that \(c(E)=1\)
+degenerates into the non-clairvoyant case, as the oracle believes that all jobs
+belong to the same class.  
+These oracles do not bring any help, thus we will assume in the following that
+\(c(E)\ge 2\).
+
+\medskip\noindent\textbf{Perfect oracles.} On the opposite side, any oracle
+represented by a diagonal matrix is \emph{perfect}, that is, it systematically
+guesses the correct class for a given job.  
+In fact, we can extend the definition of such perfect oracles to any generalized
+permutation matrix \(E\), where each row and each column has exactly one nonzero
+entry, as it suffices to schedule first the jobs \(\mathcal{R}_k\) such that
+\(\mathcal{R}_k\cap\mathcal{J}_1\ne\emptyset\), then the jobs \(\mathcal{R}_{k'}\) such that \(\mathcal{R}_{k'}\cap\mathcal{J}_2\ne\emptyset\), and so on.
+
+\medskip\noindent\textbf{Bloom Filter (BF) oracles.} For 2 classes of jobs, the
+oracle may consist in a probabilistic data structure called a Bloom filter,
+which represents a set. Assume a Bloom filter represents the set of \emph{large}
+jobs. One property of Bloom filters is that they may produce false positives
+(i.e., the BF believes that a job is large while it is small), but never produce
+false negatives.
+
+Hence, a Bloom filter oracle for 2 classes of jobs can always be represented by
+a matrix of the following form:
+\[
+    \begin{pmatrix}
+        a & 0 \\
+        b & c \\
+    \end{pmatrix}.
 \]
 
-Then, we can express the objective \(\sum C_j\) of any algorithm \(\mathcal{A}\) as \(\text{SPT}+\sum \eta_j\),
-where \(\eta_j\) denotes the additional cost incurred by the job \(j\) in the schedule produced by \(\mathcal{A}\).
-In a given schedule, for any job \(j\) in class \(k\), we have
-\[
-    \eta_j=\sum_{\ell=1}^{k-1} n(\ell,j)\cdot (p(k)-p(\ell)),
-\]
-where \(n(\ell,j)\) denotes the number of jobs of class \(\ell\) scheduled \emph{after} the job \(j\).
+We may generalize this model by chaining Bloom filters: for \(K\) classes of
+jobs, use \(K-1\) Bloom filters \(\mathcal{B}_1,\cdots,\mathcal{B}_{K-1}\),
+where \(\mathcal{B}_k\) encodes the set of jobs of class \(k\).  As \(K\le 2n\)
+and querying a Bloom filter takes time \(O(h)\) (where \(h\) is the number of
+hash functions used in the filter) with \(h\) much smaller than \(n\), querying
+the Bloom filter chain remains polynomial.  In this manner, we have an oracle
+that is guaranteed to never underestimate jobs and can be represented by a lower
+triangular matrix.
 
-\subsubsection{Worst-case}
-
-Note that the worst-case consists in scheduling jobs in non-increasing order of processing times, that is, scheduling jobs according to Longest Processing Time (LPT) strategy.
-
-In this case, we get
-\[
-    \text{LPT}=\sum_{i=1}^{K} \sum_{j=1}^{K} e_{ij} \cdot \Delta_{ij} + \frac{e_{ij}(e_{ij}+1)}{2} \cdot p(j),
-\]
-with
-\[
-    \Delta_{ij}=\sum_{i'=1}^{K} \sum_{j'=j+1}^{K} e_{i'j'} \cdot p(j') + \sum_{i'=1}^{i-1} e_{i'j} \cdot p(j).
-\]
-
-\subsection{Non-clairvoyant model}
-
-In the non-clairvoyant model, simply shuffling jobs yields (in expectation)
-\begin{align*}
-    \text{RANDOM}&=\mathbb{E}(P_1+(P_1+P_2)+\dots+(P_1+\dots+P_n)) \\
-    &=n\mathbb{E}(P_1)+(n-1)\mathbb{E}(P_2)+\dots+\mathbb{E}(P_n) \\
-    &=\frac{n(n+1)}{2}\mathbb{E}(P_i) \\
-    &=\frac{n+1}{2}\sum p_j,
-\end{align*}
-where each \(P_i\) is a random variable denoting the processing time of the \(i\)-th scheduled job (we have
-\(P(P_i=p(k))=\frac{a_k}{n}\) for any \(i,k\), hence \(\mathbb{E}(P_i)=\sum_{k=1}^{K} \frac{a_k p(k)}{n}\) for any \(i\)).
-
-\section{Robustness Problems}
+\subsection{Robustness Problems}
 
 When solving an instance of the problem, the ordering of the jobs of each set returned by the oracle is completely unknown (that is, if the oracle gives us what it thinks being the set of small jobs, we know the distribution of sizes in this set, but we do not know whether the first job is actually small or not).
 Thus, it seems unfair to compare to SPT: our decisions can always be subject to a malicious adversary giving us large jobs first in this unknown ordering.
@@ -215,7 +245,7 @@ Of course, we still know the distribution of real sizes in each set, thanks to t
 The only decision that we can make here is choosing the set from which pulling and executing a job.
 After \(n\) choices, we obtain the full schedule, our goal being to minimize the sum of completion times.
 
-\subsection{Scenarios, Sequences and Schedules}
+\subsubsection{Scenarios, Sequences and Schedules}
 
 We formally define below the notions of scenario (ordering of jobs in each set), sequence (list of choices, which constitutes a solution) and schedule (the realization of a sequence on a given scenario).
 
@@ -1008,6 +1038,13 @@ b=4. Step 1, we compute all matrices with lower values on the 3 firsts lines (in
 and we can see considering the last line here is irrelevant, because of lemma~\ref{lemma:rowforDP}, what will reduce time complexity of the next step.
 \end{itemize}
 If there is a balancing between complexity and quality of the solution (throw forcing randomness), maybe it's a lever to design approximation algorithms based on DP ? that cannot be achieved if band matrix is just composed of $(b-1)$ non-zero lines.  \end{proof}
+
+\section{Ideas to explore}
+
+\begin{itemize}
+    \item for a given strategy, one wants it to perform SPT for a perfect oracle (i.e., a diagonal confusion matrix -- no matter the order of rows?) and gracefully degrade to RANDOM for the worst possible oracle (to define according to the strategy). Can we prove that there is a strategy performing better than RANDOM for all oracles? This would potentially be a strong result, because this would prove that even a very bad oracle brings enough information to beat non-clairvoyance
+    \item limit the power of the adversary: consider only a subset of scenarios to lower their number; for example, consider that, for a given row, the adversary is only able to choose a permutation of the job classes instead of jobs themselves
+\end{itemize}
 
 \bibliographystyle{plain}
 \bibliography{refs}
