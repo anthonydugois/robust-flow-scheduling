@@ -4,6 +4,12 @@
 
 \usepackage[tmargin=3.5cm,bmargin=2cm,inner=2.1cm,outer=2.1cm,headheight=1.5cm]{geometry}
 
+% TODO notes
+\usepackage{todonotes}
+\newcommand{\AD}[2][inline]{\todo[caption={},color=blue!50,#1]{\small\sf\textbf{FP:} #2}}
+\newcommand{\VF}[2][inline]{\todo[caption={},color=green!30,#1]{\small\sf\textbf{EB:} #2}}
+\newcommand{\GL}[2][inline]{\todo[caption={},color=red!40,#1]{\small\sf\textbf{GL:} #2}}
+
 \usepackage{fancyhdr}
 \renewcommand{\headruleskip}{1mm}
 
@@ -42,9 +48,28 @@
 
 \section{Context, positioning and objective(s) of the project}
 
+Assuming that we have a complete knowledge of the input instance is not a valid hypothesis in most practical situations, despite the theoretical and structural interest of studying such a case.
+On the other hand, considering full absence of knowledge is quite pessimistic in the era of big data analysis and machine learning.
+In the direction of shortening this gap, several models have been proposed, such as using not always correct machine learned predictions~\cite{LykourisV18}, querying an oracle at an extra cost~\cite{DurrEMM18,Kahan91}, stochastic approaches~\cite{}, etc.
+In this project, inspired by the principle of Bloom's filter~\cite{Bloom70}, we propose to focus on an unreliable oracle whose predictions errors respect some structural assumptions, i.e., absence of false negatives.
+Our objective during this project is to apply this kind of oracle on scheduling problems.
+This is motivated by the importance and the wide range of applications of scheduling on both operational research and parallel computing domains.
+
+\GL{Next : A paragraph explaining Bloom's filter and how to extend and adapt it to our context}
+
+\paragraph{Related work}
+
+\paragraph{Methodology}
+
+\GL{1. current work (regret, expectation, etc)\\
+2. competitive ratio as a function of prediction error}
+
 \section{Partnership (consortium or team)}
 
-\section{References}
+%\section{References}
 
+\renewcommand\refname{III.\quad References}
+\bibliographystyle{plain}
+\bibliography{biblio.bib}
 
 \end{document}
